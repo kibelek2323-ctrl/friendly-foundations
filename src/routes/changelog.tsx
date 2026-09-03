@@ -60,7 +60,7 @@ function Page() {
                 <h2 className="mt-2 text-lg font-medium">{entry.title}</h2>
                 {entry.excerpt ? <p className="mt-1 text-sm text-muted-foreground">{entry.excerpt}</p> : null}
                 <div className="mt-3">
-                  <DiscordMarkdown text={entry.body} className="text-sm leading-relaxed" />
+                  <DiscordMarkdown text={entry.body} flavor="plain" className="text-sm leading-relaxed" />
                 </div>
               </li>
             ))}

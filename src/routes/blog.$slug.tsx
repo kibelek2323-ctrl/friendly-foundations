@@ -62,7 +62,7 @@ function Page() {
           <img src={post.coverUrl} alt={post.title} className="mt-8 w-full rounded-xl border border-border" loading="lazy" />
         ) : null}
         <div className="mt-8 border-t border-border pt-8">
-          <DiscordMarkdown text={post.body || "_No content yet._"} className="text-sm leading-relaxed" />
+          <DiscordMarkdown text={post.body || "_No content yet._"} flavor="plain" className="text-sm leading-relaxed" />
         </div>
       </article>
     </PublicShell>

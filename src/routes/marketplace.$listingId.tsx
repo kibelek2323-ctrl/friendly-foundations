@@ -356,7 +356,7 @@ function Page() {
             {/* Description sits under the gallery; right cell stays empty */}
             <section className="panel p-5">
               <h2 className="mb-3 text-sm font-semibold">About this bot</h2>
-              <DiscordMarkdown text={listing.description || "_No description provided._"} className="text-sm leading-relaxed" />
+              <DiscordMarkdown text={listing.description || "_No description provided._"} flavor="plain" className="text-sm leading-relaxed" />
             </section>
             <div className="hidden lg:block" aria-hidden="true" />
 
