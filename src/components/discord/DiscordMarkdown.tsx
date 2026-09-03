@@ -194,17 +194,25 @@ export function DiscordMarkdown({
             </pre>
           );
         }
-        return block.split("\n").map((line, li) => {
+        const lines = block.split("\n");
+        let prevWasBlock = true;
+        return lines.map((line, li) => {
           const key = `${bi}-${li}`;
           const rendered = renderLine(line, key, flavor);
-          if (rendered) return rendered;
+          if (rendered) {
+            prevWasBlock = true;
+            return rendered;
+          }
+          const needsBreak = li > 0 && !prevWasBlock;
+          prevWasBlock = false;
           return (
             <Fragment key={key}>
-              {li > 0 && <br />}
+              {needsBreak && <br />}
               {renderInline(line, key, flavor)}
             </Fragment>
           );
         });
+
       })}
     </div>
   );
