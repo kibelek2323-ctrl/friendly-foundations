@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABEL, PLAN_LIMITS, limitLabel } from "@/data/plan-limits";
 import type { PlanId } from "@/types/bot";
+import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({
@@ -63,7 +64,7 @@ function Page() {
     try {
       const res = await redeemCredits({ data: { code: creditCode.trim() } });
       if (res.ok) {
-        toast.success(`+${res.amount ?? 0} credits added to your balance`);
+        toast.success(`${usd(res.amount ?? 0)} added to your balance`);
         setCreditCode("");
         void balance.refetch();
       } else {
@@ -174,15 +175,15 @@ function Page() {
               <Coins className="size-5" aria-hidden="true" />
             </span>
             <div className="mr-auto">
-              <h2 className="text-sm font-semibold">Marketplace credits</h2>
-              <p className="text-xs text-muted-foreground">Spend credits on bots published in the marketplace.</p>
+              <h2 className="text-sm font-semibold">Marketplace balance</h2>
+              <p className="text-xs text-muted-foreground">Spend your balance on bots published in the marketplace.</p>
             </div>
-            <span className="text-lg font-semibold">{balance.data?.balance ?? 0}</span>
+            <span className="text-lg font-semibold">{usd(balance.data?.balance ?? 0)}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             <div className="min-w-52 flex-1 space-y-1.5">
               <Label htmlFor="credit-code" className="sr-only">
-                Credit code
+                Balance code
               </Label>
               <Input
                 id="credit-code"
@@ -193,7 +194,7 @@ function Page() {
               />
             </div>
             <Button variant="outline" className="gap-1.5" disabled={creditBusy || !creditCode.trim()} onClick={() => void submitCredits()}>
-              {creditBusy ? <Loader2 className="size-4 animate-spin" /> : <Coins className="size-4" />} Redeem credits
+              {creditBusy ? <Loader2 className="size-4 animate-spin" /> : <Coins className="size-4" />} Redeem balance code
             </Button>
           </div>
         </section>

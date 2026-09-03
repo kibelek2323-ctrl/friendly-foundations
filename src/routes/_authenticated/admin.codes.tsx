@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { usd } from "@/lib/money";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   amIAdmin,
@@ -250,7 +251,7 @@ function Page() {
           {(balCodes.data ?? []).map((c) => (
             <div key={c.id} className="flex flex-wrap items-center gap-3 p-4">
               <code className="font-mono text-sm">{c.code}</code>
-              <Badge variant="secondary">{c.amount} credits</Badge>
+              <Badge variant="secondary">{usd(c.amount)}</Badge>
               <span className="text-xs text-muted-foreground">
                 {c.usedCount}/{c.maxUses} used
               </span>
