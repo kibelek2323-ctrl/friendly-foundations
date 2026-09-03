@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { LayoutDashboard } from "lucide-react";
+import { DollarSign, LayoutDashboard } from "lucide-react";
 import { getMyBalance } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import { Button } from "@/components/ui/button";
@@ -47,8 +47,9 @@ export function AccountNav() {
     <>
       <Link
         to="/balance"
-        className="rounded-full border border-border bg-elevated px-3 py-1 text-sm font-semibold text-warning transition-colors hover:border-primary/50"
+        className="flex items-center rounded-full border border-success/30 bg-success/10 py-1 pl-2 pr-3 text-sm font-semibold text-success transition-colors hover:border-success/60"
       >
+        <DollarSign className="mr-1 size-3.5" aria-hidden="true" />
         {usd(balance?.balance ?? 0)}
       </Link>
       <Link
