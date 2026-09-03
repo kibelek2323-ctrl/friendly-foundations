@@ -217,14 +217,14 @@ export interface DiscountCode {
   createdAt: string;
 }
 
-type AdminContext = { supabase: Awaited<ReturnType<typeof getAdminCtxType>>["supabase"]; userId: string };
-declare function getAdminCtxType(): Promise<{ supabase: never }>;
-
-async function assertAdmin(context: { supabase: { rpc: typeof rpcShape }; userId: string } | AdminContext) {
-  const ctx = context as { supabase: { rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }> }; userId: string };
-  const { data } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
+async function assertAdmin(context: { supabase: unknown; userId: string }) {
+  const supabase = context.supabase as {
+    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
+  };
+  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (data !== true) throw new Error("Forbidden");
 }
+
 
 
 export const listDiscountCodes = createServerFn({ method: "GET" })
