@@ -52,30 +52,6 @@ function Page() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const fetchBalance = useServerFn(getMyBalance);
-  const redeemCredits = useServerFn(redeemBalanceCode);
-  const balance = useQuery({ queryKey: ["my-balance"], queryFn: () => fetchBalance() });
-  const [creditCode, setCreditCode] = useState("");
-  const [creditBusy, setCreditBusy] = useState(false);
-
-  const submitCredits = async () => {
-    if (!creditCode.trim()) return;
-    setCreditBusy(true);
-    try {
-      const res = await redeemCredits({ data: { code: creditCode.trim() } });
-      if (res.ok) {
-        toast.success(`${usd(res.amount ?? 0)} added to your balance`);
-        setCreditCode("");
-        void balance.refetch();
-      } else {
-        toast.error(res.error ?? "Invalid code.");
-      }
-    } catch {
-      toast.error("Could not redeem that code.");
-    } finally {
-      setCreditBusy(false);
-    }
-  };
 
   const submit = async () => {
     if (!code.trim()) return;
