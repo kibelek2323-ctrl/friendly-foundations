@@ -467,3 +467,115 @@ export const getBalanceHistory = createServerFn({ method: "GET" })
 
     return { balance: bal?.balance ?? 0, entries };
   });
+
+/* ------------------------------------------------------------------ */
+/* Reviews                                                             */
+/* ------------------------------------------------------------------ */
+
+export interface ListingReview {
+  id: string;
+  listingId: string;
+  userId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  authorName: string;
+  authorAvatar: string | null;
+  authorUsername: string | null;
+  authorVerified: boolean;
+}
+
+/** Public reviews for one listing. */
+export const listReviews = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data }): Promise<ListingReview[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("listing_reviews")
+      .select("id, listing_id, user_id, rating, comment, created_at")
+      .eq("listing_id", data.listingId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    const authorIds = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
+    const { data: profiles } = authorIds.length
+      ? await supabaseAdmin.from("profiles").select("id, display_name, username, avatar_url, verified").in("id", authorIds)
+      : { data: [] };
+    const map = new Map((profiles ?? []).map((p) => [p.id, p]));
+    return (rows ?? []).map((r) => {
+      const p = map.get(r.user_id);
+      return {
+        id: r.id,
+        listingId: r.listing_id,
+        userId: r.user_id,
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.created_at,
+        authorName: p?.display_name ?? "Bottly user",
+        authorAvatar: p?.avatar_url ?? null,
+        authorUsername: p?.username ?? null,
+        authorVerified: p?.verified ?? false,
+      };
+    });
+  });
+
+/** Creates or updates the signed-in buyer's review. RLS enforces ownership + purchase. */
+export const upsertReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        listingId: z.string().uuid(),
+        rating: z.number().int().min(1).max(5),
+        comment: z.string().max(2000).default(""),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
+    const { error } = await context.supabase.from("listing_reviews").upsert(
+      {
+        listing_id: data.listingId,
+        user_id: context.userId,
+        rating: data.rating,
+        comment: data.comment,
+      },
+      { onConflict: "listing_id,user_id" },
+    );
+    if (error) return { ok: false, error: "Only buyers of this bot can leave a review." };
+    return { ok: true };
+  });
+
+export const deleteMyReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await context.supabase
+      .from("listing_reviews")
+      .delete()
+      .eq("listing_id", data.listingId)
+      .eq("user_id", context.userId);
+    return { ok: true };
+  });
+
+/* ------------------------------------------------------------------ */
+/* Discount codes                                                      */
+/* ------------------------------------------------------------------ */
+
+export const quoteDiscount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ listingId: z.string().uuid(), code: z.string().min(1).max(64) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; percent?: number; finalPrice?: number }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("quote_discount", {
+      _user_id: context.userId,
+      _listing_id: data.listingId,
+      _code: data.code,
+    });
+    if (error) return { ok: false, error: "Could not check that code." };
+    return (result as { ok: boolean; error?: string; percent?: number; finalPrice?: number }) ?? {
+      ok: false,
+      error: "Invalid discount code.",
+    };
+  });
