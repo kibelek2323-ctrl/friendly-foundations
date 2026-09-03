@@ -394,17 +394,19 @@ export const buyListing = createServerFn({ method: "POST" })
       updatedAt: now,
     };
 
-    const { data: result, error } = await supabaseAdmin.rpc("purchase_listing", {
+    const { data: result, error } = await supabaseAdmin.rpc("purchase_listing_with_code", {
       _user_id: context.userId,
       _listing_id: listing.id,
       _bot_id: newBotId,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       _bot_data: botCopy as any,
+      _code: data.discountCode,
     });
     if (error) return { ok: false, error: "Purchase failed. Please try again." };
     const parsed = (result as { ok: boolean; error?: string; balance?: number }) ?? { ok: false };
     if (!parsed.ok) return { ok: false, ...(parsed.error ? { error: parsed.error } : {}) };
     return { ok: true, botId: newBotId, ...(parsed.balance !== undefined ? { balance: parsed.balance } : {}) };
+
   });
 
 export interface BalanceEntry {
