@@ -74,7 +74,7 @@ function Page() {
         </div>
 
         <section className="panel flex flex-wrap items-center gap-4 p-5">
-          <span className="flex size-12 items-center justify-center rounded-xl bg-elevated text-warning">
+          <span className="flex size-12 items-center justify-center rounded-xl bg-success/10 text-success">
             <DollarSign className="size-6" aria-hidden="true" />
           </span>
           <div className="mr-auto">
