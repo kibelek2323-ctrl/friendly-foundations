@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, Eye, EyeOff, Loader2, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2, Trash2, Upload, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deleteListing, myListings, publishListing, setListingPublished } from "@/lib/marketplace.functions";
+import { deleteListing, myListings, publishListing, setListingPublished, uploadListingImage } from "@/lib/marketplace.functions";
+import { usd } from "@/lib/money";
 import { useBotStore } from "@/stores/useBotStore";
 import { useFlowStore } from "@/stores/useFlowStore";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -178,7 +179,7 @@ function Page() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="m-price">Price (credits, 0 = free)</Label>
+              <Label htmlFor="m-price">Price (USD, 0 = free)</Label>
               <Input
                 id="m-price"
                 type="number"
@@ -273,7 +274,7 @@ function Page() {
                 <div className="mr-auto min-w-0">
                   <p className="truncate font-medium">{l.title}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {l.price === 0 ? "Free" : `${l.price} credits`} · {l.salesCount} purchases
+                    {l.price === 0 ? "Free" : usd(l.price)} · {l.salesCount} purchases
                   </p>
                 </div>
                 <Badge variant={l.published ? "default" : "secondary"}>{l.published ? "Published" : "Draft"}</Badge>
