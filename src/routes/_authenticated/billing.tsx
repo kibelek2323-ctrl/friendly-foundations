@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Check, Coins, KeyRound, Loader2, Sparkles } from "lucide-react";
+import { Check, KeyRound, Loader2, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { redeemPlanCode } from "@/lib/plan.functions";
-import { getMyBalance, redeemBalanceCode } from "@/lib/marketplace.functions";
-import { useQuery } from "@tanstack/react-query";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABEL, PLAN_LIMITS, limitLabel } from "@/data/plan-limits";
 import type { PlanId } from "@/types/bot";
-import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({
