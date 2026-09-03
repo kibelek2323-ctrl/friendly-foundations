@@ -212,10 +212,43 @@ function Page() {
                 placeholder={"## What it does\n- /warn, /mute, /purge\n- Logs everything to a channel"}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="m-images">Image URLs (one per line)</Label>
-              <Textarea id="m-images" rows={3} value={images} onChange={(e) => setImages(e.target.value)} placeholder="https://…" />
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="m-images">Screenshots (up to 6, max 5 MB each)</Label>
+              <Input
+                id="m-images"
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={uploading || images.length >= 6}
+                onChange={(e) => {
+                  void onFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              {uploading && (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> Uploading…
+                </p>
+              )}
+              {images.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {images.map((src, i) => (
+                    <div key={src} className="relative size-20 overflow-hidden rounded-md border border-border">
+                      <img src={src} alt={`Screenshot ${i + 1}`} className="size-full object-cover" />
+                      <button
+                        type="button"
+                        aria-label={`Remove screenshot ${i + 1}`}
+                        onClick={() => setImages((prev) => prev.filter((u) => u !== src))}
+                        className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-background/90 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="size-3" aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="m-tags">Tags (comma separated, max 6)</Label>
               <Textarea id="m-tags" rows={3} value={tags} onChange={(e) => setTags(e.target.value)} placeholder="moderation, logging" />
