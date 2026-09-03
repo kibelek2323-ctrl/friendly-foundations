@@ -2,15 +2,17 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Coins, Loader2, Search, Store, Upload } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
+import { Loader2, Search, Store, Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { PublicShell } from "@/components/layout/PublicShell";
 import { EmptyState } from "@/components/common/EmptyState";
 import { listMarketplace, getMyBalance } from "@/lib/marketplace.functions";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { usd } from "@/lib/money";
 
-export const Route = createFileRoute("/_authenticated/marketplace/")({
+export const Route = createFileRoute("/marketplace/")({
   head: () => ({
     meta: [
       { title: "Bot marketplace — Bottly" },
@@ -28,10 +30,11 @@ function Page() {
   const fetchListings = useServerFn(listMarketplace);
   const fetchBalance = useServerFn(getMyBalance);
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
   const [q, setQ] = useState("");
 
   const { data: listings, isLoading } = useQuery({ queryKey: ["marketplace"], queryFn: () => fetchListings() });
-  const { data: balance } = useQuery({ queryKey: ["my-balance"], queryFn: () => fetchBalance() });
+  const { data: balance } = useQuery({ queryKey: ["my-balance"], queryFn: () => fetchBalance(), enabled: !!user });
 
   const items = (listings ?? []).filter(
     (l) =>
@@ -41,27 +44,31 @@ function Page() {
   );
 
   return (
-    <AppShell
-      title="Marketplace"
-      actions={
-        <Button size="sm" className="gap-1.5" onClick={() => void navigate({ to: "/marketplace/publish" })}>
-          <Upload className="size-4" aria-hidden="true" />
-          <span className="hidden sm:inline">Publish a bot</span>
-        </Button>
-      }
-    >
-      <div className="space-y-5 p-4 md:p-6">
+    <PublicShell>
+      <div className="mx-auto max-w-6xl space-y-5 p-4 md:p-6">
         <div className="flex flex-wrap items-center gap-3">
           <div className="mr-auto">
-            <h1 className="text-xl font-semibold">Bot marketplace</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Bot marketplace</h1>
             <p className="text-sm text-muted-foreground">
               Buy ready-made bots with your balance. Purchased bots can be re-skinned, but their logic stays locked.
             </p>
           </div>
-          <span className="flex items-center gap-1.5 rounded-md border border-border bg-elevated px-3 py-1.5 text-sm font-medium">
-            <Coins className="size-4 text-warning" aria-hidden="true" />
-            {balance?.balance ?? 0} credits
-          </span>
+          {user ? (
+            <>
+              <span className="flex items-center gap-1.5 rounded-md border border-border bg-elevated px-3 py-1.5 text-sm font-medium">
+                <Wallet className="size-4 text-success" aria-hidden="true" />
+                {usd(balance?.balance ?? 0)}
+              </span>
+              <Button size="sm" className="gap-1.5" onClick={() => void navigate({ to: "/marketplace/publish" })}>
+                <Upload className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Publish a bot</span>
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" asChild>
+              <Link to="/register">Create a free account</Link>
+            </Button>
+          )}
         </div>
 
         <div className="relative max-w-sm">
@@ -79,7 +86,7 @@ function Page() {
             title="Nothing on sale yet."
             description="Be the first to publish one of your bots to the Bottly marketplace."
             actionLabel="Publish a bot"
-            onAction={() => void navigate({ to: "/marketplace/publish" })}
+            onAction={() => void navigate({ to: user ? "/marketplace/publish" : "/login" })}
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -102,7 +109,7 @@ function Page() {
                 <div className="flex flex-1 flex-col p-4">
                   <div className="flex items-start gap-2">
                     <h2 className="mr-auto font-semibold">{l.title}</h2>
-                    <Badge variant={l.price === 0 ? "secondary" : "default"}>{l.price === 0 ? "Free" : `${l.price} cr`}</Badge>
+                    <Badge variant={l.price === 0 ? "secondary" : "default"}>{l.price === 0 ? "Free" : usd(l.price)}</Badge>
                   </div>
                   <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{l.summary}</p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
@@ -119,6 +126,6 @@ function Page() {
           </div>
         )}
       </div>
-    </AppShell>
+    </PublicShell>
   );
 }

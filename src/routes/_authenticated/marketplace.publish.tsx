@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, Eye, EyeOff, Loader2, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2, Trash2, Upload, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deleteListing, myListings, publishListing, setListingPublished } from "@/lib/marketplace.functions";
+import { deleteListing, myListings, publishListing, setListingPublished, uploadListingImage } from "@/lib/marketplace.functions";
+import { usd } from "@/lib/money";
 import { useBotStore } from "@/stores/useBotStore";
 import { useFlowStore } from "@/stores/useFlowStore";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -55,10 +56,46 @@ function Page() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState("");
   const [price, setPrice] = useState(0);
   const [busy, setBusy] = useState(false);
+
+  const upload = useServerFn(uploadListingImage);
+
+  const onFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const room = 6 - images.length;
+    if (room <= 0) {
+      toast.error("You can attach up to 6 images.");
+      return;
+    }
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, room)) {
+        if (file.size > 5_000_000) {
+          toast.error(`${file.name} is larger than 5 MB.`);
+          continue;
+        }
+        const buffer = await file.arrayBuffer();
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.length; i += 8192) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+        }
+        const res = await upload({
+          data: { fileName: file.name, contentType: file.type || "image/png", dataBase64: btoa(binary) },
+        });
+        if (res.ok && res.url) setImages((prev) => [...prev, res.url as string]);
+        else toast.error(res.error ?? "Upload failed.");
+      }
+    } catch {
+      toast.error("Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async () => {
     const bot = bots.find((b) => b.id === botId);
@@ -68,11 +105,6 @@ function Page() {
     }
     if (title.trim().length < 3) {
       toast.error("Title needs at least 3 characters.");
-      return;
-    }
-    const imageList = parseLines(images);
-    if (imageList.some((u) => !/^https?:\/\//i.test(u))) {
-      toast.error("Image URLs must start with http(s)://");
       return;
     }
 
@@ -85,7 +117,7 @@ function Page() {
           title: title.trim(),
           summary: summary.trim(),
           description,
-          images: imageList,
+          images,
           tags: parseLines(tags).slice(0, 6),
           price: Math.max(0, Math.round(price)),
           botData: bot as unknown as Record<string, unknown>,
@@ -100,7 +132,7 @@ function Page() {
       setTitle("");
       setSummary("");
       setDescription("");
-      setImages("");
+      setImages([]);
       setTags("");
       setPrice(0);
       void mine.refetch();
@@ -110,6 +142,7 @@ function Page() {
       setBusy(false);
     }
   };
+
 
   return (
     <AppShell title="Publish a bot">
@@ -146,7 +179,7 @@ function Page() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="m-price">Price (credits, 0 = free)</Label>
+              <Label htmlFor="m-price">Price (USD, 0 = free)</Label>
               <Input
                 id="m-price"
                 type="number"
@@ -180,10 +213,43 @@ function Page() {
                 placeholder={"## What it does\n- /warn, /mute, /purge\n- Logs everything to a channel"}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="m-images">Image URLs (one per line)</Label>
-              <Textarea id="m-images" rows={3} value={images} onChange={(e) => setImages(e.target.value)} placeholder="https://…" />
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="m-images">Screenshots (up to 6, max 5 MB each)</Label>
+              <Input
+                id="m-images"
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={uploading || images.length >= 6}
+                onChange={(e) => {
+                  void onFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              {uploading && (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> Uploading…
+                </p>
+              )}
+              {images.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {images.map((src, i) => (
+                    <div key={src} className="relative size-20 overflow-hidden rounded-md border border-border">
+                      <img src={src} alt={`Screenshot ${i + 1}`} className="size-full object-cover" />
+                      <button
+                        type="button"
+                        aria-label={`Remove screenshot ${i + 1}`}
+                        onClick={() => setImages((prev) => prev.filter((u) => u !== src))}
+                        className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-background/90 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="size-3" aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="m-tags">Tags (comma separated, max 6)</Label>
               <Textarea id="m-tags" rows={3} value={tags} onChange={(e) => setTags(e.target.value)} placeholder="moderation, logging" />
@@ -208,7 +274,7 @@ function Page() {
                 <div className="mr-auto min-w-0">
                   <p className="truncate font-medium">{l.title}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {l.price === 0 ? "Free" : `${l.price} credits`} · {l.salesCount} purchases
+                    {l.price === 0 ? "Free" : usd(l.price)} · {l.salesCount} purchases
                   </p>
                 </div>
                 <Badge variant={l.published ? "default" : "secondary"}>{l.published ? "Published" : "Draft"}</Badge>
