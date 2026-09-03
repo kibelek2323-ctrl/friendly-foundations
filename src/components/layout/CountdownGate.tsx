@@ -71,7 +71,6 @@ function CountdownScreen() {
 }
 
 export function CountdownGate({ children }: { children: ReactNode }) {
-  const hydrated = useHydrated();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
