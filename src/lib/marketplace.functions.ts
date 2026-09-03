@@ -258,6 +258,7 @@ const publishInput = z.object({
   images: z.array(z.string().min(1).max(500)).max(6).default([]),
   tags: z.array(z.string().min(1).max(24)).max(6).default([]),
   price: z.number().int().min(0).max(1000000),
+  category: z.enum(LISTING_CATEGORIES).default("other"),
   botData: z.record(z.string(), z.unknown()),
   flowData: z.record(z.string(), z.unknown()).nullable().default(null),
 });
@@ -277,6 +278,8 @@ export const publishListing = createServerFn({ method: "POST" })
         images: data.images,
         tags: data.tags,
         price: data.price,
+        category: data.category,
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         bot_data: data.botData as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
