@@ -1,7 +1,6 @@
 import { BrandMark } from "@/components/layout/BrandMark";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Zap } from "lucide-react";
 
 export function AuthLayout({
   title,

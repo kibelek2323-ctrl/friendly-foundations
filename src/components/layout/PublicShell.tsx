@@ -1,7 +1,6 @@
 import { BrandMark } from "@/components/layout/BrandMark";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Zap } from "lucide-react";
 import { AccountNav } from "@/components/auth/AccountNav";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
