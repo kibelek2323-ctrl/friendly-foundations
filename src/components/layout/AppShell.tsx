@@ -12,7 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Megaphone,
-  Coins,
+  DollarSign,
   Menu,
   BadgeCheck,
   KeyRound,
@@ -139,7 +139,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
       </nav>
 
       <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
-        <NavItem to="/balance" icon={Coins} label="Balance" onNavigate={onNavigate} />
+        <NavItem to="/balance" icon={DollarSign} label="Balance" onNavigate={onNavigate} />
         <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
         {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
