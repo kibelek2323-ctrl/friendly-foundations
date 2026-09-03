@@ -325,6 +325,12 @@ function Page() {
                 </p>
               )}
 
+              <div>
+                <ReportDialog targetType="listing" targetId={listingId} />
+              </div>
+
+
+
               <div className="flex flex-wrap gap-1.5">
                 {listing.tags.map((t) => (
                   <Badge key={t} variant="secondary">
