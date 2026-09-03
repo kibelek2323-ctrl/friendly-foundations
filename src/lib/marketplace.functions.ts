@@ -400,7 +400,7 @@ export const buyListing = createServerFn({ method: "POST" })
       _bot_id: newBotId,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       _bot_data: botCopy as any,
-      _code: data.discountCode ?? undefined,
+      ...(data.discountCode ? { _code: data.discountCode } : {}),
     });
     if (error) return { ok: false, error: "Purchase failed. Please try again." };
     const parsed = (result as { ok: boolean; error?: string; balance?: number }) ?? { ok: false };
