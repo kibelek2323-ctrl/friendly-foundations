@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Zap } from "lucide-react";
 import { amIAdmin } from "@/lib/admin-codes.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useHydrated } from "@/hooks/useHydrated";
+
 
 /** Launch: 18 September 2026, 10:00 Europe/Warsaw (UTC+2). */
 export const LAUNCH_AT = Date.UTC(2026, 8, 18, 8, 0, 0);
@@ -71,7 +71,6 @@ function CountdownScreen() {
 }
 
 export function CountdownGate({ children }: { children: ReactNode }) {
-  const hydrated = useHydrated();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
@@ -83,13 +82,13 @@ export function CountdownGate({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  const launched = hydrated && Date.now() >= LAUNCH_AT;
+  const launched = Date.now() >= LAUNCH_AT;
   const isAdminRoute = pathname.startsWith("/xadmx");
 
   if (launched || isAdminRoute) return <>{children}</>;
-  if (!hydrated) return <div className="min-h-screen bg-background" />;
-  if (user && (isLoading || !initialized)) return <div className="min-h-screen bg-background" />;
-  if (isAdmin === true) return <>{children}</>;
+  // Never block on the admin check: show the countdown instantly and swap in
+  // the app only once the admin role is confirmed.
+  if (user && initialized && !isLoading && isAdmin === true) return <>{children}</>;
 
   return <CountdownScreen />;
 }
