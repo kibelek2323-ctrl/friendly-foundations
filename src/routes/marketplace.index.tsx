@@ -205,6 +205,10 @@ function Page() {
                     <h2 className="mr-auto font-semibold">{l.title}</h2>
                     <Badge variant={l.price === 0 ? "secondary" : "default"}>{l.price === 0 ? "Free" : usd(l.price)}</Badge>
                   </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <StarRating value={l.rating} count={l.reviewCount} />
+                    <span className="ml-auto text-xs capitalize text-muted-foreground">{l.category}</span>
+                  </div>
                   <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{l.summary}</p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {l.tags.slice(0, 4).map((t) => (
@@ -213,8 +217,13 @@ function Page() {
                       </span>
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-muted-foreground">{l.salesCount} purchases</p>
+                  <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+                    {l.seller?.displayName ?? "Bottly creator"}
+                    {l.seller?.verified && <BadgeCheck className="size-3.5 text-primary" aria-label="Verified creator" />}
+                    <span className="ml-auto">{l.salesCount} purchases</span>
+                  </p>
                 </div>
+
               </Link>
             ))}
           </div>
