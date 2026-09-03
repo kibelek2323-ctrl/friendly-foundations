@@ -127,6 +127,47 @@ function Landing() {
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16">
+          <div className="panel grid gap-8 p-8 md:grid-cols-2 md:items-center">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
+                <Store className="size-3 text-primary" aria-hidden="true" /> Bottly Marketplace
+              </span>
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight">Buy and sell ready-made bots</h2>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Browse the marketplace without an account, preview screenshots and full descriptions, then buy a bot with
+                your USD balance — it lands in your dashboard instantly, ready to customise and launch.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button asChild className="gap-1.5">
+                  <Link to="/marketplace">
+                    Browse the marketplace <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/marketplace/publish">Sell your bot</Link>
+                </Button>
+              </div>
+            </div>
+            <ul className="grid gap-3 text-sm">
+              {[
+                ["Instant delivery", "Purchases copy the full bot — commands, embeds and automations included."],
+                ["Screenshots & markdown", "Sellers showcase their bot with an image gallery and rich description."],
+                ["USD balance", "Top up with a balance code and buy in one click."],
+                ["Earn from your builds", "Publish once, keep selling to the community."],
+              ].map(([t, d]) => (
+                <li key={t} className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3">
+                  <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
+                  <span>
+                    <span className="font-medium text-foreground">{t}</span>
+                    <span className="block text-muted-foreground">{d}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 pb-16">
           <h2 className="text-2xl font-semibold tracking-tight">Simple pricing</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {PLANS.map((p) => (
