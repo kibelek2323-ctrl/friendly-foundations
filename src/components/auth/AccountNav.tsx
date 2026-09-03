@@ -1,5 +1,9 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { LayoutDashboard } from "lucide-react";
+import { getMyBalance } from "@/lib/marketplace.functions";
+import { usd } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -12,6 +16,13 @@ export function AccountNav() {
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
   const { avatarUrl, displayName } = useProfileAvatar();
+  const fetchBalance = useServerFn(getMyBalance);
+  const { data: balance } = useQuery({
+    queryKey: ["my-balance"],
+    queryFn: () => fetchBalance(),
+    enabled: Boolean(user),
+    staleTime: 60 * 1000,
+  });
 
   if (!hydrated || !initialized) {
     return <div className="h-8 w-32 animate-pulse rounded-md bg-elevated" aria-hidden="true" />;
@@ -34,6 +45,12 @@ export function AccountNav() {
 
   return (
     <>
+      <Link
+        to="/balance"
+        className="rounded-full border border-border bg-elevated px-3 py-1 text-sm font-semibold text-warning transition-colors hover:border-primary/50"
+      >
+        {usd(balance?.balance ?? 0)}
+      </Link>
       <Link
         to="/billing"
         className="flex items-center gap-2 rounded-full border border-border bg-elevated py-1 pl-1 pr-3 text-sm transition-colors hover:border-primary/50"
