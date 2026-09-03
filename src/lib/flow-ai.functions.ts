@@ -14,7 +14,7 @@ const graphNodeSchema = z.object({
   id: z.string(),
   type: z.string(),
   title: z.string(),
-  config: z.record(z.unknown()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
 });
 
 const inputSchema = z.object({
