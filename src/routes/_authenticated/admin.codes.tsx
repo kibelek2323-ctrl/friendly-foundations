@@ -40,6 +40,9 @@ function Page() {
   const list = useServerFn(listPlanCodes);
   const create = useServerFn(createPlanCodes);
   const toggle = useServerFn(deactivatePlanCode);
+  const listBal = useServerFn(listBalanceCodes);
+  const createBal = useServerFn(createBalanceCodes);
+  const toggleBal = useServerFn(setBalanceCodeActive);
 
   const { data: isAdmin, isLoading: checking } = useQuery({
     queryKey: ["am-i-admin"],
@@ -58,6 +61,31 @@ function Page() {
   const [durationDays, setDurationDays] = useState<string>("30");
   const [maxUses, setMaxUses] = useState(1);
   const [busy, setBusy] = useState(false);
+
+  const balCodes = useQuery({
+    queryKey: ["balance-codes"],
+    queryFn: () => listBal(),
+    enabled: isAdmin === true,
+  });
+  const [amount, setAmount] = useState(100);
+  const [balQuantity, setBalQuantity] = useState(1);
+  const [balMaxUses, setBalMaxUses] = useState(1);
+  const [balBusy, setBalBusy] = useState(false);
+
+  const generateBalance = async () => {
+    setBalBusy(true);
+    try {
+      const res = await createBal({
+        data: { amount, quantity: balQuantity, maxUses: balMaxUses, expiresAt: null },
+      });
+      toast.success(`Generated ${res.codes.length} credit code(s)`);
+      void balCodes.refetch();
+    } catch {
+      toast.error("Could not generate credit codes");
+    } finally {
+      setBalBusy(false);
+    }
+  };
 
   const generate = async () => {
     setBusy(true);
@@ -185,6 +213,74 @@ function Page() {
           ))}
           {!codes.isLoading && (codes.data ?? []).length === 0 && (
             <p className="p-8 text-center text-sm text-muted-foreground">No codes generated yet.</p>
+          )}
+        </section>
+
+        <div>
+          <h2 className="text-lg font-semibold">Credit codes</h2>
+          <p className="text-sm text-muted-foreground">Generate codes that top up a user's marketplace balance.</p>
+        </div>
+
+        <section className="panel grid gap-4 p-5 sm:grid-cols-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="b-amount">Credits</Label>
+            <Input id="b-amount" type="number" min={1} value={amount} onChange={(e) => setAmount(Number(e.target.value) || 1)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="b-qty">Quantity</Label>
+            <Input id="b-qty" type="number" min={1} max={50} value={balQuantity} onChange={(e) => setBalQuantity(Number(e.target.value) || 1)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="b-uses">Max uses</Label>
+            <Input id="b-uses" type="number" min={1} value={balMaxUses} onChange={(e) => setBalMaxUses(Number(e.target.value) || 1)} />
+          </div>
+          <div className="sm:col-span-4">
+            <Button disabled={balBusy} onClick={() => void generateBalance()} className="gap-1.5">
+              {balBusy && <Loader2 className="size-4 animate-spin" />} Generate credit codes
+            </Button>
+          </div>
+        </section>
+
+        <section className="panel divide-y divide-border">
+          {balCodes.isLoading && (
+            <div className="flex justify-center p-8">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
+            </div>
+          )}
+          {(balCodes.data ?? []).map((c) => (
+            <div key={c.id} className="flex flex-wrap items-center gap-3 p-4">
+              <code className="font-mono text-sm">{c.code}</code>
+              <Badge variant="secondary">{c.amount} credits</Badge>
+              <span className="text-xs text-muted-foreground">
+                {c.usedCount}/{c.maxUses} used
+              </span>
+              <div className="ml-auto flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Copy ${c.code}`}
+                  onClick={() => {
+                    void navigator.clipboard.writeText(c.code);
+                    toast.success("Code copied");
+                  }}
+                >
+                  <Copy className="size-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    await toggleBal({ data: { id: c.id, active: !c.active } });
+                    void balCodes.refetch();
+                  }}
+                >
+                  {c.active ? "Deactivate" : "Activate"}
+                </Button>
+              </div>
+            </div>
+          ))}
+          {!balCodes.isLoading && (balCodes.data ?? []).length === 0 && (
+            <p className="p-8 text-center text-sm text-muted-foreground">No credit codes generated yet.</p>
           )}
         </section>
       </div>
