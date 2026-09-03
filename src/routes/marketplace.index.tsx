@@ -2,15 +2,30 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Search, Store, Upload, Wallet } from "lucide-react";
+import { BadgeCheck, Loader2, Search, Store, Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { EmptyState } from "@/components/common/EmptyState";
-import { listMarketplace, getMyBalance } from "@/lib/marketplace.functions";
+import { StarRating } from "@/components/marketplace/StarRating";
+import { listMarketplace, getMyBalance, LISTING_CATEGORIES } from "@/lib/marketplace.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { usd } from "@/lib/money";
+
+type SortKey = "newest" | "rating" | "bestsellers" | "price-asc" | "price-desc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  newest: "Newest",
+  rating: "Top rated",
+  bestsellers: "Best sellers",
+  "price-asc": "Price: low to high",
+  "price-desc": "Price: high to low",
+};
+
 
 export const Route = createFileRoute("/marketplace/")({
   head: () => ({
