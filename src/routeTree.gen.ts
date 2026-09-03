@@ -21,6 +21,7 @@ import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
 import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authenticated/bots.index'
 import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticated/bots.new'
@@ -95,6 +96,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/marketplace/',
   path: '/marketplace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
+  id: '/marketplace/$listingId',
+  path: '/marketplace/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminCodesRoute = AuthenticatedAdminCodesRouteImport.update({
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
@@ -261,6 +269,7 @@ export interface FileRoutesById {
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
@@ -292,6 +301,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/marketplace/$listingId'
     | '/marketplace/'
     | '/admin/codes'
     | '/bots/new'
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/marketplace/$listingId'
     | '/marketplace'
     | '/admin/codes'
     | '/bots/new'
@@ -351,6 +362,7 @@ export interface FileRouteTypes {
     | '/_authenticated/billing'
     | '/_authenticated/builder'
     | '/_authenticated/dashboard'
+    | '/marketplace/$listingId'
     | '/marketplace/'
     | '/_authenticated/admin/codes'
     | '/_authenticated/bots/new'
@@ -379,6 +391,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   RegisterRoute: typeof RegisterRoute
   XadmxRoute: typeof XadmxRoute
+  MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
@@ -469,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/marketplace/'
       preLoaderRoute: typeof MarketplaceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/$listingId': {
+      id: '/marketplace/$listingId'
+      path: '/marketplace/$listingId'
+      fullPath: '/marketplace/$listingId'
+      preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/codes': {
@@ -646,6 +666,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   RegisterRoute: RegisterRoute,
   XadmxRoute: XadmxRoute,
+  MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
