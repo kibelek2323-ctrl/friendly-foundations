@@ -3,9 +3,11 @@ import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-r
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, ShoppingCart, Store } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ChevronLeft, ChevronRight, Loader2, ShoppingCart, Store, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,10 +20,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { DiscordMarkdown } from "@/components/discord/DiscordMarkdown";
-import { buyListing, getListing, getMyBalance } from "@/lib/marketplace.functions";
+import { StarRating } from "@/components/marketplace/StarRating";
+import {
+  buyListing,
+  getListing,
+  getMyBalance,
+  listReviews,
+  quoteDiscount,
+  upsertReview,
+} from "@/lib/marketplace.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { pullWorkspace } from "@/lib/cloud-sync";
 import { usd } from "@/lib/money";
+
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   head: () => ({
