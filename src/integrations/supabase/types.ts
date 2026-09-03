@@ -106,6 +106,88 @@ export type Database = {
         }
         Relationships: []
       }
+      bot_runtime_events: {
+        Row: {
+          bot_id: string
+          created_at: string
+          description: string
+          event: string
+          id: number
+          level: string
+          user_id: string
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          description?: string
+          event: string
+          id?: number
+          level?: string
+          user_id: string
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          description?: string
+          event?: string
+          id?: number
+          level?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_runtime_events_bot_fkey"
+            columns: ["user_id", "bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["user_id", "id"]
+          },
+        ]
+      }
+      bot_runtime_state: {
+        Row: {
+          bot_id: string
+          created_at: string
+          guild_count: number | null
+          last_error: string | null
+          started_at: string | null
+          state: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          guild_count?: number | null
+          last_error?: string | null
+          started_at?: string | null
+          state?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          guild_count?: number | null
+          last_error?: string | null
+          started_at?: string | null
+          state?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_runtime_state_bot_fkey"
+            columns: ["user_id", "bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["user_id", "id"]
+          },
+        ]
+      }
       bot_tokens: {
         Row: {
           application_id: string | null
