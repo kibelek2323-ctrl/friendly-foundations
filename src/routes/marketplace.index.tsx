@@ -47,8 +47,29 @@ function Page() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [q, setQ] = useState("");
+  const [category, setCategory] = useState<string>("all");
+  const [sort, setSort] = useState<SortKey>("newest");
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [maxPrice, setMaxPrice] = useState("");
 
-  const { data: listings, isLoading } = useQuery({ queryKey: ["marketplace"], queryFn: () => fetchListings() });
+  const maxPriceCents = (() => {
+    const parsed = Number.parseFloat(maxPrice);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : null;
+  })();
+
+  const { data: listings, isLoading } = useQuery({
+    queryKey: ["marketplace", category, sort, freeOnly, maxPriceCents],
+    queryFn: () =>
+      fetchListings({
+        data: {
+          category: category === "all" ? null : category,
+          sort,
+          freeOnly,
+          maxPrice: maxPriceCents,
+          sellerId: null,
+        },
+      }),
+  });
   const { data: balance } = useQuery({ queryKey: ["my-balance"], queryFn: () => fetchBalance(), enabled: !!user });
 
   const items = (listings ?? []).filter(
@@ -57,6 +78,7 @@ function Page() {
       l.summary.toLowerCase().includes(q.toLowerCase()) ||
       l.tags.some((t) => t.toLowerCase().includes(q.toLowerCase())),
   );
+
 
   return (
     <PublicShell>
