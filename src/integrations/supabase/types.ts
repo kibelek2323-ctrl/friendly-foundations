@@ -38,6 +38,74 @@ export type Database = {
         }
         Relationships: []
       }
+      balance_code_redemptions: {
+        Row: {
+          amount: number
+          code_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          code_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          code_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "balance_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "balance_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      balance_codes: {
+        Row: {
+          active: boolean
+          amount: number
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          max_uses: number
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          used_count?: number
+        }
+        Relationships: []
+      }
       bot_runtime_events: {
         Row: {
           bot_id: string
@@ -300,6 +368,95 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_listings: {
+        Row: {
+          bot_data: Json
+          created_at: string
+          description: string
+          flow_data: Json | null
+          id: string
+          images: string[]
+          price: number
+          published: boolean
+          sales_count: number
+          seller_id: string
+          source_bot_id: string | null
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bot_data?: Json
+          created_at?: string
+          description?: string
+          flow_data?: Json | null
+          id?: string
+          images?: string[]
+          price?: number
+          published?: boolean
+          sales_count?: number
+          seller_id: string
+          source_bot_id?: string | null
+          summary?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bot_data?: Json
+          created_at?: string
+          description?: string
+          flow_data?: Json | null
+          id?: string
+          images?: string[]
+          price?: number
+          published?: boolean
+          sales_count?: number
+          seller_id?: string
+          source_bot_id?: string | null
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      marketplace_purchases: {
+        Row: {
+          bot_id: string
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          price: number
+        }
+        Insert: {
+          bot_id: string
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          price: number
+        }
+        Update: {
+          bot_id?: string
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_purchases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_code_redemptions: {
         Row: {
           code_id: string
@@ -395,6 +552,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_balances: {
+        Row: {
+          balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_plans: {
         Row: {
           activated_code_id: string | null
@@ -463,6 +638,19 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      purchase_listing: {
+        Args: {
+          _bot_data: Json
+          _bot_id: string
+          _listing_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      redeem_balance_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
       }
       redeem_plan_code: {
         Args: { _code: string; _user_id: string }
