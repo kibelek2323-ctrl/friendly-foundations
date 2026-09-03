@@ -184,6 +184,22 @@ function Page() {
                 onChange={(e) => setPrice(Number(e.target.value) || 0)}
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="m-category">Category</Label>
+              <Select value={category} onValueChange={(v) => setCategory(v as ListingCategory)}>
+                <SelectTrigger id="m-category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LISTING_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c} className="capitalize">
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="m-title">Title</Label>
               <Input id="m-title" maxLength={80} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Moderation suite" />
