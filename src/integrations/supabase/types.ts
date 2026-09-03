@@ -14,6 +14,156 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          count: number
+          day: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bot_runtime_events: {
+        Row: {
+          bot_id: string
+          created_at: string
+          description: string
+          event: string
+          id: number
+          level: string
+          user_id: string
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          description?: string
+          event: string
+          id?: number
+          level?: string
+          user_id: string
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          description?: string
+          event?: string
+          id?: number
+          level?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_runtime_events_bot_fkey"
+            columns: ["user_id", "bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["user_id", "id"]
+          },
+        ]
+      }
+      bot_runtime_state: {
+        Row: {
+          bot_id: string
+          created_at: string
+          guild_count: number | null
+          last_error: string | null
+          started_at: string | null
+          state: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          guild_count?: number | null
+          last_error?: string | null
+          started_at?: string | null
+          state?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          guild_count?: number | null
+          last_error?: string | null
+          started_at?: string | null
+          state?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_runtime_state_bot_fkey"
+            columns: ["user_id", "bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["user_id", "id"]
+          },
+        ]
+      }
+      bot_tokens: {
+        Row: {
+          application_id: string | null
+          bot_id: string
+          ciphertext: string
+          created_at: string
+          iv: string
+          key_version: number
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          bot_id: string
+          ciphertext: string
+          created_at?: string
+          iv: string
+          key_version?: number
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          bot_id?: string
+          ciphertext?: string
+          created_at?: string
+          iv?: string
+          key_version?: number
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_tokens_bot_fkey"
+            columns: ["user_id", "bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["user_id", "id"]
+          },
+        ]
+      }
       bots: {
         Row: {
           created_at: string
@@ -155,6 +305,77 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_code_redemptions: {
+        Row: {
+          code_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "plan_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          duration_days: number | null
+          expires_at: string | null
+          id: string
+          max_uses: number
+          plan: Database["public"]["Enums"]["plan_tier"]
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          plan: Database["public"]["Enums"]["plan_tier"]
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          plan?: Database["public"]["Enums"]["plan_tier"]
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -179,15 +400,83 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plans: {
+        Row: {
+          activated_code_id: string | null
+          created_at: string
+          expires_at: string | null
+          plan: Database["public"]["Enums"]["plan_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_code_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          plan?: Database["public"]["Enums"]["plan_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_code_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          plan?: Database["public"]["Enums"]["plan_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plans_activated_code_id_fkey"
+            columns: ["activated_code_id"]
+            isOneToOne: false
+            referencedRelation: "plan_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      bump_ai_usage: { Args: { _user_id: string }; Returns: number }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      redeem_plan_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      plan_tier: "free" | "pro" | "ultimate"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -314,6 +603,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      plan_tier: ["free", "pro", "ultimate"],
+    },
   },
 } as const
