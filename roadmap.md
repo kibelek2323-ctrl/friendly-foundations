@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Naprawić upload zdjęć marketplace i bezpieczne URL-e
-- [ ] Ujednolicić publiczny navbar oraz menu konta
-- [ ] Rozbudować homepage bez sekcji pricing
-- [ ] Dodać centrum powiadomień
-- [ ] Dodać FAQ, Terms i Status
-- [ ] Zweryfikować wszystkie zmienione przepływy
+- [x] Naprawić upload zdjęć marketplace i bezpieczne URL-e
+- [x] Ujednolicić publiczny navbar oraz menu konta
+- [x] Rozbudować homepage bez sekcji pricing
+- [x] Dodać centrum powiadomień
+- [x] Dodać FAQ, Terms i Status
+- [x] Zweryfikować wszystkie zmienione przepływy
