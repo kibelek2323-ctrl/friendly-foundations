@@ -255,3 +255,38 @@ export const buyListing = createServerFn({ method: "POST" })
     if (!parsed.ok) return { ok: false, ...(parsed.error ? { error: parsed.error } : {}) };
     return { ok: true, botId: newBotId, ...(parsed.balance !== undefined ? { balance: parsed.balance } : {}) };
   });
+
+const BUCKET = "marketplace-images";
+
+/** Uploads a listing screenshot (base64 data URL) and returns its public URL. */
+export const uploadListingImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        fileName: z.string().min(1).max(120),
+        contentType: z.string().min(3).max(80),
+        dataBase64: z.string().min(10).max(8_000_000),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; url?: string; error?: string }> => {
+    if (!/^image\/(png|jpe?g|webp|gif|avif)$/.test(data.contentType)) {
+      return { ok: false, error: "Only image files are allowed." };
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.storage.createBucket(BUCKET, { public: true }).catch(() => undefined);
+
+    const binary = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
+    if (binary.byteLength > 5_000_000) return { ok: false, error: "Image must be smaller than 5 MB." };
+
+    const ext = (data.fileName.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+    const path = `${context.userId}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, binary, {
+      contentType: data.contentType,
+      upsert: false,
+    });
+    if (error) return { ok: false, error: "Upload failed." };
+    const { data: pub } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path);
+    return { ok: true, url: pub.publicUrl };
+  });
