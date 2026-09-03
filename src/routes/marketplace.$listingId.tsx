@@ -115,10 +115,19 @@ function Page() {
   const fetchListing = useServerFn(getListing);
   const fetchBalance = useServerFn(getMyBalance);
   const buy = useServerFn(buyListing);
+  const fetchReviews = useServerFn(listReviews);
+  const saveReview = useServerFn(upsertReview);
+  const checkDiscount = useServerFn(quoteDiscount);
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState("");
+  const [discount, setDiscount] = useState<{ percent: number; finalPrice: number } | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [myRating, setMyRating] = useState(0);
+  const [myComment, setMyComment] = useState("");
+  const [savingReview, setSavingReview] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", listingId],
@@ -129,15 +138,39 @@ function Page() {
     queryFn: () => fetchBalance(),
     enabled: !!user,
   });
+  const { data: reviews, refetch: refetchReviews } = useQuery({
+    queryKey: ["listing-reviews", listingId],
+    queryFn: () => fetchReviews({ data: { listingId } }),
+  });
 
   const owned = balance?.purchasedListingIds.includes(listingId) ?? false;
   const isSeller = !!user && listing?.sellerId === user.id;
-  const affordable = (balance?.balance ?? 0) >= (listing?.price ?? 0);
+  const payable = discount?.finalPrice ?? listing?.price ?? 0;
+  const affordable = (balance?.balance ?? 0) >= payable;
+
+  const applyCode = async () => {
+    if (!code.trim()) return;
+    setChecking(true);
+    try {
+      const res = await checkDiscount({ data: { listingId, code: code.trim() } });
+      if (!res.ok || res.percent === undefined || res.finalPrice === undefined) {
+        setDiscount(null);
+        toast.error(res.error ?? "Invalid discount code.");
+        return;
+      }
+      setDiscount({ percent: res.percent, finalPrice: res.finalPrice });
+      toast.success(`${res.percent}% off applied.`);
+    } catch {
+      toast.error("Could not check that code.");
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const purchase = async () => {
     setBusy(true);
     try {
-      const res = await buy({ data: { listingId } });
+      const res = await buy({ data: { listingId, discountCode: discount ? code.trim() : null } });
       if (!res.ok) {
         toast.error(res.error ?? "Purchase failed.");
         return;
@@ -153,6 +186,30 @@ function Page() {
       setBusy(false);
     }
   };
+
+  const submitReview = async () => {
+    if (myRating < 1) {
+      toast.error("Pick a star rating first.");
+      return;
+    }
+    setSavingReview(true);
+    try {
+      const res = await saveReview({ data: { listingId, rating: myRating, comment: myComment.trim() } });
+      if (!res.ok) {
+        toast.error(res.error ?? "Could not save your review.");
+        return;
+      }
+      toast.success("Thanks for your review!");
+      setMyComment("");
+      setMyRating(0);
+      void refetchReviews();
+    } catch {
+      toast.error("Could not save your review.");
+    } finally {
+      setSavingReview(false);
+    }
+  };
+
 
   return (
     <PublicShell>
