@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Check, Palette, Puzzle, Terminal, Workflow, Zap } from "lucide-react";
+import { ArrowRight, Check, Palette, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DiscordMessagePreview } from "@/components/discord/DiscordMessagePreview";
 import { defaultDesign, createComponent } from "@/data/factories";
