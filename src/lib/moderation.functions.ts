@@ -27,12 +27,11 @@ export const REPORT_REASONS = [
   "Other",
 ] as const;
 
-async function assertAdmin(context: { supabase: { rpc: (fn: never, args: never) => Promise<{ data: unknown }> }; userId: string }) {
-  const rpc = context.supabase.rpc as unknown as (
-    fn: "has_role",
-    args: { _user_id: string; _role: "admin" },
-  ) => Promise<{ data: unknown }>;
-  const { data } = await rpc("has_role", { _user_id: context.userId, _role: "admin" });
+async function assertAdmin(context: { supabase: unknown; userId: string }) {
+  const supabase = context.supabase as {
+    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
+  };
+  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (data !== true) throw new Error("Forbidden");
 }
 
