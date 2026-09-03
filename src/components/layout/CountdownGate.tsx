@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/layout/BrandMark";
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -47,9 +48,7 @@ function CountdownScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-center">
       <div className="flex items-center gap-2">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Zap className="size-5" aria-hidden="true" />
-        </span>
+        <BrandMark size={9} />
         <span className="text-lg font-semibold tracking-tight">Bottly</span>
       </div>
 
