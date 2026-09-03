@@ -55,8 +55,28 @@ function Page() {
               setError(err);
               return;
             }
-            const admin = await amIAdmin().catch(() => false);
+            // Wait until the Supabase session is persisted so the bearer token
+            // is attached to the server function call.
+            const { supabase } = await import("@/integrations/supabase/client");
+            for (let i = 0; i < 20; i++) {
+              const { data } = await supabase.auth.getSession();
+              if (data.session?.access_token) break;
+              await new Promise((r) => setTimeout(r, 150));
+            }
+
+            let admin: boolean | null = null;
+            for (let attempt = 0; attempt < 3 && admin === null; attempt++) {
+              try {
+                admin = await amIAdmin();
+              } catch {
+                await new Promise((r) => setTimeout(r, 400));
+              }
+            }
             setBusy(false);
+            if (admin === null) {
+              setError("Could not verify admin access. Please try again.");
+              return;
+            }
             if (admin !== true) {
               setError("This account does not have administrator access.");
               return;
