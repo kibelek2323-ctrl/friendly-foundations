@@ -158,7 +158,7 @@ const publishInput = z.object({
   title: z.string().min(3).max(80),
   summary: z.string().max(160).default(""),
   description: z.string().max(8000).default(""),
-  images: z.array(z.string().url()).max(6).default([]),
+  images: z.array(z.string().min(1).max(500)).max(6).default([]),
   tags: z.array(z.string().min(1).max(24)).max(6).default([]),
   price: z.number().int().min(0).max(1000000),
   botData: z.record(z.string(), z.unknown()),

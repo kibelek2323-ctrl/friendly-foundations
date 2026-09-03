@@ -1,12 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Check, Palette, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
+import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DiscordMessagePreview } from "@/components/discord/DiscordMessagePreview";
 import { defaultDesign, createComponent } from "@/data/factories";
-import { PLANS } from "@/data/catalog";
-import { AccountNav } from "@/components/auth/AccountNav";
 import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
+import { PublicShell } from "@/components/layout/PublicShell";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,6 +21,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Design embeds, slash commands, buttons and automations visually, with a pixel-accurate live preview.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Landing,
@@ -42,29 +43,9 @@ const FEATURE_CARDS = [
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <SiteAnnouncements />
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Zap className="size-4" aria-hidden="true" />
-            </span>
-            <span className="font-semibold tracking-tight">Bottly</span>
-          </Link>
-          <nav className="ml-6 hidden gap-5 text-sm text-muted-foreground md:flex" aria-label="Marketing">
-            <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
-            <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
-            <Link to="/docs" className="hover:text-foreground">Docs</Link>
-            <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
-          </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <AccountNav />
-          </div>
-        </div>
-      </header>
-
-      <main>
+      <PublicShell>
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-2 lg:py-24">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
@@ -127,7 +108,7 @@ function Landing() {
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="panel grid gap-8 p-8 md:grid-cols-2 md:items-center">
+          <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
                 <Store className="size-3 text-primary" aria-hidden="true" /> Bottly Marketplace
@@ -167,39 +148,53 @@ function Landing() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="text-2xl font-semibold tracking-tight">Simple pricing</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {PLANS.map((p) => (
-              <article key={p.id} className="panel flex flex-col p-6">
-                <h3 className="text-sm font-semibold">{p.name}</h3>
-                <p className="mt-1 text-3xl font-semibold">{p.price}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{p.tagline}</p>
-                <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-3.5 shrink-0 text-success" aria-hidden="true" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button asChild className="mt-5" variant={p.id === "pro" ? "default" : "outline"}>
-                  <Link to="/register">Choose {p.name}</Link>
-                </Button>
-              </article>
-            ))}
+        <section className="border-y border-border bg-surface/50 py-16">
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="max-w-2xl">
+              <p className="text-sm font-medium text-primary">From idea to online bot</p>
+              <h2 className="mt-2 text-2xl font-semibold">Build, connect and run everything in one workspace</h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Every tool shares the same bot data, so a command response can reuse your designs, components and automation variables without rebuilding them in separate apps.</p>
+            </div>
+            <ol className="mt-9 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
+              {[
+                [Palette, "1", "Design the experience", "Shape messages, embeds, commands, buttons and menus with a Discord-accurate preview."],
+                [Workflow, "2", "Connect the logic", "Build event-driven flows with triggers, conditions, actions and reusable variables."],
+                [Play, "3", "Launch and monitor", "Connect your Discord bot, start it from the dashboard and follow runtime activity."],
+              ].map(([Icon, step, title, body]) => (
+                <li key={String(step)} className="bg-background p-6">
+                  <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {String(step)}</span><Icon className="size-5 text-primary" /></div>
+                  <h3 className="mt-7 font-semibold">{String(title)}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{String(body)}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
-      </main>
 
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} Bottly</span>
-          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
-          <Link to="/docs" className="hover:text-foreground">Docs</Link>
-          <Link to="/login" className="ml-auto hover:text-foreground">Log in</Link>
-        </div>
-      </footer>
-    </div>
+        <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+          <div>
+            <span className="flex size-10 items-center justify-center rounded-lg bg-elevated text-primary"><CloudCog className="size-5" /></span>
+            <h2 className="mt-4 text-2xl font-semibold">Built for real communities</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Move beyond a single welcome message. Build moderation workflows, support interactions, role menus and scheduled actions while keeping every change visible and manageable.</p>
+            <Button asChild variant="outline" className="mt-6"><Link to="/docs">Explore the documentation <ArrowRight className="size-4" /></Link></Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              ["One visual system", "Commands, components and automations stay connected instead of drifting across scripts and dashboards."],
+              ["Safer iteration", "Preview Discord output before publishing changes and keep sensitive bot credentials on the server."],
+              ["Reusable marketplace bots", "Start from a complete community-built bot, then customise its identity for your server."],
+              ["Operational visibility", "See runtime state, recent events, errors and important account updates from the dashboard."],
+            ].map(([title, body]) => <article key={title} className="border-t border-border pt-4"><h3 className="text-sm font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p></article>)}
+          </div>
+        </section>
+
+        <section className="border-t border-border py-16">
+          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center">
+            <div><p className="text-sm font-medium text-primary">Questions before you start?</p><h2 className="mt-2 text-2xl font-semibold">Get clear answers about bots, hosting and the marketplace.</h2></div>
+            <Button asChild size="lg"><Link to="/faq">Read the FAQ <ArrowRight className="size-4" /></Link></Button>
+          </div>
+        </section>
+      </PublicShell>
+    </>
   );
 }

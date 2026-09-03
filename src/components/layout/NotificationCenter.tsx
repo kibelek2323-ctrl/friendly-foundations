@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Bell, Bot, CheckCheck, CircleDollarSign, Loader2, Megaphone, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -22,6 +22,7 @@ const icons = {
 };
 
 export function NotificationCenter() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fetchNotifications = useServerFn(getMyNotifications);
   const markRead = useServerFn(markNotificationRead);
@@ -102,12 +103,16 @@ export function NotificationCenter() {
                   </span>
                 </div>
               );
-              return item.href?.startsWith("/") ? (
-                <Link key={item.id} to={item.href} onClick={() => void readOne(item)} className="block border-b border-border last:border-0">
-                  {content}
-                </Link>
-              ) : (
-                <button key={item.id} type="button" onClick={() => void readOne(item)} className="block w-full border-b border-border text-left last:border-0">
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={async () => {
+                    await readOne(item);
+                    if (item.href?.startsWith("/")) await navigate({ to: item.href });
+                  }}
+                  className="block w-full border-b border-border text-left last:border-0"
+                >
                   {content}
                 </button>
               );
