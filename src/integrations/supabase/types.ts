@@ -126,6 +126,7 @@ export type Database = {
           bot_id: string
           ciphertext: string
           created_at: string
+          id: string
           iv: string
           key_version: number
           updated_at: string
@@ -137,6 +138,7 @@ export type Database = {
           bot_id: string
           ciphertext: string
           created_at?: string
+          id?: string
           iv: string
           key_version?: number
           updated_at?: string
@@ -148,21 +150,14 @@ export type Database = {
           bot_id?: string
           ciphertext?: string
           created_at?: string
+          id?: string
           iv?: string
           key_version?: number
           updated_at?: string
           user_id?: string
           verified_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "bot_tokens_bot_fkey"
-            columns: ["user_id", "bot_id"]
-            isOneToOne: false
-            referencedRelation: "bots"
-            referencedColumns: ["user_id", "id"]
-          },
-        ]
+        Relationships: []
       }
       bots: {
         Row: {
