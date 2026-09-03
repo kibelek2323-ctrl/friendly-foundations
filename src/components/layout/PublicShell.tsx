@@ -1,6 +1,6 @@
+import { BrandMark } from "@/components/layout/BrandMark";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Zap } from "lucide-react";
 import { AccountNav } from "@/components/auth/AccountNav";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
@@ -10,9 +10,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
           <Link to="/" className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Zap className="size-4" aria-hidden="true" />
-            </span>
+            <BrandMark />
             <span className="font-semibold tracking-tight">Bottly</span>
           </Link>
           <nav className="ml-6 hidden gap-5 text-sm text-muted-foreground md:flex" aria-label="Marketing">

@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/layout/BrandMark";
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -108,9 +109,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
     <div className="flex h-full flex-col bg-sidebar">
       <div className="flex items-center gap-2 px-4 py-4">
         <Link to="/" className="flex items-center gap-2" onClick={onNavigate}>
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Zap className="size-4" aria-hidden="true" />
-          </span>
+          <BrandMark />
           <span className="text-[15px] font-semibold tracking-tight text-foreground">Bottly</span>
         </Link>
       </div>
