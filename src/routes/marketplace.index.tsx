@@ -108,10 +108,67 @@ function Page() {
           )}
         </div>
 
-        <div className="relative max-w-sm">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search bots" aria-label="Search marketplace" className="pl-8" />
+        <div className="panel flex flex-wrap items-end gap-3 p-3">
+          <div className="relative min-w-[200px] flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search bots" aria-label="Search marketplace" className="pl-8" />
+          </div>
+
+          <div className="w-[160px] space-y-1">
+            <Label className="text-xs text-muted-foreground">Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger aria-label="Filter by category">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {LISTING_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c} className="capitalize">
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-[180px] space-y-1">
+            <Label className="text-xs text-muted-foreground">Sort by</Label>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+              <SelectTrigger aria-label="Sort listings">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
+                  <SelectItem key={k} value={k}>
+                    {SORT_LABELS[k]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-[130px] space-y-1">
+            <Label htmlFor="max-price" className="text-xs text-muted-foreground">
+              Max price ($)
+            </Label>
+            <Input
+              id="max-price"
+              inputMode="decimal"
+              value={maxPrice}
+              disabled={freeOnly}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              placeholder="Any"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 pb-2">
+            <Switch id="free-only" checked={freeOnly} onCheckedChange={setFreeOnly} />
+            <Label htmlFor="free-only" className="text-sm">
+              Free only
+            </Label>
+          </div>
         </div>
+
 
         {isLoading ? (
           <div className="flex justify-center py-20">
