@@ -268,6 +268,13 @@ export const publishListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => publishInput.parse(data))
   .handler(async ({ data, context }): Promise<{ ok: boolean; id?: string; error?: string }> => {
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("banned")
+      .eq("id", context.userId)
+      .maybeSingle();
+    if (profile?.banned) return { ok: false, error: "Your account is suspended from publishing." };
+
     const { error, data: row } = await context.supabase
       .from("marketplace_listings")
       .insert({

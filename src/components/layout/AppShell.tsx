@@ -16,6 +16,9 @@ import {
   Menu,
   BadgeCheck,
   KeyRound,
+  Flag,
+  Users,
+  ChartLine,
   Plus,
   Puzzle,
   ScrollText,
@@ -146,6 +149,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
         <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
         {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
+        {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
+        {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
+        {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
         <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
         <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
         <Separator className="my-2" />
