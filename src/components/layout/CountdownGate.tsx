@@ -83,13 +83,13 @@ export function CountdownGate({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  const launched = hydrated && Date.now() >= LAUNCH_AT;
+  const launched = Date.now() >= LAUNCH_AT;
   const isAdminRoute = pathname.startsWith("/xadmx");
 
   if (launched || isAdminRoute) return <>{children}</>;
-  if (!hydrated) return <div className="min-h-screen bg-background" />;
-  if (user && (isLoading || !initialized)) return <div className="min-h-screen bg-background" />;
-  if (isAdmin === true) return <>{children}</>;
+  // Never block on the admin check: show the countdown instantly and swap in
+  // the app only once the admin role is confirmed.
+  if (user && initialized && !isLoading && isAdmin === true) return <>{children}</>;
 
   return <CountdownScreen />;
 }
