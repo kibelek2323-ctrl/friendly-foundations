@@ -131,6 +131,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
       <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
         <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
         {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
+        {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
         <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
         <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
         <Separator className="my-2" />

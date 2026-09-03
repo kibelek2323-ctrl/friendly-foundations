@@ -22,6 +22,7 @@ import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
+import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
 import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authenticated/bots.index'
 import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticated/bots.new'
@@ -103,6 +104,12 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   path: '/marketplace/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminAnnouncementsRoute =
+  AuthenticatedAdminAnnouncementsRouteImport.update({
+    id: '/admin/announcements',
+    path: '/admin/announcements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCodesRoute = AuthenticatedAdminCodesRouteImport.update({
   id: '/admin/codes',
   path: '/admin/codes',
@@ -209,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
@@ -239,6 +247,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
@@ -271,6 +280,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
   '/_authenticated/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace/$listingId'
     | '/marketplace/'
+    | '/admin/announcements'
     | '/admin/codes'
     | '/bots/new'
     | '/builder/$flowId'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace/$listingId'
     | '/marketplace'
+    | '/admin/announcements'
     | '/admin/codes'
     | '/bots/new'
     | '/builder/$flowId'
@@ -364,6 +376,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/marketplace/$listingId'
     | '/marketplace/'
+    | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/codes'
     | '/_authenticated/bots/new'
     | '/_authenticated/builder/$flowId'
@@ -490,6 +503,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/$listingId'
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/announcements': {
+      id: '/_authenticated/admin/announcements'
+      path: '/admin/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AuthenticatedAdminAnnouncementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/codes': {
       id: '/_authenticated/admin/codes'
@@ -621,6 +641,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
   AuthenticatedBotsNewRoute: typeof AuthenticatedBotsNewRoute
   AuthenticatedMarketplacePublishRoute: typeof AuthenticatedMarketplacePublishRoute
@@ -639,6 +660,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
   AuthenticatedBotsNewRoute: AuthenticatedBotsNewRoute,
   AuthenticatedMarketplacePublishRoute: AuthenticatedMarketplacePublishRoute,
