@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2 } from "lucide-react";
+import { Loader2, Newspaper } from "lucide-react";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { EmptyState } from "@/components/common/EmptyState";
 import { listPosts } from "@/lib/blog.functions";
@@ -42,7 +42,7 @@ function Page() {
           </div>
         ) : !posts || posts.length === 0 ? (
           <div className="mt-12">
-            <EmptyState title="No posts yet" description="New articles will show up here soon." />
+            <EmptyState icon={Newspaper} title="No posts yet" description="New articles will show up here soon." />
           </div>
         ) : (
           <div className="mt-10 grid gap-4">

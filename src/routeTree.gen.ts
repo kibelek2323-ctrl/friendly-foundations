@@ -25,6 +25,7 @@ import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -128,6 +129,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/marketplace/',
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
@@ -317,6 +324,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
@@ -359,6 +367,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
@@ -401,6 +410,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace/$listingId'
     | '/u/$username'
+    | '/blog/'
     | '/marketplace/'
     | '/admin/announcements'
     | '/admin/codes'
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace/$listingId'
     | '/u/$username'
+    | '/blog'
     | '/marketplace'
     | '/admin/announcements'
     | '/admin/codes'
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/marketplace/$listingId'
     | '/u/$username'
+    | '/blog/'
     | '/marketplace/'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/codes'
@@ -519,6 +531,7 @@ export interface RootRouteChildren {
   XadmxRoute: typeof XadmxRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   UUsernameRoute: typeof UUsernameRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
@@ -638,6 +651,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/marketplace/': {
       id: '/marketplace/'
@@ -880,6 +900,7 @@ const rootRouteChildren: RootRouteChildren = {
   XadmxRoute: XadmxRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   UUsernameRoute: UUsernameRoute,
+  BlogIndexRoute: BlogIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
