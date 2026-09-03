@@ -18,6 +18,7 @@ import {
   Search,
   Settings,
   Sparkles,
+  Store,
   Terminal,
   Workflow,
   Zap,
@@ -101,6 +102,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
         <div className="space-y-0.5">
           <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" onNavigate={onNavigate} />
           <NavItem to="/bots" icon={BotIcon} label="My Bots" onNavigate={onNavigate} />
+          <NavItem to="/marketplace" icon={Store} label="Marketplace" onNavigate={onNavigate} />
         </div>
 
         {bot && (
