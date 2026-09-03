@@ -34,7 +34,9 @@ function useCountdown(target: number) {
 function Unit({ value, label }: { value: string; label: string }) {
   return (
     <div className="panel flex min-w-[74px] flex-col items-center rounded-xl px-3 py-4 sm:min-w-[104px] sm:px-5 sm:py-6">
-      <span className="text-3xl font-semibold tabular-nums tracking-tight sm:text-5xl">{value}</span>
+      <span suppressHydrationWarning className="text-3xl font-semibold tabular-nums tracking-tight sm:text-5xl">
+        {value}
+      </span>
       <span className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground sm:text-xs">{label}</span>
     </div>
   );
