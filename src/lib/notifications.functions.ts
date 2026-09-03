@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { listActiveAnnouncements } from "@/lib/announcements.functions";
 
 export type NotificationKind = "announcement" | "purchase" | "sale" | "bot_status" | "bot_error" | "system";
 
@@ -28,8 +27,15 @@ type NotificationRow = {
 export const getMyNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<NotificationItem[]> => {
-    const [announcements, notificationsResult, readsResult] = await Promise.all([
-      listActiveAnnouncements(),
+    const [announcementsResult, notificationsResult, readsResult] = await Promise.all([
+      context.supabase
+        .from("site_announcements")
+        .select("id, title, body, cta_url, created_at")
+        .eq("active", true)
+        .or(`starts_at.is.null,starts_at.lte.${new Date().toISOString()}`)
+        .or(`ends_at.is.null,ends_at.gt.${new Date().toISOString()}`)
+        .order("created_at", { ascending: false })
+        .limit(20),
       context.supabase
         .from("user_notifications")
         .select("id, kind, title, body, href, read_at, created_at")
@@ -42,6 +48,7 @@ export const getMyNotifications = createServerFn({ method: "GET" })
         .eq("user_id", context.userId),
     ]);
 
+    if (announcementsResult.error) throw new Error(announcementsResult.error.message);
     if (notificationsResult.error) throw new Error(notificationsResult.error.message);
     if (readsResult.error) throw new Error(readsResult.error.message);
 
@@ -55,14 +62,14 @@ export const getMyNotifications = createServerFn({ method: "GET" })
       read: Boolean(row.read_at),
       createdAt: row.created_at,
     }));
-    const announcementItems: NotificationItem[] = announcements.map((announcement) => ({
+    const announcementItems: NotificationItem[] = (announcementsResult.data ?? []).map((announcement) => ({
       id: `announcement:${announcement.id}`,
       kind: "announcement",
       title: announcement.title,
       body: announcement.body,
-      href: announcement.ctaUrl,
+      href: announcement.cta_url,
       read: readAnnouncements.has(announcement.id),
-      createdAt: announcement.createdAt,
+      createdAt: announcement.created_at,
     }));
 
     return [...announcementItems, ...systemItems]
@@ -99,22 +106,27 @@ export const markAllNotificationsRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const now = new Date().toISOString();
-    const announcements = await listActiveAnnouncements();
-    const [{ error: notificationError }, { error: announcementError }] = await Promise.all([
+    const { data: announcements, error: announcementsReadError } = await context.supabase
+      .from("site_announcements")
+      .select("id")
+      .eq("active", true);
+    if (announcementsReadError) throw new Error(announcementsReadError.message);
+    const announcementRows = (announcements ?? []).map((announcement) => ({
+      user_id: context.userId,
+      announcement_id: announcement.id,
+      read_at: now,
+    }));
+    const [{ error: notificationError }, announcementResult] = await Promise.all([
       context.supabase
         .from("user_notifications")
         .update({ read_at: now })
         .eq("user_id", context.userId)
         .is("read_at", null),
-      context.supabase.from("announcement_reads").upsert(
-        announcements.map((announcement) => ({
-          user_id: context.userId,
-          announcement_id: announcement.id,
-          read_at: now,
-        })),
-      ),
+      announcementRows.length > 0
+        ? context.supabase.from("announcement_reads").upsert(announcementRows)
+        : Promise.resolve({ error: null }),
     ]);
     if (notificationError) throw new Error(notificationError.message);
-    if (announcementError) throw new Error(announcementError.message);
+    if (announcementResult.error) throw new Error(announcementResult.error.message);
     return { ok: true };
   });

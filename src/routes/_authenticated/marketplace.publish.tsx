@@ -132,8 +132,8 @@ function Page() {
       setTags("");
       setPrice(0);
       void mine.refetch();
-    } catch {
-      toast.error("Could not publish this bot.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not publish this bot.");
     } finally {
       setBusy(false);
     }

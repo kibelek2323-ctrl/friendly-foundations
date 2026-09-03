@@ -41,6 +41,12 @@ const FEATURE_CARDS = [
   { icon: Workflow, title: "Automation canvas", body: "Chain triggers, conditions and actions on a drag-and-drop flow canvas." },
 ];
 
+const BUILD_STEPS = [
+  { icon: Palette, step: "1", title: "Design the experience", body: "Shape messages, embeds, commands, buttons and menus with a Discord-accurate preview." },
+  { icon: Workflow, step: "2", title: "Connect the logic", body: "Build event-driven flows with triggers, conditions, actions and reusable variables." },
+  { icon: Play, step: "3", title: "Launch and monitor", body: "Connect your Discord bot, start it from the dashboard and follow runtime activity." },
+];
+
 function Landing() {
   return (
     <>
@@ -156,15 +162,11 @@ function Landing() {
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Every tool shares the same bot data, so a command response can reuse your designs, components and automation variables without rebuilding them in separate apps.</p>
             </div>
             <ol className="mt-9 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
-              {[
-                [Palette, "1", "Design the experience", "Shape messages, embeds, commands, buttons and menus with a Discord-accurate preview."],
-                [Workflow, "2", "Connect the logic", "Build event-driven flows with triggers, conditions, actions and reusable variables."],
-                [Play, "3", "Launch and monitor", "Connect your Discord bot, start it from the dashboard and follow runtime activity."],
-              ].map(([Icon, step, title, body]) => (
-                <li key={String(step)} className="bg-background p-6">
-                  <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {String(step)}</span><Icon className="size-5 text-primary" /></div>
-                  <h3 className="mt-7 font-semibold">{String(title)}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{String(body)}</p>
+              {BUILD_STEPS.map(({ icon: Icon, step, title, body }) => (
+                <li key={step} className="bg-background p-6">
+                  <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {step}</span><Icon className="size-5 text-primary" /></div>
+                  <h3 className="mt-7 font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
                 </li>
               ))}
             </ol>

@@ -84,6 +84,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Bottly" },
       { name: "description", content: "Build, run and discover Discord bots with Bottly." },
       { name: "author", content: "Bottly" },
+      { property: "og:title", content: "Bottly" },
+      { property: "og:description", content: "Build, run and discover Discord bots with Bottly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
