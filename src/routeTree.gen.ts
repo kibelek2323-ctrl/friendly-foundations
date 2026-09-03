@@ -26,6 +26,7 @@ import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
 import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authenticated/bots.index'
@@ -126,6 +127,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
 const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   id: '/marketplace/$listingId',
   path: '/marketplace/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminAnnouncementsRoute =
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/u/$username': typeof UUsernameRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/u/$username': typeof UUsernameRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
@@ -315,6 +323,7 @@ export interface FileRoutesById {
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/u/$username': typeof UUsernameRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/builder'
     | '/dashboard'
     | '/marketplace/$listingId'
+    | '/u/$username'
     | '/marketplace/'
     | '/admin/announcements'
     | '/admin/codes'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/builder'
     | '/dashboard'
     | '/marketplace/$listingId'
+    | '/u/$username'
     | '/marketplace'
     | '/admin/announcements'
     | '/admin/codes'
@@ -423,6 +434,7 @@ export interface FileRouteTypes {
     | '/_authenticated/builder'
     | '/_authenticated/dashboard'
     | '/marketplace/$listingId'
+    | '/u/$username'
     | '/marketplace/'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/codes'
@@ -456,6 +468,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   XadmxRoute: typeof XadmxRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
+  UUsernameRoute: typeof UUsernameRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
@@ -581,6 +594,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace/$listingId'
       fullPath: '/marketplace/$listingId'
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/announcements': {
@@ -773,6 +793,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   XadmxRoute: XadmxRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
+  UUsernameRoute: UUsernameRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
