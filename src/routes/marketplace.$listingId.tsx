@@ -240,8 +240,55 @@ function Page() {
               <div>
                 <h1 className="text-xl font-semibold">{listing.title}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">{listing.summary}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <StarRating value={listing.rating} count={listing.reviewCount} />
+                  <span className="text-xs capitalize text-muted-foreground">· {listing.category}</span>
+                </div>
+                {listing.seller && (
+                  <p className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
+                    by{" "}
+                    {listing.seller.username ? (
+                      <Link to="/u/$username" params={{ username: listing.seller.username }} className="text-primary hover:underline">
+                        {listing.seller.displayName}
+                      </Link>
+                    ) : (
+                      <span className="text-foreground">{listing.seller.displayName}</span>
+                    )}
+                    {listing.seller.verified && <BadgeCheck className="size-4 text-primary" aria-label="Verified creator" />}
+                  </p>
+                )}
               </div>
-              <p className="text-3xl font-semibold">{listing.price === 0 ? "Free" : usd(listing.price)}</p>
+              <div>
+                {discount ? (
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-semibold">{usd(payable)}</p>
+                    <p className="text-sm text-muted-foreground line-through">{usd(listing.price)}</p>
+                    <Badge variant="secondary">-{discount.percent}%</Badge>
+                  </div>
+                ) : (
+                  <p className="text-3xl font-semibold">{listing.price === 0 ? "Free" : usd(listing.price)}</p>
+                )}
+              </div>
+
+              {user && !owned && !isSeller && listing.price > 0 && (
+                <div className="space-y-1.5">
+                  <div className="flex gap-2">
+                    <Input
+                      value={code}
+                      onChange={(e) => {
+                        setCode(e.target.value.toUpperCase());
+                        setDiscount(null);
+                      }}
+                      placeholder="Discount code"
+                      aria-label="Discount code"
+                    />
+                    <Button variant="outline" onClick={() => void applyCode()} disabled={checking || !code.trim()}>
+                      {checking ? <Loader2 className="size-4 animate-spin" /> : <Tag className="size-4" aria-hidden="true" />}
+                      <span className="ml-1.5 hidden sm:inline">Apply</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {!user ? (
                 <Button asChild className="w-full gap-1.5">
@@ -260,7 +307,7 @@ function Page() {
               ) : (
                 <Button className="w-full gap-1.5" disabled={!affordable} onClick={() => setConfirm(true)}>
                   <ShoppingCart className="size-4" aria-hidden="true" />
-                  {listing.price === 0 ? "Get for free" : `Buy for ${usd(listing.price)}`}
+                  {payable === 0 ? "Get for free" : `Buy for ${usd(payable)}`}
                 </Button>
               )}
 
@@ -305,6 +352,52 @@ function Page() {
               <DiscordMarkdown text={listing.description || "_No description provided._"} className="text-sm leading-relaxed" />
             </section>
             <div className="hidden lg:block" aria-hidden="true" />
+
+            <section className="panel space-y-4 p-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-semibold">Reviews</h2>
+                <StarRating value={listing.rating} count={listing.reviewCount} />
+              </div>
+
+              {owned && (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  <p className="text-sm font-medium">Leave a review</p>
+                  <StarRating value={myRating} size="md" interactive onChange={setMyRating} />
+                  <Textarea
+                    value={myComment}
+                    onChange={(e) => setMyComment(e.target.value)}
+                    placeholder="What did you think of this bot?"
+                    rows={3}
+                    maxLength={2000}
+                  />
+                  <Button size="sm" onClick={() => void submitReview()} disabled={savingReview}>
+                    {savingReview ? <Loader2 className="size-4 animate-spin" /> : "Post review"}
+                  </Button>
+                </div>
+              )}
+
+              {(reviews ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">No reviews yet. Buyers can rate this bot after purchase.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {(reviews ?? []).map((r) => (
+                    <li key={r.id} className="rounded-lg border border-border p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium">{r.authorName}</span>
+                        {r.authorVerified && <BadgeCheck className="size-3.5 text-primary" aria-label="Verified creator" />}
+                        <StarRating value={r.rating} />
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {r.comment && <p className="mt-1.5 text-sm text-muted-foreground">{r.comment}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+            <div className="hidden lg:block" aria-hidden="true" />
+
           </div>
         )}
 
