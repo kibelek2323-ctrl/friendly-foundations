@@ -37,6 +37,7 @@ import { CommandPalette, useCommandPalette } from "./CommandPalette";
 import { initials } from "@/lib/id";
 import { StatusDot } from "@/components/common/StatusDot";
 import { useProfileAvatar } from "@/hooks/useProfileAvatar";
+import { NotificationCenter } from "./NotificationCenter";
 
 
 function NavItem({
@@ -249,6 +250,8 @@ export function AppShell({ children, title, breadcrumb, actions }: AppShellProps
               ⌘K
             </kbd>
           </Button>
+
+          <NotificationCenter />
 
           {actions ?? (
             <Button size="sm" className="gap-1.5" onClick={() => void navigate({ to: "/bots/new" })}>
