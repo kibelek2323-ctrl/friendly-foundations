@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useParams } from "@tanstack/react-router";
+import { Lock } from "lucide-react";
 import type { Bot } from "@/types/bot";
 import { useBotStore } from "@/stores/useBotStore";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -21,6 +22,9 @@ export function BotPage({
   const hydrated = useHydrated();
   const bot = useBotStore((s) => s.bots.find((b) => b.id === botId));
   const updateBot = useBotStore((s) => s.updateBot);
+
+  const LOCKED_SECTIONS = ["Commands", "Components", "Automations", "Events"];
+  const locked = !!bot?.purchased && LOCKED_SECTIONS.includes(section);
 
   const breadcrumb = (
     <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
@@ -63,8 +67,34 @@ export function BotPage({
               <Link to="/bots">Back to my bots</Link>
             </Button>
           </div>
+        ) : locked ? (
+          <div className="mx-auto max-w-lg py-16 text-center">
+            <span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-elevated text-muted-foreground">
+              <Lock className="size-5" aria-hidden="true" />
+            </span>
+            <h2 className="mt-3 text-lg font-semibold">{section} are locked</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This bot was bought from the marketplace. Its logic stays locked — you can still change its appearance,
+              presence and settings.
+            </p>
+            <Button asChild className="mt-5">
+              <Link to="/bots/$botId" params={{ botId: bot.id }}>
+                Back to overview
+              </Link>
+            </Button>
+          </div>
         ) : (
-          children(bot, (patch) => updateBot(bot.id, patch))
+          <>
+            {bot.purchased && (
+              <div className="mb-4 flex items-start gap-2.5 rounded-md border border-border bg-elevated px-3.5 py-2.5">
+                <Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <p className="text-sm text-muted-foreground">
+                  Purchased bot — appearance-only editing. Commands, components, automations and events are locked.
+                </p>
+              </div>
+            )}
+            {children(bot, (patch) => updateBot(bot.id, patch))}
+          </>
         )}
       </div>
     </AppShell>
