@@ -32,6 +32,7 @@ import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminStatsRouteImport } from './routes/_authenticated/admin.stats'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authenticated/bots.index'
 import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticated/bots.new'
 import { Route as AuthenticatedBuilderFlowIdRouteImport } from './routes/_authenticated/builder.$flowId'
@@ -165,6 +166,11 @@ const AuthenticatedAdminStatsRoute = AuthenticatedAdminStatsRouteImport.update({
   path: '/admin/stats',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBotsIndexRoute = AuthenticatedBotsIndexRouteImport.update({
   id: '/bots/',
   path: '/bots/',
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/stats': typeof AuthenticatedAdminStatsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
@@ -315,6 +322,7 @@ export interface FileRoutesByTo {
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/stats': typeof AuthenticatedAdminStatsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
@@ -356,6 +364,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/stats': typeof AuthenticatedAdminStatsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
   '/_authenticated/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/_authenticated/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
@@ -397,6 +406,7 @@ export interface FileRouteTypes {
     | '/admin/codes'
     | '/admin/reports'
     | '/admin/stats'
+    | '/admin/users'
     | '/bots/new'
     | '/builder/$flowId'
     | '/marketplace/publish'
@@ -436,6 +446,7 @@ export interface FileRouteTypes {
     | '/admin/codes'
     | '/admin/reports'
     | '/admin/stats'
+    | '/admin/users'
     | '/bots/new'
     | '/builder/$flowId'
     | '/marketplace/publish'
@@ -476,6 +487,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/codes'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/stats'
+    | '/_authenticated/admin/users'
     | '/_authenticated/bots/new'
     | '/_authenticated/builder/$flowId'
     | '/_authenticated/marketplace/publish'
@@ -676,6 +688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminStatsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/bots/': {
       id: '/_authenticated/bots/'
       path: '/bots'
@@ -805,6 +824,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminStatsRoute: typeof AuthenticatedAdminStatsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBotsNewRoute: typeof AuthenticatedBotsNewRoute
   AuthenticatedMarketplacePublishRoute: typeof AuthenticatedMarketplacePublishRoute
   AuthenticatedBotsIndexRoute: typeof AuthenticatedBotsIndexRoute
@@ -828,6 +848,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminStatsRoute: AuthenticatedAdminStatsRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBotsNewRoute: AuthenticatedBotsNewRoute,
   AuthenticatedMarketplacePublishRoute: AuthenticatedMarketplacePublishRoute,
   AuthenticatedBotsIndexRoute: AuthenticatedBotsIndexRoute,
