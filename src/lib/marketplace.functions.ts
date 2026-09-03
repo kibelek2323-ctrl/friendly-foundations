@@ -202,8 +202,10 @@ export const getListing = createServerFn({ method: "GET" })
       componentCount: bot.components?.length ?? 0,
       automationCount: bot.automations?.length ?? 0,
     };
-    const [signed] = await signListingImages([detail]);
+    const [decorated] = await decorateListings([detail]);
+    const [signed] = await signListingImages([decorated ?? detail]);
     return signed ?? detail;
+
   });
 
 export const myListings = createServerFn({ method: "GET" })
