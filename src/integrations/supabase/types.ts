@@ -328,6 +328,98 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_code_redemptions: {
+        Row: {
+          amount_saved: number
+          code_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_saved?: number
+          code_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          amount_saved?: number
+          code_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_code_redemptions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discount_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          listing_id: string | null
+          max_uses: number
+          percent: number
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          listing_id?: string | null
+          max_uses?: number
+          percent: number
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          listing_id?: string | null
+          max_uses?: number
+          percent?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_codes_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flow_templates: {
         Row: {
           category: string
@@ -394,9 +486,48 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          listing_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_listings: {
         Row: {
           bot_data: Json
+          category: string
           created_at: string
           description: string
           flow_data: Json | null
@@ -414,6 +545,7 @@ export type Database = {
         }
         Insert: {
           bot_data?: Json
+          category?: string
           created_at?: string
           description?: string
           flow_data?: Json | null
@@ -431,6 +563,7 @@ export type Database = {
         }
         Update: {
           bot_data?: Json
+          category?: string
           created_at?: string
           description?: string
           flow_data?: Json | null
@@ -557,24 +690,33 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string
           created_at: string
           display_name: string | null
           id: string
           updated_at: string
+          username: string | null
+          verified: boolean
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string
           created_at?: string
           display_name?: string | null
           id: string
           updated_at?: string
+          username?: string | null
+          verified?: boolean
         }
         Update: {
           avatar_url?: string | null
+          bio?: string
           created_at?: string
           display_name?: string | null
           id?: string
           updated_at?: string
+          username?: string | null
+          verified?: boolean
         }
         Relationships: []
       }
@@ -753,6 +895,20 @@ export type Database = {
           _listing_id: string
           _user_id: string
         }
+        Returns: Json
+      }
+      purchase_listing_with_code: {
+        Args: {
+          _bot_data: Json
+          _bot_id: string
+          _code?: string
+          _listing_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      quote_discount: {
+        Args: { _code: string; _listing_id: string; _user_id: string }
         Returns: Json
       }
       redeem_balance_code: {
