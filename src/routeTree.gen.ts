@@ -20,6 +20,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as XadmxRouteImport } from './routes/xadmx'
+import { Route as AuthenticatedAccountSettingsRouteImport } from './routes/_authenticated/account-settings'
 import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticated/balance'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
@@ -99,6 +100,12 @@ const XadmxRoute = XadmxRouteImport.update({
   path: '/xadmx',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAccountSettingsRoute =
+  AuthenticatedAccountSettingsRouteImport.update({
+    id: '/account-settings',
+    path: '/account-settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBalanceRoute = AuthenticatedBalanceRouteImport.update({
   id: '/balance',
   path: '/balance',
@@ -244,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
+  '/account-settings': typeof AuthenticatedAccountSettingsRoute
   '/balance': typeof AuthenticatedBalanceRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
@@ -280,6 +288,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
+  '/account-settings': typeof AuthenticatedAccountSettingsRoute
   '/balance': typeof AuthenticatedBalanceRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
@@ -318,6 +327,7 @@ export interface FileRoutesById {
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
+  '/_authenticated/account-settings': typeof AuthenticatedAccountSettingsRoute
   '/_authenticated/balance': typeof AuthenticatedBalanceRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/terms'
     | '/xadmx'
+    | '/account-settings'
     | '/balance'
     | '/billing'
     | '/builder'
@@ -392,6 +403,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/terms'
     | '/xadmx'
+    | '/account-settings'
     | '/balance'
     | '/billing'
     | '/builder'
@@ -429,6 +441,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/terms'
     | '/xadmx'
+    | '/_authenticated/account-settings'
     | '/_authenticated/balance'
     | '/_authenticated/billing'
     | '/_authenticated/builder'
@@ -553,6 +566,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/xadmx'
       preLoaderRoute: typeof XadmxRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/account-settings': {
+      id: '/_authenticated/account-settings'
+      path: '/account-settings'
+      fullPath: '/account-settings'
+      preLoaderRoute: typeof AuthenticatedAccountSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/balance': {
       id: '/_authenticated/balance'
@@ -737,6 +757,7 @@ const AuthenticatedBuilderRouteWithChildren =
   AuthenticatedBuilderRoute._addFileChildren(AuthenticatedBuilderRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountSettingsRoute: typeof AuthenticatedAccountSettingsRoute
   AuthenticatedBalanceRoute: typeof AuthenticatedBalanceRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
@@ -757,6 +778,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountSettingsRoute: AuthenticatedAccountSettingsRoute,
   AuthenticatedBalanceRoute: AuthenticatedBalanceRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
