@@ -51,6 +51,7 @@ function Landing() {
             <span className="font-semibold tracking-tight">Bottly</span>
           </Link>
           <nav className="ml-6 hidden gap-5 text-sm text-muted-foreground md:flex" aria-label="Marketing">
+            <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
             <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
             <Link to="/docs" className="hover:text-foreground">Docs</Link>
             <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
@@ -81,7 +82,7 @@ function Landing() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link to="/docs">Read the docs</Link>
+                <Link to="/marketplace">Browse the marketplace</Link>
               </Button>
             </div>
             <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
