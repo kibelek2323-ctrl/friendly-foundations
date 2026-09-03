@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowDownLeft, ArrowUpRight, Coins, Loader2, Plus } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, DollarSign, Loader2, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,7 +75,7 @@ function Page() {
 
         <section className="panel flex flex-wrap items-center gap-4 p-5">
           <span className="flex size-12 items-center justify-center rounded-xl bg-elevated text-warning">
-            <Coins className="size-6" aria-hidden="true" />
+            <DollarSign className="size-6" aria-hidden="true" />
           </span>
           <div className="mr-auto">
             <p className="text-xs text-muted-foreground">Available</p>
@@ -107,7 +107,7 @@ function Page() {
               </div>
               <DialogFooter>
                 <Button disabled={busy || !code.trim()} onClick={() => void submit()} className="gap-1.5">
-                  {busy ? <Loader2 className="size-4 animate-spin" /> : <Coins className="size-4" />} Redeem code
+                  {busy ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />} Redeem code
                 </Button>
               </DialogFooter>
             </DialogContent>
