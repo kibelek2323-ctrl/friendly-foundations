@@ -23,7 +23,25 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
 // from cross-site requests.
 const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
+  // Apex/www and the preview host are the same site but not always the same
+  // origin, and behind the edge proxy request.url can differ from the public
+  // host, so compare against the forwarded Host header instead.
+  secFetchSite: ["same-origin", "same-site"],
+  origin: (origin, ctx) => {
+    try {
+      const originHost = new URL(origin).host;
+      const requestHost =
+        ctx.request.headers.get("x-forwarded-host") ??
+        ctx.request.headers.get("host") ??
+        new URL(ctx.request.url).host;
+      const strip = (host: string) => host.replace(/^www\./, "").toLowerCase();
+      return strip(originHost) === strip(requestHost);
+    } catch {
+      return false;
+    }
+  },
 });
+
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachVerifiedAuth],
