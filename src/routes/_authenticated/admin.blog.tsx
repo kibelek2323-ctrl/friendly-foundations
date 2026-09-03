@@ -219,7 +219,7 @@ function Page() {
             {body ? (
               <div className="rounded-lg border border-border bg-background p-4">
                 <p className="mb-2 text-xs font-medium text-muted-foreground">Preview</p>
-                <DiscordMarkdown text={body} className="text-sm leading-relaxed" />
+                <DiscordMarkdown text={body} flavor="plain" className="text-sm leading-relaxed" />
               </div>
             ) : null}
 
