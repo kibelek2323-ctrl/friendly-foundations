@@ -18,6 +18,11 @@ export const attachVerifiedAuth = createMiddleware({ type: "function" }).client(
   }
 
   return next({
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+          "X-Bottly-Access-Token": token,
+        }
+      : {},
   });
 });
