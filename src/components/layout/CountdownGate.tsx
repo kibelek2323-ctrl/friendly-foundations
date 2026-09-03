@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Zap } from "lucide-react";
 import { amIAdmin } from "@/lib/admin-codes.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useHydrated } from "@/hooks/useHydrated";
+
 
 /** Launch: 18 September 2026, 10:00 Europe/Warsaw (UTC+2). */
 export const LAUNCH_AT = Date.UTC(2026, 8, 18, 8, 0, 0);
