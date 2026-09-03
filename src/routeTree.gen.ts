@@ -26,6 +26,7 @@ import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBuilderFlowIdRouteImport } from './routes/_authenticated/builder.$flowId'
 import { Route as AuthenticatedMarketplaceIndexRouteImport } from './routes/_authenticated/marketplace.index'
 import { Route as AuthenticatedMarketplaceListingIdRouteImport } from './routes/_authenticated/marketplace.$listingId'
+import { Route as AuthenticatedMarketplacePublishRouteImport } from './routes/_authenticated/marketplace.publish'
 import { Route as AuthDiscordCallbackRouteImport } from './routes/auth.discord.callback'
 import { Route as AuthenticatedBotsBotIdIndexRouteImport } from './routes/_authenticated/bots.$botId.index'
 import { Route as AuthenticatedBotsBotIdAutomationsRouteImport } from './routes/_authenticated/bots.$botId.automations'
@@ -125,6 +126,12 @@ const AuthenticatedMarketplaceListingIdRoute =
     path: '/marketplace/$listingId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMarketplacePublishRoute =
+  AuthenticatedMarketplacePublishRouteImport.update({
+    id: '/marketplace/publish',
+    path: '/marketplace/publish',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthDiscordCallbackRoute = AuthDiscordCallbackRouteImport.update({
   id: '/auth/discord/callback',
   path: '/auth/discord/callback',
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/marketplace/$listingId': typeof AuthenticatedMarketplaceListingIdRoute
+  '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots/': typeof AuthenticatedBotsIndexRoute
   '/marketplace/': typeof AuthenticatedMarketplaceIndexRoute
@@ -235,6 +243,7 @@ export interface FileRoutesByTo {
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/marketplace/$listingId': typeof AuthenticatedMarketplaceListingIdRoute
+  '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots': typeof AuthenticatedBotsIndexRoute
   '/marketplace': typeof AuthenticatedMarketplaceIndexRoute
@@ -266,6 +275,7 @@ export interface FileRoutesById {
   '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
   '/_authenticated/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/_authenticated/marketplace/$listingId': typeof AuthenticatedMarketplaceListingIdRoute
+  '/_authenticated/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/_authenticated/bots/': typeof AuthenticatedBotsIndexRoute
   '/_authenticated/marketplace/': typeof AuthenticatedMarketplaceIndexRoute
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/bots/new'
     | '/builder/$flowId'
     | '/marketplace/$listingId'
+    | '/marketplace/publish'
     | '/auth/discord/callback'
     | '/bots/'
     | '/marketplace/'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/bots/new'
     | '/builder/$flowId'
     | '/marketplace/$listingId'
+    | '/marketplace/publish'
     | '/auth/discord/callback'
     | '/bots'
     | '/marketplace'
@@ -356,6 +368,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bots/new'
     | '/_authenticated/builder/$flowId'
     | '/_authenticated/marketplace/$listingId'
+    | '/_authenticated/marketplace/publish'
     | '/auth/discord/callback'
     | '/_authenticated/bots/'
     | '/_authenticated/marketplace/'
@@ -506,6 +519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketplaceListingIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/marketplace/publish': {
+      id: '/_authenticated/marketplace/publish'
+      path: '/marketplace/publish'
+      fullPath: '/marketplace/publish'
+      preLoaderRoute: typeof AuthenticatedMarketplacePublishRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/auth/discord/callback': {
       id: '/auth/discord/callback'
       path: '/auth/discord/callback'
@@ -604,6 +624,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
   AuthenticatedBotsNewRoute: typeof AuthenticatedBotsNewRoute
   AuthenticatedMarketplaceListingIdRoute: typeof AuthenticatedMarketplaceListingIdRoute
+  AuthenticatedMarketplacePublishRoute: typeof AuthenticatedMarketplacePublishRoute
   AuthenticatedBotsIndexRoute: typeof AuthenticatedBotsIndexRoute
   AuthenticatedMarketplaceIndexRoute: typeof AuthenticatedMarketplaceIndexRoute
   AuthenticatedBotsBotIdAutomationsRoute: typeof AuthenticatedBotsBotIdAutomationsRoute
@@ -624,6 +645,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBotsNewRoute: AuthenticatedBotsNewRoute,
   AuthenticatedMarketplaceListingIdRoute:
     AuthenticatedMarketplaceListingIdRoute,
+  AuthenticatedMarketplacePublishRoute: AuthenticatedMarketplacePublishRoute,
   AuthenticatedBotsIndexRoute: AuthenticatedBotsIndexRoute,
   AuthenticatedMarketplaceIndexRoute: AuthenticatedMarketplaceIndexRoute,
   AuthenticatedBotsBotIdAutomationsRoute:
