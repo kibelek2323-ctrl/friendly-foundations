@@ -44,11 +44,13 @@ function NavItem({
   icon: Icon,
   label,
   onNavigate,
+  iconClassName,
 }: {
   to: string;
   icon: typeof BotIcon;
   label: string;
   onNavigate?: (() => void) | undefined;
+  iconClassName?: string;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const active = pathname === to || (to !== "/dashboard" && pathname.startsWith(`${to}/`)) || pathname === to;
@@ -64,7 +66,7 @@ function NavItem({
           : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
       )}
     >
-      <Icon className="size-4 shrink-0" aria-hidden="true" />
+      <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden="true" />
       <span className="truncate">{label}</span>
     </Link>
   );
@@ -139,7 +141,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
       </nav>
 
       <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
-        <NavItem to="/balance" icon={DollarSign} label="Balance" onNavigate={onNavigate} />
+        <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
         <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
         {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
@@ -160,7 +162,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
               <Link
                 to="/balance"
                 onClick={onNavigate}
-                className="text-xs font-semibold text-warning hover:underline"
+                className="text-xs font-semibold text-success hover:underline"
               >
                 {usd(balance?.balance ?? 0)}
               </Link>
