@@ -11,11 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deleteListing, myListings, publishListing, setListingPublished, uploadListingImage } from "@/lib/marketplace.functions";
+import { deleteListing, myListings, publishListing, setListingPublished } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import { useBotStore } from "@/stores/useBotStore";
 import { useFlowStore } from "@/stores/useFlowStore";
 import { useHydrated } from "@/hooks/useHydrated";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/marketplace/publish")({
   head: () => ({
@@ -62,8 +63,6 @@ function Page() {
   const [price, setPrice] = useState(0);
   const [busy, setBusy] = useState(false);
 
-  const upload = useServerFn(uploadListingImage);
-
   const onFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const room = 6 - images.length;
@@ -78,20 +77,27 @@ function Page() {
           toast.error(`${file.name} is larger than 5 MB.`);
           continue;
         }
-        const buffer = await file.arrayBuffer();
-        let binary = "";
-        const bytes = new Uint8Array(buffer);
-        for (let i = 0; i < bytes.length; i += 8192) {
-          binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+        if (!/^image\/(png|jpe?g|webp|gif|avif)$/.test(file.type)) {
+          toast.error(`${file.name} is not a supported image.`);
+          continue;
         }
-        const res = await upload({
-          data: { fileName: file.name, contentType: file.type || "image/png", dataBase64: btoa(binary) },
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData.user) throw new Error("Your session expired. Please log in again.");
+        const ext = (file.name.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+        const path = `${userData.user.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("marketplace-images").upload(path, file, {
+          contentType: file.type,
+          upsert: false,
         });
-        if (res.ok && res.url) setImages((prev) => [...prev, res.url as string]);
-        else toast.error(res.error ?? "Upload failed.");
+        if (uploadError) throw new Error(uploadError.message);
+        const { data: signed, error: signedError } = await supabase.storage
+          .from("marketplace-images")
+          .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+        if (signedError || !signed?.signedUrl) throw new Error(signedError?.message ?? "Could not create image URL.");
+        setImages((prev) => [...prev, signed.signedUrl]);
       }
-    } catch {
-      toast.error("Upload failed.");
+    } catch (error) {
+      toast.error(error instanceof Error ? `Upload failed: ${error.message}` : "Upload failed.");
     } finally {
       setUploading(false);
     }

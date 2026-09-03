@@ -95,8 +95,8 @@ function Page() {
       toast.success(editingId ? "Announcement updated" : "Announcement published");
       reset();
       void items.refetch();
-    } catch {
-      toast.error("Could not save announcement");
+    } catch (error) {
+      toast.error(error instanceof Error ? `Could not save announcement: ${error.message}` : "Could not save announcement");
     } finally {
       setBusy(false);
     }
