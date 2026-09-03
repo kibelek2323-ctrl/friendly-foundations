@@ -56,8 +56,8 @@ function CountdownScreen() {
       <h1 className="mt-8 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
         Build Discord bots <span className="text-primary">visually</span>.
       </h1>
-      <p className="mt-3 max-w-md text-sm text-muted-foreground">
-        Launching September 18 at 10:00. The visual Discord bot builder — embeds, commands, components and automations.
+      <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
+        Buy · Sell · Design · Rebrand — no coding
       </p>
 
       <div className="mt-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
