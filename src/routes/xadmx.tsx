@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { amIAdmin } from "@/lib/admin-codes.functions";
 
 export const Route = createFileRoute("/xadmx")({
   head: () => ({
@@ -55,25 +54,21 @@ function Page() {
               setError(err);
               return;
             }
-            // Wait until the Supabase session is persisted so the bearer token
-            // is attached to the server function call.
             const { supabase } = await import("@/integrations/supabase/client");
-            for (let i = 0; i < 20; i++) {
-              const { data } = await supabase.auth.getSession();
-              if (data.session?.access_token) break;
-              await new Promise((r) => setTimeout(r, 150));
+            const { data: userData, error: userError } = await supabase.auth.getUser();
+            const userId = userData.user?.id;
+            if (userError || !userId) {
+              setBusy(false);
+              setError("Could not verify admin access. Please try again.");
+              return;
             }
 
-            let admin: boolean | null = null;
-            for (let attempt = 0; attempt < 3 && admin === null; attempt++) {
-              try {
-                admin = await amIAdmin();
-              } catch {
-                await new Promise((r) => setTimeout(r, 400));
-              }
-            }
+            const { data: admin, error: roleError } = await supabase.rpc("has_role", {
+              _user_id: userId,
+              _role: "admin",
+            });
             setBusy(false);
-            if (admin === null) {
+            if (roleError) {
               setError("Could not verify admin access. Please try again.");
               return;
             }
@@ -81,7 +76,7 @@ function Page() {
               setError("This account does not have administrator access.");
               return;
             }
-            await queryClient.invalidateQueries({ queryKey: ["am-i-admin"] });
+            queryClient.setQueryData(["am-i-admin"], true);
             void navigate({ to: "/dashboard" });
           }}
         >
