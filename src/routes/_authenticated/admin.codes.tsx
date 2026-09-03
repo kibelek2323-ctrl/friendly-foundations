@@ -79,10 +79,10 @@ function Page() {
       const res = await createBal({
         data: { amount, quantity: balQuantity, maxUses: balMaxUses, expiresAt: null },
       });
-      toast.success(`Generated ${res.codes.length} credit code(s)`);
+      toast.success(`Generated ${res.codes.length} balance code(s)`);
       void balCodes.refetch();
     } catch {
-      toast.error("Could not generate credit codes");
+      toast.error("Could not generate balance codes");
     } finally {
       setBalBusy(false);
     }
@@ -218,13 +218,13 @@ function Page() {
         </section>
 
         <div>
-          <h2 className="text-lg font-semibold">Credit codes</h2>
+          <h2 className="text-lg font-semibold">Balance codes</h2>
           <p className="text-sm text-muted-foreground">Generate codes that top up a user's marketplace balance.</p>
         </div>
 
         <section className="panel grid gap-4 p-5 sm:grid-cols-4">
           <div className="space-y-1.5">
-            <Label htmlFor="b-amount">Credits</Label>
+            <Label htmlFor="b-amount">Amount (USD)</Label>
             <Input id="b-amount" type="number" min={1} value={amount} onChange={(e) => setAmount(Number(e.target.value) || 1)} />
           </div>
           <div className="space-y-1.5">
@@ -237,7 +237,7 @@ function Page() {
           </div>
           <div className="sm:col-span-4">
             <Button disabled={balBusy} onClick={() => void generateBalance()} className="gap-1.5">
-              {balBusy && <Loader2 className="size-4 animate-spin" />} Generate credit codes
+              {balBusy && <Loader2 className="size-4 animate-spin" />} Generate balance codes
             </Button>
           </div>
         </section>
@@ -281,7 +281,7 @@ function Page() {
             </div>
           ))}
           {!balCodes.isLoading && (balCodes.data ?? []).length === 0 && (
-            <p className="p-8 text-center text-sm text-muted-foreground">No credit codes generated yet.</p>
+            <p className="p-8 text-center text-sm text-muted-foreground">No balance codes generated yet.</p>
           )}
         </section>
       </div>
