@@ -552,6 +552,51 @@ export type Database = {
         }
         Relationships: []
       }
+      site_announcements: {
+        Row: {
+          active: boolean
+          body: string
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          ends_at: string | null
+          id: string
+          kind: string
+          starts_at: string | null
+          title: string
+          updated_at: string
+          variant: string
+        }
+        Insert: {
+          active?: boolean
+          body?: string
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          kind: string
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+          variant?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+          variant?: string
+        }
+        Relationships: []
+      }
       user_balances: {
         Row: {
           balance: number
