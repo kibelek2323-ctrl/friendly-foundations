@@ -348,7 +348,12 @@ export const redeemBalanceCode = createServerFn({ method: "POST" })
  */
 export const buyListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({ listingId: z.string().uuid(), discountCode: z.string().max(64).nullable().default(null) })
+      .parse(data),
+  )
+
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; botId?: string; balance?: number }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: listing } = await supabaseAdmin
