@@ -10,7 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { amIAdmin, createPlanCodes, deactivatePlanCode, listPlanCodes } from "@/lib/admin-codes.functions";
+import {
+  amIAdmin,
+  createBalanceCodes,
+  createPlanCodes,
+  deactivatePlanCode,
+  listBalanceCodes,
+  listPlanCodes,
+  setBalanceCodeActive,
+} from "@/lib/admin-codes.functions";
 import type { PlanTier } from "@/lib/plan.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/codes")({
