@@ -9,6 +9,7 @@ import {
   CreditCard,
   LayoutDashboard,
   LogOut,
+  Megaphone,
   Menu,
   BadgeCheck,
   KeyRound,

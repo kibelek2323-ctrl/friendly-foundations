@@ -6,6 +6,7 @@ import { DiscordMessagePreview } from "@/components/discord/DiscordMessagePrevie
 import { defaultDesign, createComponent } from "@/data/factories";
 import { PLANS } from "@/data/catalog";
 import { AccountNav } from "@/components/auth/AccountNav";
+import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
 
 export const Route = createFileRoute("/")({
   head: () => ({
