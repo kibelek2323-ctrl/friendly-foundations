@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as XadmxRouteImport } from './routes/xadmx'
+import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticated/balance'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -78,6 +79,11 @@ const XadmxRoute = XadmxRouteImport.update({
   id: '/xadmx',
   path: '/xadmx',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBalanceRoute = AuthenticatedBalanceRouteImport.update({
+  id: '/balance',
+  path: '/balance',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
   id: '/billing',
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/xadmx': typeof XadmxRoute
+  '/balance': typeof AuthenticatedBalanceRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/xadmx': typeof XadmxRoute
+  '/balance': typeof AuthenticatedBalanceRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/xadmx': typeof XadmxRoute
+  '/_authenticated/balance': typeof AuthenticatedBalanceRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -308,6 +317,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/xadmx'
+    | '/balance'
     | '/billing'
     | '/builder'
     | '/dashboard'
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/xadmx'
+    | '/balance'
     | '/billing'
     | '/builder'
     | '/dashboard'
@@ -371,6 +382,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/xadmx'
+    | '/_authenticated/balance'
     | '/_authenticated/billing'
     | '/_authenticated/builder'
     | '/_authenticated/dashboard'
@@ -468,6 +480,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/xadmx'
       preLoaderRoute: typeof XadmxRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/balance': {
+      id: '/_authenticated/balance'
+      path: '/balance'
+      fullPath: '/balance'
+      preLoaderRoute: typeof AuthenticatedBalanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/billing': {
       id: '/_authenticated/billing'
@@ -638,6 +657,7 @@ const AuthenticatedBuilderRouteWithChildren =
   AuthenticatedBuilderRoute._addFileChildren(AuthenticatedBuilderRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBalanceRoute: typeof AuthenticatedBalanceRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -657,6 +677,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBalanceRoute: AuthenticatedBalanceRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,

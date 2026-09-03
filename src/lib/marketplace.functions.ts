@@ -286,7 +286,70 @@ export const uploadListingImage = createServerFn({ method: "POST" })
       contentType: data.contentType,
       upsert: false,
     });
-    if (error) return { ok: false, error: "Upload failed." };
-    const { data: pub } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path);
-    return { ok: true, url: pub.publicUrl };
+    if (error) return { ok: false, error: `Upload failed: ${error.message}` };
+    // Bucket is private, so hand back a long-lived signed URL (10 years).
+    const { data: signed, error: signErr } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+    if (signErr || !signed?.signedUrl) return { ok: false, error: "Upload failed: could not create image URL." };
+    return { ok: true, url: signed.signedUrl };
+  });
+
+export interface BalanceEntry {
+  id: string;
+  kind: "topup" | "purchase" | "sale";
+  label: string;
+  amount: number;
+  createdAt: string;
+}
+
+/** Account balance plus a combined transaction history (top-ups, purchases, sales). */
+export const getBalanceHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ balance: number; entries: BalanceEntry[] }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: bal }, { data: topups }, { data: purchases }, { data: sales }] = await Promise.all([
+      supabaseAdmin.from("user_balances").select("balance").eq("user_id", context.userId).maybeSingle(),
+      supabaseAdmin
+        .from("balance_code_redemptions")
+        .select("id, amount, created_at")
+        .eq("user_id", context.userId),
+      supabaseAdmin
+        .from("marketplace_purchases")
+        .select("id, price, created_at, marketplace_listings(title)")
+        .eq("buyer_id", context.userId),
+      supabaseAdmin
+        .from("marketplace_purchases")
+        .select("id, price, created_at, marketplace_listings!inner(title, seller_id)")
+        .eq("marketplace_listings.seller_id", context.userId),
+    ]);
+
+    type Joined = { id: string; price: number; created_at: string; marketplace_listings: { title?: string } | null };
+    const entries: BalanceEntry[] = [
+      ...((topups ?? []) as { id: string; amount: number; created_at: string }[]).map((t) => ({
+        id: `t_${t.id}`,
+        kind: "topup" as const,
+        label: "Balance code redeemed",
+        amount: t.amount,
+        createdAt: t.created_at,
+      })),
+      ...((purchases ?? []) as unknown as Joined[]).map((p) => ({
+        id: `p_${p.id}`,
+        kind: "purchase" as const,
+        label: `Bought “${p.marketplace_listings?.title ?? "listing"}”`,
+        amount: -p.price,
+        createdAt: p.created_at,
+      })),
+      ...((sales ?? []) as unknown as Joined[])
+        .filter((s) => s.price > 0)
+        .map((s) => ({
+          id: `s_${s.id}`,
+          kind: "sale" as const,
+          label: `Sold “${s.marketplace_listings?.title ?? "listing"}”`,
+          amount: s.price,
+          createdAt: s.created_at,
+        })),
+    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    return { balance: bal?.balance ?? 0, entries };
   });

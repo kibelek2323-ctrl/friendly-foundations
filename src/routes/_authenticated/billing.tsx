@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Check, Coins, KeyRound, Loader2, Sparkles } from "lucide-react";
+import { Check, KeyRound, Loader2, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { redeemPlanCode } from "@/lib/plan.functions";
-import { getMyBalance, redeemBalanceCode } from "@/lib/marketplace.functions";
-import { useQuery } from "@tanstack/react-query";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABEL, PLAN_LIMITS, limitLabel } from "@/data/plan-limits";
 import type { PlanId } from "@/types/bot";
-import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({
@@ -52,30 +49,6 @@ function Page() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const fetchBalance = useServerFn(getMyBalance);
-  const redeemCredits = useServerFn(redeemBalanceCode);
-  const balance = useQuery({ queryKey: ["my-balance"], queryFn: () => fetchBalance() });
-  const [creditCode, setCreditCode] = useState("");
-  const [creditBusy, setCreditBusy] = useState(false);
-
-  const submitCredits = async () => {
-    if (!creditCode.trim()) return;
-    setCreditBusy(true);
-    try {
-      const res = await redeemCredits({ data: { code: creditCode.trim() } });
-      if (res.ok) {
-        toast.success(`${usd(res.amount ?? 0)} added to your balance`);
-        setCreditCode("");
-        void balance.refetch();
-      } else {
-        toast.error(res.error ?? "Invalid code.");
-      }
-    } catch {
-      toast.error("Could not redeem that code.");
-    } finally {
-      setCreditBusy(false);
-    }
-  };
 
   const submit = async () => {
     if (!code.trim()) return;
@@ -169,35 +142,6 @@ function Page() {
           </div>
         </section>
 
-        <section className="panel space-y-3 p-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-elevated text-warning">
-              <Coins className="size-5" aria-hidden="true" />
-            </span>
-            <div className="mr-auto">
-              <h2 className="text-sm font-semibold">Marketplace balance</h2>
-              <p className="text-xs text-muted-foreground">Spend your balance on bots published in the marketplace.</p>
-            </div>
-            <span className="text-lg font-semibold">{usd(balance.data?.balance ?? 0)}</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <div className="min-w-52 flex-1 space-y-1.5">
-              <Label htmlFor="credit-code" className="sr-only">
-                Balance code
-              </Label>
-              <Input
-                id="credit-code"
-                value={creditCode}
-                placeholder="CR-XXXX-XXXX-XXXX"
-                onChange={(e) => setCreditCode(e.target.value.toUpperCase())}
-                onKeyDown={(e) => e.key === "Enter" && void submitCredits()}
-              />
-            </div>
-            <Button variant="outline" className="gap-1.5" disabled={creditBusy || !creditCode.trim()} onClick={() => void submitCredits()}>
-              {creditBusy ? <Loader2 className="size-4 animate-spin" /> : <Coins className="size-4" />} Redeem balance code
-            </Button>
-          </div>
-        </section>
 
         <section className="grid gap-4 md:grid-cols-3">
           {(Object.keys(PLAN_LIMITS) as PlanId[]).map((id) => (
