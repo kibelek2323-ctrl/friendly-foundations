@@ -12,10 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as XadmxRouteImport } from './routes/xadmx'
 import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticated/balance'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
@@ -55,6 +58,11 @@ const DocsRoute = DocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -73,6 +81,16 @@ const PricingRoute = PricingRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const XadmxRoute = XadmxRouteImport.update({
@@ -212,10 +230,13 @@ const ApiInternalBotsBotIdTokenRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
+  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/balance': typeof AuthenticatedBalanceRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -244,10 +265,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/docs': typeof DocsRoute
+  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/balance': typeof AuthenticatedBalanceRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -278,10 +302,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/docs': typeof DocsRoute
+  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/_authenticated/balance': typeof AuthenticatedBalanceRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
@@ -312,10 +339,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/docs'
+    | '/faq'
     | '/forgot-password'
     | '/login'
     | '/pricing'
     | '/register'
+    | '/status'
+    | '/terms'
     | '/xadmx'
     | '/balance'
     | '/billing'
@@ -344,10 +374,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/docs'
+    | '/faq'
     | '/forgot-password'
     | '/login'
     | '/pricing'
     | '/register'
+    | '/status'
+    | '/terms'
     | '/xadmx'
     | '/balance'
     | '/billing'
@@ -377,10 +410,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/docs'
+    | '/faq'
     | '/forgot-password'
     | '/login'
     | '/pricing'
     | '/register'
+    | '/status'
+    | '/terms'
     | '/xadmx'
     | '/_authenticated/balance'
     | '/_authenticated/billing'
@@ -411,10 +447,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   DocsRoute: typeof DocsRoute
+  FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   RegisterRoute: typeof RegisterRoute
+  StatusRoute: typeof StatusRoute
+  TermsRoute: typeof TermsRoute
   XadmxRoute: typeof XadmxRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
@@ -446,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
@@ -472,6 +518,20 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/xadmx': {
@@ -704,10 +764,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   DocsRoute: DocsRoute,
+  FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   RegisterRoute: RegisterRoute,
+  StatusRoute: StatusRoute,
+  TermsRoute: TermsRoute,
   XadmxRoute: XadmxRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,

@@ -17,8 +17,9 @@ export function PublicShell({ children }: { children: ReactNode }) {
           </Link>
           <nav className="ml-6 hidden gap-5 text-sm text-muted-foreground md:flex" aria-label="Marketing">
             <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
-            <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
             <Link to="/docs" className="hover:text-foreground">Docs</Link>
+            <Link to="/faq" className="hover:text-foreground">FAQ</Link>
+            <Link to="/status" className="hover:text-foreground">Status</Link>
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <AccountNav />
@@ -30,8 +31,10 @@ export function PublicShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 text-sm text-muted-foreground">
           <span>© {new Date().getFullYear()} Bottly</span>
           <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
-          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
-          <Link to="/login" className="ml-auto hover:text-foreground">Log in</Link>
+          <Link to="/faq" className="hover:text-foreground">FAQ</Link>
+          <Link to="/status" className="hover:text-foreground">Status</Link>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <Link to="/docs" className="ml-auto hover:text-foreground">Docs</Link>
         </div>
       </footer>
     </div>

@@ -202,7 +202,7 @@ function Page() {
                   {!affordable && !owned && !isSeller && (
                     <>
                       {" · "}
-                      <Link to="/billing" className="text-primary hover:underline">
+                      <Link to="/balance" className="text-primary hover:underline">
                         Top up
                       </Link>
                     </>

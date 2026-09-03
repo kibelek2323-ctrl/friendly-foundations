@@ -11,12 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deleteListing, myListings, publishListing, setListingPublished } from "@/lib/marketplace.functions";
+import { deleteListing, myListings, publishListing, setListingPublished, uploadMarketplaceImage } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import { useBotStore } from "@/stores/useBotStore";
 import { useFlowStore } from "@/stores/useFlowStore";
 import { useHydrated } from "@/hooks/useHydrated";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/marketplace/publish")({
   head: () => ({
@@ -57,11 +56,12 @@ function Page() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<{ path: string; previewUrl: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState("");
   const [price, setPrice] = useState(0);
   const [busy, setBusy] = useState(false);
+  const uploadImage = useServerFn(uploadMarketplaceImage);
 
   const onFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -81,20 +81,10 @@ function Page() {
           toast.error(`${file.name} is not a supported image.`);
           continue;
         }
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError || !userData.user) throw new Error("Your session expired. Please log in again.");
-        const ext = (file.name.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
-        const path = `${userData.user.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("marketplace-images").upload(path, file, {
-          contentType: file.type,
-          upsert: false,
-        });
-        if (uploadError) throw new Error(uploadError.message);
-        const { data: signed, error: signedError } = await supabase.storage
-          .from("marketplace-images")
-          .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-        if (signedError || !signed?.signedUrl) throw new Error(signedError?.message ?? "Could not create image URL.");
-        setImages((prev) => [...prev, signed.signedUrl]);
+        const form = new FormData();
+        form.set("file", file);
+        const uploaded = await uploadImage({ data: form });
+        setImages((prev) => [...prev, { path: uploaded.path, previewUrl: uploaded.signedUrl }]);
       }
     } catch (error) {
       toast.error(error instanceof Error ? `Upload failed: ${error.message}` : "Upload failed.");
@@ -123,7 +113,7 @@ function Page() {
           title: title.trim(),
           summary: summary.trim(),
           description,
-          images,
+          images: images.map((image) => image.path),
           tags: parseLines(tags).slice(0, 6),
           price: Math.max(0, Math.round(price)),
           botData: bot as unknown as Record<string, unknown>,
@@ -142,8 +132,8 @@ function Page() {
       setTags("");
       setPrice(0);
       void mine.refetch();
-    } catch {
-      toast.error("Could not publish this bot.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not publish this bot.");
     } finally {
       setBusy(false);
     }
@@ -239,17 +229,19 @@ function Page() {
               )}
               {images.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {images.map((src, i) => (
-                    <div key={src} className="relative size-20 overflow-hidden rounded-md border border-border">
-                      <img src={src} alt={`Screenshot ${i + 1}`} className="size-full object-cover" />
-                      <button
+                  {images.map((image, i) => (
+                    <div key={image.path} className="relative size-20 overflow-hidden rounded-md border border-border">
+                      <img src={image.previewUrl} alt={`Screenshot ${i + 1}`} className="size-full object-cover" />
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="icon"
                         aria-label={`Remove screenshot ${i + 1}`}
-                        onClick={() => setImages((prev) => prev.filter((u) => u !== src))}
-                        className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-background/90 text-muted-foreground hover:text-foreground"
+                        onClick={() => setImages((prev) => prev.filter((item) => item.path !== image.path))}
+                        className="absolute right-1 top-1 size-6"
                       >
                         <X className="size-3" aria-hidden="true" />
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>

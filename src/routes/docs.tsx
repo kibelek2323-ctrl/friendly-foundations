@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PublicShell } from "@/components/layout/PublicShell";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({
@@ -7,6 +8,8 @@ export const Route = createFileRoute("/docs")({
       { name: "description", content: "Learn how to build embeds, slash commands, components and automations in Bottly." },
       { property: "og:title", content: "Docs — Bottly" },
       { property: "og:description", content: "Learn how to build embeds, slash commands, components and automations in Bottly." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,
@@ -47,7 +50,7 @@ const SECTIONS = [
 
 function Page() {
   return (
-    <div className="min-h-screen bg-background">
+    <PublicShell>
       <div className="mx-auto max-w-5xl px-4 py-16">
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
           ← Back to home
@@ -80,6 +83,6 @@ function Page() {
           </div>
         </div>
       </div>
-    </div>
+    </PublicShell>
   );
 }

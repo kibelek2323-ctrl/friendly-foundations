@@ -51,6 +51,23 @@ function toSummary(row: ListingRow): ListingSummary {
   };
 }
 
+function isStoredImagePath(value: string): boolean {
+  return !value.startsWith("http://") && !value.startsWith("https://");
+}
+
+async function signListingImages<T extends ListingSummary>(items: T[]): Promise<T[]> {
+  const paths = Array.from(new Set(items.flatMap((item) => item.images).filter(isStoredImagePath)));
+  if (paths.length === 0) return items;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.storage.from("marketplace-images").createSignedUrls(paths, 60 * 60);
+  if (error) throw new Error(`Could not load marketplace images: ${error.message}`);
+  const signed = new Map((data ?? []).map((entry, index) => [paths[index], entry.signedUrl]));
+  return items.map((item) => ({
+    ...item,
+    images: item.images.map((image) => signed.get(image) ?? image),
+  }));
+}
+
 const LIST_COLUMNS = "id, seller_id, title, summary, images, tags, price, sales_count, created_at, published";
 
 /** Public catalogue of published bots. */
@@ -63,7 +80,7 @@ export const listMarketplace = createServerFn({ method: "GET" }).handler(async (
     .order("created_at", { ascending: false })
     .limit(120);
   if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => toSummary(r as ListingRow));
+  return signListingImages((data ?? []).map((r) => toSummary(r as ListingRow)));
 });
 
 export const getListing = createServerFn({ method: "GET" })
@@ -82,7 +99,7 @@ export const getListing = createServerFn({ method: "GET" })
       components?: unknown[];
       automations?: unknown[];
     };
-    return {
+    const detail = {
       ...toSummary(r),
       description: r.description ?? "",
       published: r.published ?? false,
@@ -90,6 +107,8 @@ export const getListing = createServerFn({ method: "GET" })
       componentCount: bot.components?.length ?? 0,
       automationCount: bot.automations?.length ?? 0,
     };
+    const [signed] = await signListingImages([detail]);
+    return signed ?? detail;
   });
 
 export const myListings = createServerFn({ method: "GET" })
@@ -101,10 +120,37 @@ export const myListings = createServerFn({ method: "GET" })
       .eq("seller_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => ({
+    return signListingImages((data ?? []).map((r) => ({
       ...toSummary(r as ListingRow),
       published: (r as ListingRow).published ?? false,
-    }));
+    })));
+  });
+
+export const uploadMarketplaceImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Invalid upload.");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<{ path: string; signedUrl: string }> => {
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Choose an image to upload.");
+    if (file.size > 5_000_000) throw new Error("The image is larger than 5 MB.");
+    if (!/^image\/(png|jpe?g|webp|gif|avif)$/.test(file.type)) throw new Error("Unsupported image format.");
+
+    const ext = (file.name.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+    const path = `${context.userId}/${crypto.randomUUID()}.${ext}`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage.from("marketplace-images").upload(path, await file.arrayBuffer(), {
+      contentType: file.type,
+      upsert: false,
+    });
+    if (error) throw new Error(`Storage upload failed: ${error.message}`);
+    const { data: signed, error: signedError } = await supabaseAdmin.storage
+      .from("marketplace-images")
+      .createSignedUrl(path, 60 * 60);
+    if (signedError || !signed?.signedUrl) throw new Error(signedError?.message ?? "Could not preview the image.");
+    return { path, signedUrl: signed.signedUrl };
   });
 
 const publishInput = z.object({
@@ -112,7 +158,7 @@ const publishInput = z.object({
   title: z.string().min(3).max(80),
   summary: z.string().max(160).default(""),
   description: z.string().max(8000).default(""),
-  images: z.array(z.string().url()).max(6).default([]),
+  images: z.array(z.string().min(1).max(500)).max(6).default([]),
   tags: z.array(z.string().min(1).max(24)).max(6).default([]),
   price: z.number().int().min(0).max(1000000),
   botData: z.record(z.string(), z.unknown()),
