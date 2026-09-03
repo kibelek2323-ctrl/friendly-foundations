@@ -54,7 +54,7 @@ function Page() {
 
   const maxPriceCents = (() => {
     const parsed = Number.parseFloat(maxPrice);
-    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : null;
+    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : null;
   })();
 
   const { data: listings, isLoading } = useQuery({
