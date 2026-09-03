@@ -18,7 +18,11 @@ export function PublicShell({ children }: { children: ReactNode }) {
           <nav className="ml-6 hidden gap-5 text-sm text-muted-foreground md:flex" aria-label="Marketing">
             <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
             <Link to="/docs" className="hover:text-foreground">Docs</Link>
-            <Link to="/faq" className="hover:text-foreground">FAQ</Link>
+            <Link to="/blog" className="hover:text-foreground">Blog</Link>
+            <Link to="/changelog" className="hover:text-foreground">Changelog</Link>
+            <Link to="/blog" className="hover:text-foreground">Blog</Link>
+          <Link to="/changelog" className="hover:text-foreground">Changelog</Link>
+          <Link to="/faq" className="hover:text-foreground">FAQ</Link>
             <Link to="/status" className="hover:text-foreground">Status</Link>
           </nav>
           <div className="ml-auto flex items-center gap-2">
