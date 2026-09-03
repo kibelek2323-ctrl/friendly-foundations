@@ -3,6 +3,8 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { amIAdmin } from "@/lib/admin-codes.functions";
+import { getMyBalance } from "@/lib/marketplace.functions";
+import { usd } from "@/lib/money";
 import {
   BookOpen,
   Bot as BotIcon,
@@ -10,6 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Megaphone,
+  Coins,
   Menu,
   BadgeCheck,
   KeyRound,
@@ -80,6 +83,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
     queryFn: () => checkAdmin(),
     staleTime: 5 * 60 * 1000,
   });
+  const fetchBalance = useServerFn(getMyBalance);
+  const { data: balance } = useQuery({
+    queryKey: ["my-balance"],
+    queryFn: () => fetchBalance(),
+    staleTime: 60 * 1000,
+  });
 
 
 
@@ -130,6 +139,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
       </nav>
 
       <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
+        <NavItem to="/balance" icon={Coins} label="Balance" onNavigate={onNavigate} />
         <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
         {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
@@ -146,6 +156,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground">{displayName ?? user?.name ?? "Guest builder"}</p>
+            {user && (
+              <Link
+                to="/balance"
+                onClick={onNavigate}
+                className="text-xs font-semibold text-warning hover:underline"
+              >
+                {usd(balance?.balance ?? 0)}
+              </Link>
+            )}
             <p className="truncate text-xs text-muted-foreground">
               {discordUsername ? `@${discordUsername}` : (user?.email ?? "Not signed in")}
             </p>
