@@ -55,10 +55,46 @@ function Page() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState("");
   const [price, setPrice] = useState(0);
   const [busy, setBusy] = useState(false);
+
+  const upload = useServerFn(uploadListingImage);
+
+  const onFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const room = 6 - images.length;
+    if (room <= 0) {
+      toast.error("You can attach up to 6 images.");
+      return;
+    }
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, room)) {
+        if (file.size > 5_000_000) {
+          toast.error(`${file.name} is larger than 5 MB.`);
+          continue;
+        }
+        const buffer = await file.arrayBuffer();
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.length; i += 8192) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+        }
+        const res = await upload({
+          data: { fileName: file.name, contentType: file.type || "image/png", dataBase64: btoa(binary) },
+        });
+        if (res.ok && res.url) setImages((prev) => [...prev, res.url as string]);
+        else toast.error(res.error ?? "Upload failed.");
+      }
+    } catch {
+      toast.error("Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async () => {
     const bot = bots.find((b) => b.id === botId);
@@ -68,11 +104,6 @@ function Page() {
     }
     if (title.trim().length < 3) {
       toast.error("Title needs at least 3 characters.");
-      return;
-    }
-    const imageList = parseLines(images);
-    if (imageList.some((u) => !/^https?:\/\//i.test(u))) {
-      toast.error("Image URLs must start with http(s)://");
       return;
     }
 
@@ -85,7 +116,7 @@ function Page() {
           title: title.trim(),
           summary: summary.trim(),
           description,
-          images: imageList,
+          images,
           tags: parseLines(tags).slice(0, 6),
           price: Math.max(0, Math.round(price)),
           botData: bot as unknown as Record<string, unknown>,
@@ -100,7 +131,7 @@ function Page() {
       setTitle("");
       setSummary("");
       setDescription("");
-      setImages("");
+      setImages([]);
       setTags("");
       setPrice(0);
       void mine.refetch();
@@ -110,6 +141,7 @@ function Page() {
       setBusy(false);
     }
   };
+
 
   return (
     <AppShell title="Publish a bot">
