@@ -44,6 +44,90 @@ export type Database = {
         }
         Relationships: []
       }
+      discord_connections: {
+        Row: {
+          access_token: string
+          avatar_url: string | null
+          created_at: string
+          discord_user_id: string | null
+          discriminator: string | null
+          expires_at: string | null
+          id: string
+          refresh_token: string | null
+          scopes: string[]
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          access_token: string
+          avatar_url?: string | null
+          created_at?: string
+          discord_user_id?: string | null
+          discriminator?: string | null
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          scopes?: string[]
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          access_token?: string
+          avatar_url?: string | null
+          created_at?: string
+          discord_user_id?: string | null
+          discriminator?: string | null
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          scopes?: string[]
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      flow_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          edges: Json
+          icon: string
+          id: string
+          is_public: boolean
+          name: string
+          nodes: Json
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string
+          edges?: Json
+          icon?: string
+          id: string
+          is_public?: boolean
+          name: string
+          nodes?: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          edges?: Json
+          icon?: string
+          id?: string
+          is_public?: boolean
+          name?: string
+          nodes?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       flows: {
         Row: {
           created_at: string
