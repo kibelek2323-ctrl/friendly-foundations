@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Copy, Loader2, ShieldAlert } from "lucide-react";
+import { BadgeCheck, Copy, Loader2, ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,11 @@ import {
   listBalanceCodes,
   listPlanCodes,
   setBalanceCodeActive,
+  createDiscountCodes,
+  listDiscountCodes,
+  setDiscountCodeActive,
+  listCreators,
+  setCreatorVerified,
 } from "@/lib/admin-codes.functions";
 import type { PlanTier } from "@/lib/plan.functions";
 
@@ -72,6 +77,34 @@ function Page() {
   const [balQuantity, setBalQuantity] = useState(1);
   const [balMaxUses, setBalMaxUses] = useState(1);
   const [balBusy, setBalBusy] = useState(false);
+
+  const listDisc = useServerFn(listDiscountCodes);
+  const createDisc = useServerFn(createDiscountCodes);
+  const toggleDisc = useServerFn(setDiscountCodeActive);
+  const listCr = useServerFn(listCreators);
+  const setVerified = useServerFn(setCreatorVerified);
+
+  const discCodes = useQuery({ queryKey: ["discount-codes"], queryFn: () => listDisc(), enabled: isAdmin === true });
+  const creators = useQuery({ queryKey: ["admin-creators"], queryFn: () => listCr(), enabled: isAdmin === true });
+  const [percent, setPercent] = useState(10);
+  const [discQuantity, setDiscQuantity] = useState(1);
+  const [discMaxUses, setDiscMaxUses] = useState(1);
+  const [discBusy, setDiscBusy] = useState(false);
+
+  const generateDiscount = async () => {
+    setDiscBusy(true);
+    try {
+      const res = await createDisc({
+        data: { percent, quantity: discQuantity, maxUses: discMaxUses, listingId: null, expiresAt: null },
+      });
+      toast.success(`Generated ${res.codes.length} discount code(s)`);
+      void discCodes.refetch();
+    } catch {
+      toast.error("Could not generate discount codes");
+    } finally {
+      setDiscBusy(false);
+    }
+  };
 
   const generateBalance = async () => {
     setBalBusy(true);
@@ -282,6 +315,112 @@ function Page() {
           ))}
           {!balCodes.isLoading && (balCodes.data ?? []).length === 0 && (
             <p className="p-8 text-center text-sm text-muted-foreground">No balance codes generated yet.</p>
+          )}
+        </section>
+
+        <div>
+          <h2 className="text-lg font-semibold">Marketplace discount codes</h2>
+          <p className="text-sm text-muted-foreground">Percentage-off codes buyers can apply at checkout.</p>
+        </div>
+
+        <section className="panel grid gap-4 p-5 sm:grid-cols-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="d-percent">Discount (%)</Label>
+            <Input id="d-percent" type="number" min={1} max={100} value={percent} onChange={(e) => setPercent(Number(e.target.value) || 1)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="d-qty">Quantity</Label>
+            <Input id="d-qty" type="number" min={1} max={50} value={discQuantity} onChange={(e) => setDiscQuantity(Number(e.target.value) || 1)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="d-uses">Max uses</Label>
+            <Input id="d-uses" type="number" min={1} value={discMaxUses} onChange={(e) => setDiscMaxUses(Number(e.target.value) || 1)} />
+          </div>
+          <div className="sm:col-span-4">
+            <Button disabled={discBusy} onClick={() => void generateDiscount()} className="gap-1.5">
+              {discBusy && <Loader2 className="size-4 animate-spin" />} Generate discount codes
+            </Button>
+          </div>
+        </section>
+
+        <section className="panel divide-y divide-border">
+          {discCodes.isLoading && (
+            <div className="flex justify-center p-8">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
+            </div>
+          )}
+          {(discCodes.data ?? []).map((c) => (
+            <div key={c.id} className="flex flex-wrap items-center gap-3 p-4">
+              <code className="font-mono text-sm">{c.code}</code>
+              <Badge variant="secondary">-{c.percent}%</Badge>
+              <span className="text-xs text-muted-foreground">
+                {c.usedCount}/{c.maxUses} used{c.listingTitle ? ` · ${c.listingTitle}` : " · any listing"}
+              </span>
+              <div className="ml-auto flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Copy ${c.code}`}
+                  onClick={() => {
+                    void navigator.clipboard.writeText(c.code);
+                    toast.success("Code copied");
+                  }}
+                >
+                  <Copy className="size-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    await toggleDisc({ data: { id: c.id, active: !c.active } });
+                    void discCodes.refetch();
+                  }}
+                >
+                  {c.active ? "Deactivate" : "Activate"}
+                </Button>
+              </div>
+            </div>
+          ))}
+          {!discCodes.isLoading && (discCodes.data ?? []).length === 0 && (
+            <p className="p-8 text-center text-sm text-muted-foreground">No discount codes yet.</p>
+          )}
+        </section>
+
+        <div>
+          <h2 className="text-lg font-semibold">Creator verification</h2>
+          <p className="text-sm text-muted-foreground">Verified creators get a badge on their listings and profile.</p>
+        </div>
+
+        <section className="panel divide-y divide-border">
+          {creators.isLoading && (
+            <div className="flex justify-center p-8">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
+            </div>
+          )}
+          {(creators.data ?? []).map((c) => (
+            <div key={c.id} className="flex flex-wrap items-center gap-3 p-4">
+              <span className="flex items-center gap-1.5 text-sm font-medium">
+                {c.displayName}
+                {c.verified && <BadgeCheck className="size-4 text-primary" aria-label="Verified" />}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {c.username ? `@${c.username}` : "no handle"} · {c.listingCount} listings
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={async () => {
+                  await setVerified({ data: { userId: c.id, verified: !c.verified } });
+                  void creators.refetch();
+                }}
+              >
+                {c.verified ? "Remove verification" : "Verify creator"}
+              </Button>
+            </div>
+          ))}
+          {!creators.isLoading && (creators.data ?? []).length === 0 && (
+            <p className="p-8 text-center text-sm text-muted-foreground">No creators yet.</p>
           )}
         </section>
       </div>
