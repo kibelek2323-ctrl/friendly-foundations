@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { DiscordMarkdown } from "@/components/discord/DiscordMarkdown";
+import { ReportDialog } from "@/components/marketplace/ReportDialog";
 import { StarRating } from "@/components/marketplace/StarRating";
 import {
   buyListing,
@@ -324,6 +325,12 @@ function Page() {
                   )}
                 </p>
               )}
+
+              <div>
+                <ReportDialog targetType="listing" targetId={listingId} />
+              </div>
+
+
 
               <div className="flex flex-wrap gap-1.5">
                 {listing.tags.map((t) => (

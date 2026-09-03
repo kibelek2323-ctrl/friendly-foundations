@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.admin_adjust_balance(uuid, uuid, integer, text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_adjust_balance(uuid, uuid, integer, text) TO service_role;
