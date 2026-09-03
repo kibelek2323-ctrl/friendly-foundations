@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAppAuth } from "@/lib/app-auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 export type AnnouncementKind = "popup" | "bar";
@@ -81,7 +81,7 @@ async function assertAdmin(context: { supabase: { rpc: (fn: string, args: unknow
 }
 
 export const listAnnouncements = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAppAuth])
   .handler(async ({ context }): Promise<Announcement[]> => {
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -106,7 +106,7 @@ const upsertSchema = z.object({
 });
 
 export const saveAnnouncement = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAppAuth])
   .inputValidator((data: unknown) => upsertSchema.parse(data))
   .handler(async ({ data, context }): Promise<Announcement> => {
     await assertAdmin(context as never);
@@ -129,7 +129,7 @@ export const saveAnnouncement = createServerFn({ method: "POST" })
   });
 
 export const setAnnouncementActive = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAppAuth])
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid(), active: z.boolean() }).parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
@@ -140,7 +140,7 @@ export const setAnnouncementActive = createServerFn({ method: "POST" })
   });
 
 export const deleteAnnouncement = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAppAuth])
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
