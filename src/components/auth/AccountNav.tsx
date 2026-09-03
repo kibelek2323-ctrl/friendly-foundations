@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BookOpen, ChevronDown, CircleHelp, DollarSign, Gauge, LayoutDashboard, LogOut, ScrollText, Store } from "lucide-react";
+import { BookOpen, ChevronDown, CircleHelp, DollarSign, Gauge, LayoutDashboard, LogOut, ScrollText, Store, UserRound } from "lucide-react";
 import { getMyBalance } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import { Button } from "@/components/ui/button";
@@ -71,6 +71,7 @@ export function AccountNav() {
           <DropdownMenuItem asChild><Link to="/dashboard"><LayoutDashboard /> Open dashboard</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to="/marketplace"><Store /> Marketplace</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to="/balance"><DollarSign className="text-success" /> Balance</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild><Link to="/account-settings"><UserRound /> Account settings</Link></DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild><Link to="/faq"><CircleHelp /> FAQ</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to="/status"><Gauge /> Status</Link></DropdownMenuItem>

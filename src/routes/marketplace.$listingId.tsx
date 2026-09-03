@@ -3,9 +3,11 @@ import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-r
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, ShoppingCart, Store } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ChevronLeft, ChevronRight, Loader2, ShoppingCart, Store, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,10 +20,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { DiscordMarkdown } from "@/components/discord/DiscordMarkdown";
-import { buyListing, getListing, getMyBalance } from "@/lib/marketplace.functions";
+import { StarRating } from "@/components/marketplace/StarRating";
+import {
+  buyListing,
+  getListing,
+  getMyBalance,
+  listReviews,
+  quoteDiscount,
+  upsertReview,
+} from "@/lib/marketplace.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { pullWorkspace } from "@/lib/cloud-sync";
 import { usd } from "@/lib/money";
+
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   head: () => ({
@@ -104,10 +115,19 @@ function Page() {
   const fetchListing = useServerFn(getListing);
   const fetchBalance = useServerFn(getMyBalance);
   const buy = useServerFn(buyListing);
+  const fetchReviews = useServerFn(listReviews);
+  const saveReview = useServerFn(upsertReview);
+  const checkDiscount = useServerFn(quoteDiscount);
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState("");
+  const [discount, setDiscount] = useState<{ percent: number; finalPrice: number } | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [myRating, setMyRating] = useState(0);
+  const [myComment, setMyComment] = useState("");
+  const [savingReview, setSavingReview] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", listingId],
@@ -118,15 +138,39 @@ function Page() {
     queryFn: () => fetchBalance(),
     enabled: !!user,
   });
+  const { data: reviews, refetch: refetchReviews } = useQuery({
+    queryKey: ["listing-reviews", listingId],
+    queryFn: () => fetchReviews({ data: { listingId } }),
+  });
 
   const owned = balance?.purchasedListingIds.includes(listingId) ?? false;
   const isSeller = !!user && listing?.sellerId === user.id;
-  const affordable = (balance?.balance ?? 0) >= (listing?.price ?? 0);
+  const payable = discount?.finalPrice ?? listing?.price ?? 0;
+  const affordable = (balance?.balance ?? 0) >= payable;
+
+  const applyCode = async () => {
+    if (!code.trim()) return;
+    setChecking(true);
+    try {
+      const res = await checkDiscount({ data: { listingId, code: code.trim() } });
+      if (!res.ok || res.percent === undefined || res.finalPrice === undefined) {
+        setDiscount(null);
+        toast.error(res.error ?? "Invalid discount code.");
+        return;
+      }
+      setDiscount({ percent: res.percent, finalPrice: res.finalPrice });
+      toast.success(`${res.percent}% off applied.`);
+    } catch {
+      toast.error("Could not check that code.");
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const purchase = async () => {
     setBusy(true);
     try {
-      const res = await buy({ data: { listingId } });
+      const res = await buy({ data: { listingId, discountCode: discount ? code.trim() : null } });
       if (!res.ok) {
         toast.error(res.error ?? "Purchase failed.");
         return;
@@ -142,6 +186,30 @@ function Page() {
       setBusy(false);
     }
   };
+
+  const submitReview = async () => {
+    if (myRating < 1) {
+      toast.error("Pick a star rating first.");
+      return;
+    }
+    setSavingReview(true);
+    try {
+      const res = await saveReview({ data: { listingId, rating: myRating, comment: myComment.trim() } });
+      if (!res.ok) {
+        toast.error(res.error ?? "Could not save your review.");
+        return;
+      }
+      toast.success("Thanks for your review!");
+      setMyComment("");
+      setMyRating(0);
+      void refetchReviews();
+    } catch {
+      toast.error("Could not save your review.");
+    } finally {
+      setSavingReview(false);
+    }
+  };
+
 
   return (
     <PublicShell>
@@ -172,8 +240,55 @@ function Page() {
               <div>
                 <h1 className="text-xl font-semibold">{listing.title}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">{listing.summary}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <StarRating value={listing.rating} count={listing.reviewCount} />
+                  <span className="text-xs capitalize text-muted-foreground">· {listing.category}</span>
+                </div>
+                {listing.seller && (
+                  <p className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
+                    by{" "}
+                    {listing.seller.username ? (
+                      <Link to="/u/$username" params={{ username: listing.seller.username }} className="text-primary hover:underline">
+                        {listing.seller.displayName}
+                      </Link>
+                    ) : (
+                      <span className="text-foreground">{listing.seller.displayName}</span>
+                    )}
+                    {listing.seller.verified && <BadgeCheck className="size-4 text-primary" aria-label="Verified creator" />}
+                  </p>
+                )}
               </div>
-              <p className="text-3xl font-semibold">{listing.price === 0 ? "Free" : usd(listing.price)}</p>
+              <div>
+                {discount ? (
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-semibold">{usd(payable)}</p>
+                    <p className="text-sm text-muted-foreground line-through">{usd(listing.price)}</p>
+                    <Badge variant="secondary">-{discount.percent}%</Badge>
+                  </div>
+                ) : (
+                  <p className="text-3xl font-semibold">{listing.price === 0 ? "Free" : usd(listing.price)}</p>
+                )}
+              </div>
+
+              {user && !owned && !isSeller && listing.price > 0 && (
+                <div className="space-y-1.5">
+                  <div className="flex gap-2">
+                    <Input
+                      value={code}
+                      onChange={(e) => {
+                        setCode(e.target.value.toUpperCase());
+                        setDiscount(null);
+                      }}
+                      placeholder="Discount code"
+                      aria-label="Discount code"
+                    />
+                    <Button variant="outline" onClick={() => void applyCode()} disabled={checking || !code.trim()}>
+                      {checking ? <Loader2 className="size-4 animate-spin" /> : <Tag className="size-4" aria-hidden="true" />}
+                      <span className="ml-1.5 hidden sm:inline">Apply</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {!user ? (
                 <Button asChild className="w-full gap-1.5">
@@ -192,7 +307,7 @@ function Page() {
               ) : (
                 <Button className="w-full gap-1.5" disabled={!affordable} onClick={() => setConfirm(true)}>
                   <ShoppingCart className="size-4" aria-hidden="true" />
-                  {listing.price === 0 ? "Get for free" : `Buy for ${usd(listing.price)}`}
+                  {payable === 0 ? "Get for free" : `Buy for ${usd(payable)}`}
                 </Button>
               )}
 
@@ -237,6 +352,52 @@ function Page() {
               <DiscordMarkdown text={listing.description || "_No description provided._"} className="text-sm leading-relaxed" />
             </section>
             <div className="hidden lg:block" aria-hidden="true" />
+
+            <section className="panel space-y-4 p-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-semibold">Reviews</h2>
+                <StarRating value={listing.rating} count={listing.reviewCount} />
+              </div>
+
+              {owned && (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  <p className="text-sm font-medium">Leave a review</p>
+                  <StarRating value={myRating} size="md" interactive onChange={setMyRating} />
+                  <Textarea
+                    value={myComment}
+                    onChange={(e) => setMyComment(e.target.value)}
+                    placeholder="What did you think of this bot?"
+                    rows={3}
+                    maxLength={2000}
+                  />
+                  <Button size="sm" onClick={() => void submitReview()} disabled={savingReview}>
+                    {savingReview ? <Loader2 className="size-4 animate-spin" /> : "Post review"}
+                  </Button>
+                </div>
+              )}
+
+              {(reviews ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">No reviews yet. Buyers can rate this bot after purchase.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {(reviews ?? []).map((r) => (
+                    <li key={r.id} className="rounded-lg border border-border p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium">{r.authorName}</span>
+                        {r.authorVerified && <BadgeCheck className="size-3.5 text-primary" aria-label="Verified creator" />}
+                        <StarRating value={r.rating} />
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {r.comment && <p className="mt-1.5 text-sm text-muted-foreground">{r.comment}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+            <div className="hidden lg:block" aria-hidden="true" />
+
           </div>
         )}
 

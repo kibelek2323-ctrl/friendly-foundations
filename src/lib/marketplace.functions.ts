@@ -2,6 +2,26 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export const LISTING_CATEGORIES = [
+  "moderation",
+  "utility",
+  "fun",
+  "economy",
+  "music",
+  "tickets",
+  "leveling",
+  "other",
+] as const;
+export type ListingCategory = (typeof LISTING_CATEGORIES)[number];
+
+export interface ListingSeller {
+  id: string;
+  displayName: string;
+  username: string | null;
+  avatarUrl: string | null;
+  verified: boolean;
+}
+
 export interface ListingSummary {
   id: string;
   title: string;
@@ -9,8 +29,12 @@ export interface ListingSummary {
   images: string[];
   tags: string[];
   price: number;
+  category: string;
   salesCount: number;
   sellerId: string;
+  seller: ListingSeller | null;
+  rating: number;
+  reviewCount: number;
   createdAt: string;
 }
 
@@ -31,6 +55,7 @@ interface ListingRow {
   images: string[];
   tags: string[];
   price: number;
+  category?: string;
   sales_count: number;
   created_at: string;
   published?: boolean;
@@ -45,8 +70,12 @@ function toSummary(row: ListingRow): ListingSummary {
     images: row.images ?? [],
     tags: row.tags ?? [],
     price: row.price,
+    category: row.category ?? "other",
     salesCount: row.sales_count,
     sellerId: row.seller_id,
+    seller: null,
+    rating: 0,
+    reviewCount: 0,
     createdAt: row.created_at,
   };
 }
@@ -68,20 +97,86 @@ async function signListingImages<T extends ListingSummary>(items: T[]): Promise<
   }));
 }
 
-const LIST_COLUMNS = "id, seller_id, title, summary, images, tags, price, sales_count, created_at, published";
-
-/** Public catalogue of published bots. */
-export const listMarketplace = createServerFn({ method: "GET" }).handler(async (): Promise<ListingSummary[]> => {
+/** Attaches public seller profiles and review aggregates to listings. */
+async function decorateListings<T extends ListingSummary>(items: T[]): Promise<T[]> {
+  if (items.length === 0) return items;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
-    .from("marketplace_listings")
-    .select(LIST_COLUMNS)
-    .eq("published", true)
-    .order("created_at", { ascending: false })
-    .limit(120);
-  if (error) throw new Error(error.message);
-  return signListingImages((data ?? []).map((r) => toSummary(r as ListingRow)));
+  const sellerIds = Array.from(new Set(items.map((i) => i.sellerId)));
+  const listingIds = items.map((i) => i.id);
+
+  const [{ data: profiles }, { data: reviews }] = await Promise.all([
+    supabaseAdmin.from("profiles").select("id, display_name, username, avatar_url, verified").in("id", sellerIds),
+    supabaseAdmin.from("listing_reviews").select("listing_id, rating").in("listing_id", listingIds),
+  ]);
+
+  const sellerMap = new Map<string, ListingSeller>(
+    (profiles ?? []).map((p) => [
+      p.id,
+      {
+        id: p.id,
+        displayName: p.display_name ?? "Bottly creator",
+        username: p.username ?? null,
+        avatarUrl: p.avatar_url ?? null,
+        verified: p.verified ?? false,
+      },
+    ]),
+  );
+
+  const agg = new Map<string, { total: number; count: number }>();
+  for (const r of reviews ?? []) {
+    const entry = agg.get(r.listing_id) ?? { total: 0, count: 0 };
+    entry.total += r.rating;
+    entry.count += 1;
+    agg.set(r.listing_id, entry);
+  }
+
+  return items.map((item) => {
+    const a = agg.get(item.id);
+    return {
+      ...item,
+      seller: sellerMap.get(item.sellerId) ?? null,
+      rating: a && a.count > 0 ? Math.round((a.total / a.count) * 10) / 10 : 0,
+      reviewCount: a?.count ?? 0,
+    };
+  });
+}
+
+const LIST_COLUMNS =
+  "id, seller_id, title, summary, images, tags, price, category, sales_count, created_at, published";
+
+const listFilters = z.object({
+  category: z.string().max(32).nullable().default(null),
+  sort: z.enum(["newest", "rating", "bestsellers", "price-asc", "price-desc"]).default("newest"),
+  freeOnly: z.boolean().default(false),
+  maxPrice: z.number().int().min(0).nullable().default(null),
+  sellerId: z.string().uuid().nullable().default(null),
 });
+
+/** Public catalogue of published bots, with filtering and sorting. */
+export const listMarketplace = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => listFilters.parse(data ?? {}))
+  .handler(async ({ data }): Promise<ListingSummary[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let query = supabaseAdmin.from("marketplace_listings").select(LIST_COLUMNS).eq("published", true);
+    if (data.category) query = query.eq("category", data.category);
+    if (data.sellerId) query = query.eq("seller_id", data.sellerId);
+    if (data.freeOnly) query = query.eq("price", 0);
+    else if (data.maxPrice !== null) query = query.lte("price", data.maxPrice);
+
+    if (data.sort === "bestsellers") query = query.order("sales_count", { ascending: false });
+    else if (data.sort === "price-asc") query = query.order("price", { ascending: true });
+    else if (data.sort === "price-desc") query = query.order("price", { ascending: false });
+    else query = query.order("created_at", { ascending: false });
+
+    const { data: rows, error } = await query.limit(120);
+    if (error) throw new Error(error.message);
+    const decorated = await decorateListings((rows ?? []).map((r) => toSummary(r as ListingRow)));
+    if (data.sort === "rating") {
+      decorated.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+    }
+    return signListingImages(decorated);
+  });
+
 
 export const getListing = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
@@ -91,6 +186,7 @@ export const getListing = createServerFn({ method: "GET" })
       .from("marketplace_listings")
       .select(`${LIST_COLUMNS}, description, bot_data`)
       .eq("id", data.id)
+      .eq("published", true)
       .maybeSingle();
     if (!row) return null;
     const r = row as ListingRow;
@@ -107,8 +203,10 @@ export const getListing = createServerFn({ method: "GET" })
       componentCount: bot.components?.length ?? 0,
       automationCount: bot.automations?.length ?? 0,
     };
-    const [signed] = await signListingImages([detail]);
+    const [decorated] = await decorateListings([detail]);
+    const [signed] = await signListingImages([decorated ?? detail]);
     return signed ?? detail;
+
   });
 
 export const myListings = createServerFn({ method: "GET" })
@@ -161,6 +259,7 @@ const publishInput = z.object({
   images: z.array(z.string().min(1).max(500)).max(6).default([]),
   tags: z.array(z.string().min(1).max(24)).max(6).default([]),
   price: z.number().int().min(0).max(1000000),
+  category: z.enum(LISTING_CATEGORIES).default("other"),
   botData: z.record(z.string(), z.unknown()),
   flowData: z.record(z.string(), z.unknown()).nullable().default(null),
 });
@@ -180,6 +279,8 @@ export const publishListing = createServerFn({ method: "POST" })
         images: data.images,
         tags: data.tags,
         price: data.price,
+        category: data.category,
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         bot_data: data.botData as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -248,7 +349,12 @@ export const redeemBalanceCode = createServerFn({ method: "POST" })
  */
 export const buyListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({ listingId: z.string().uuid(), discountCode: z.string().max(64).nullable().default(null) })
+      .parse(data),
+  )
+
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; botId?: string; balance?: number }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: listing } = await supabaseAdmin
@@ -289,17 +395,19 @@ export const buyListing = createServerFn({ method: "POST" })
       updatedAt: now,
     };
 
-    const { data: result, error } = await supabaseAdmin.rpc("purchase_listing", {
+    const { data: result, error } = await supabaseAdmin.rpc("purchase_listing_with_code", {
       _user_id: context.userId,
       _listing_id: listing.id,
       _bot_id: newBotId,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       _bot_data: botCopy as any,
+      ...(data.discountCode ? { _code: data.discountCode } : {}),
     });
     if (error) return { ok: false, error: "Purchase failed. Please try again." };
     const parsed = (result as { ok: boolean; error?: string; balance?: number }) ?? { ok: false };
     if (!parsed.ok) return { ok: false, ...(parsed.error ? { error: parsed.error } : {}) };
     return { ok: true, botId: newBotId, ...(parsed.balance !== undefined ? { balance: parsed.balance } : {}) };
+
   });
 
 export interface BalanceEntry {
@@ -359,4 +467,116 @@ export const getBalanceHistory = createServerFn({ method: "GET" })
     ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     return { balance: bal?.balance ?? 0, entries };
+  });
+
+/* ------------------------------------------------------------------ */
+/* Reviews                                                             */
+/* ------------------------------------------------------------------ */
+
+export interface ListingReview {
+  id: string;
+  listingId: string;
+  userId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  authorName: string;
+  authorAvatar: string | null;
+  authorUsername: string | null;
+  authorVerified: boolean;
+}
+
+/** Public reviews for one listing. */
+export const listReviews = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data }): Promise<ListingReview[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("listing_reviews")
+      .select("id, listing_id, user_id, rating, comment, created_at")
+      .eq("listing_id", data.listingId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    const authorIds = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
+    const { data: profiles } = authorIds.length
+      ? await supabaseAdmin.from("profiles").select("id, display_name, username, avatar_url, verified").in("id", authorIds)
+      : { data: [] };
+    const map = new Map((profiles ?? []).map((p) => [p.id, p]));
+    return (rows ?? []).map((r) => {
+      const p = map.get(r.user_id);
+      return {
+        id: r.id,
+        listingId: r.listing_id,
+        userId: r.user_id,
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.created_at,
+        authorName: p?.display_name ?? "Bottly user",
+        authorAvatar: p?.avatar_url ?? null,
+        authorUsername: p?.username ?? null,
+        authorVerified: p?.verified ?? false,
+      };
+    });
+  });
+
+/** Creates or updates the signed-in buyer's review. RLS enforces ownership + purchase. */
+export const upsertReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        listingId: z.string().uuid(),
+        rating: z.number().int().min(1).max(5),
+        comment: z.string().max(2000).default(""),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
+    const { error } = await context.supabase.from("listing_reviews").upsert(
+      {
+        listing_id: data.listingId,
+        user_id: context.userId,
+        rating: data.rating,
+        comment: data.comment,
+      },
+      { onConflict: "listing_id,user_id" },
+    );
+    if (error) return { ok: false, error: "Only buyers of this bot can leave a review." };
+    return { ok: true };
+  });
+
+export const deleteMyReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await context.supabase
+      .from("listing_reviews")
+      .delete()
+      .eq("listing_id", data.listingId)
+      .eq("user_id", context.userId);
+    return { ok: true };
+  });
+
+/* ------------------------------------------------------------------ */
+/* Discount codes                                                      */
+/* ------------------------------------------------------------------ */
+
+export const quoteDiscount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ listingId: z.string().uuid(), code: z.string().min(1).max(64) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; percent?: number; finalPrice?: number }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("quote_discount", {
+      _user_id: context.userId,
+      _listing_id: data.listingId,
+      _code: data.code,
+    });
+    if (error) return { ok: false, error: "Could not check that code." };
+    return (result as { ok: boolean; error?: string; percent?: number; finalPrice?: number }) ?? {
+      ok: false,
+      error: "Invalid discount code.",
+    };
   });

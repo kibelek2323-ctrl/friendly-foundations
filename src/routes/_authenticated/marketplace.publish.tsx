@@ -11,7 +11,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deleteListing, myListings, publishListing, setListingPublished, uploadMarketplaceImage } from "@/lib/marketplace.functions";
+import {
+  deleteListing,
+  myListings,
+  publishListing,
+  setListingPublished,
+  uploadMarketplaceImage,
+  LISTING_CATEGORIES,
+  type ListingCategory,
+} from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import { useBotStore } from "@/stores/useBotStore";
 import { useFlowStore } from "@/stores/useFlowStore";
@@ -60,6 +68,7 @@ function Page() {
   const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState("");
   const [price, setPrice] = useState(0);
+  const [category, setCategory] = useState<ListingCategory>("other");
   const [busy, setBusy] = useState(false);
   const uploadImage = useServerFn(uploadMarketplaceImage);
 
@@ -116,6 +125,7 @@ function Page() {
           images: images.map((image) => image.path),
           tags: parseLines(tags).slice(0, 6),
           price: Math.max(0, Math.round(price)),
+          category,
           botData: bot as unknown as Record<string, unknown>,
           flowData: flow ? (flow as unknown as Record<string, unknown>) : null,
         },
@@ -131,6 +141,7 @@ function Page() {
       setImages([]);
       setTags("");
       setPrice(0);
+      setCategory("other");
       void mine.refetch();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not publish this bot.");
@@ -184,6 +195,22 @@ function Page() {
                 onChange={(e) => setPrice(Number(e.target.value) || 0)}
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="m-category">Category</Label>
+              <Select value={category} onValueChange={(v) => setCategory(v as ListingCategory)}>
+                <SelectTrigger id="m-category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LISTING_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c} className="capitalize">
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="m-title">Title</Label>
               <Input id="m-title" maxLength={80} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Moderation suite" />

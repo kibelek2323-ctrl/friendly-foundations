@@ -199,3 +199,146 @@ export const setBalanceCodeActive = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* ------------------------------------------------------------------ */
+/* Percentage discount codes (marketplace)                             */
+/* ------------------------------------------------------------------ */
+
+export interface DiscountCode {
+  id: string;
+  code: string;
+  percent: number;
+  listingId: string | null;
+  listingTitle: string | null;
+  maxUses: number;
+  usedCount: number;
+  expiresAt: string | null;
+  active: boolean;
+  createdAt: string;
+}
+
+async function assertAdmin(context: { supabase: unknown; userId: string }) {
+  const supabase = context.supabase as {
+    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
+  };
+  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+  if (data !== true) throw new Error("Forbidden");
+}
+
+
+
+export const listDiscountCodes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<DiscountCode[]> => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("discount_codes")
+      .select("id, code, percent, listing_id, max_uses, used_count, expires_at, active, created_at, marketplace_listings(title)")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      code: r.code,
+      percent: r.percent,
+      listingId: r.listing_id,
+      listingTitle: (r.marketplace_listings as { title?: string } | null)?.title ?? null,
+      maxUses: r.max_uses,
+      usedCount: r.used_count,
+      expiresAt: r.expires_at,
+      active: r.active,
+      createdAt: r.created_at,
+    }));
+  });
+
+export const createDiscountCodes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        percent: z.number().int().min(1).max(100),
+        quantity: z.number().int().min(1).max(50),
+        maxUses: z.number().int().min(1).max(10000),
+        listingId: z.string().uuid().nullable().default(null),
+        expiresAt: z.string().nullable().default(null),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ codes: string[] }> => {
+    await assertAdmin(context);
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const makeCode = () => {
+      const bytes = crypto.getRandomValues(new Uint8Array(8));
+      const raw = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+      return `SAVE${data.percent}-${raw.slice(0, 4)}-${raw.slice(4, 8)}`;
+    };
+    const rows = Array.from({ length: data.quantity }, () => ({
+      code: makeCode(),
+      percent: data.percent,
+      listing_id: data.listingId,
+      max_uses: data.maxUses,
+      expires_at: data.expiresAt,
+      created_by: context.userId,
+    }));
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("discount_codes").insert(rows);
+    if (error) throw new Error(error.message);
+    return { codes: rows.map((r) => r.code) };
+  });
+
+export const setDiscountCodeActive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid(), active: z.boolean() }).parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("discount_codes").update({ active: data.active }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* ------------------------------------------------------------------ */
+/* Creator verification                                                */
+/* ------------------------------------------------------------------ */
+
+export interface CreatorRow {
+  id: string;
+  displayName: string;
+  username: string | null;
+  verified: boolean;
+  listingCount: number;
+}
+
+export const listCreators = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<CreatorRow[]> => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: listings } = await supabaseAdmin.from("marketplace_listings").select("seller_id");
+    const counts = new Map<string, number>();
+    for (const l of listings ?? []) counts.set(l.seller_id, (counts.get(l.seller_id) ?? 0) + 1);
+    const ids = Array.from(counts.keys());
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id, display_name, username, verified")
+      .or(ids.length ? `id.in.(${ids.join(",")}),verified.eq.true` : "verified.eq.true");
+    return (profiles ?? []).map((p) => ({
+      id: p.id,
+      displayName: p.display_name ?? "Bottly creator",
+      username: p.username ?? null,
+      verified: p.verified ?? false,
+      listingCount: counts.get(p.id) ?? 0,
+    }));
+  });
+
+export const setCreatorVerified = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ userId: z.string().uuid(), verified: z.boolean() }).parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("profiles").update({ verified: data.verified }).eq("id", data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
