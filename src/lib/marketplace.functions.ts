@@ -186,6 +186,7 @@ export const getListing = createServerFn({ method: "GET" })
       .from("marketplace_listings")
       .select(`${LIST_COLUMNS}, description, bot_data`)
       .eq("id", data.id)
+      .eq("published", true)
       .maybeSingle();
     if (!row) return null;
     const r = row as ListingRow;
