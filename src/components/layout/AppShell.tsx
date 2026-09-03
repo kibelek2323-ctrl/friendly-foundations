@@ -1,0 +1,242 @@
+import { useState, type ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { amIAdmin } from "@/lib/admin-codes.functions";
+import {
+  BookOpen,
+  Bot as BotIcon,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  BadgeCheck,
+  KeyRound,
+  Plus,
+  Puzzle,
+  ScrollText,
+  Search,
+  Settings,
+  Sparkles,
+  Terminal,
+  Workflow,
+  Zap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { useBotStore } from "@/stores/useBotStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { CommandPalette, useCommandPalette } from "./CommandPalette";
+import { initials } from "@/lib/id";
+import { StatusDot } from "@/components/common/StatusDot";
+import { useProfileAvatar } from "@/hooks/useProfileAvatar";
+
+
+function NavItem({
+  to,
+  icon: Icon,
+  label,
+  onNavigate,
+}: {
+  to: string;
+  icon: typeof BotIcon;
+  label: string;
+  onNavigate?: (() => void) | undefined;
+}) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const active = pathname === to || (to !== "/dashboard" && pathname.startsWith(`${to}/`)) || pathname === to;
+  return (
+    <Link
+      to={to}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+        active
+          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+          : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+      )}
+    >
+      <Icon className="size-4 shrink-0" aria-hidden="true" />
+      <span className="truncate">{label}</span>
+    </Link>
+  );
+}
+
+function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const bots = useBotStore((s) => s.bots);
+  const user = useAuthStore((s) => s.user);
+  const signOut = useAuthStore((s) => s.signOut);
+  const { avatarUrl, displayName, discordUsername } = useProfileAvatar();
+  const navigate = useNavigate();
+  const checkAdmin = useServerFn(amIAdmin);
+  const { data: isAdmin } = useQuery({
+    queryKey: ["am-i-admin"],
+    queryFn: () => checkAdmin(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+
+
+
+  const match = /^\/bots\/([^/]+)/.exec(pathname);
+  const botId = match?.[1] && match[1] !== "new" ? match[1] : null;
+  const bot = botId ? bots.find((b) => b.id === botId) : undefined;
+
+  return (
+    <div className="flex h-full flex-col bg-sidebar">
+      <div className="flex items-center gap-2 px-4 py-4">
+        <Link to="/" className="flex items-center gap-2" onClick={onNavigate}>
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Zap className="size-4" aria-hidden="true" />
+          </span>
+          <span className="text-[15px] font-semibold tracking-tight text-foreground">Bottly</span>
+        </Link>
+      </div>
+
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-4" aria-label="Main">
+        <div className="space-y-0.5">
+          <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" onNavigate={onNavigate} />
+          <NavItem to="/bots" icon={BotIcon} label="My Bots" onNavigate={onNavigate} />
+        </div>
+
+        {bot && (
+          <div>
+            <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {bot.name}
+            </p>
+            <div className="space-y-0.5">
+              <NavItem to={`/bots/${bot.id}`} icon={Sparkles} label="Overview" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/commands`} icon={Terminal} label="Commands" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/presence`} icon={BadgeCheck} label="Presence" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/components`} icon={Puzzle} label="Components" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/automations`} icon={Workflow} label="Automations" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/events`} icon={Zap} label="Events" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/logs`} icon={ScrollText} label="Logs" onNavigate={onNavigate} />
+              <NavItem to={`/bots/${bot.id}/settings`} icon={Settings} label="Settings" onNavigate={onNavigate} />
+            </div>
+            <div className="mt-2 flex items-center justify-between rounded-md bg-sidebar-accent/50 px-2.5 py-2">
+              <span className="truncate text-xs text-muted-foreground">@{bot.username}</span>
+              <StatusDot status={bot.status} />
+            </div>
+          </div>
+        )}
+      </nav>
+
+      <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
+        <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
+        {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
+        <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
+        <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
+        <Separator className="my-2" />
+        <div className="flex items-center gap-2.5 rounded-md px-2.5 py-2">
+          <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="size-full object-cover" />
+            ) : (
+              initials(user?.name ?? "Guest") || "G"
+            )}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-foreground">{displayName ?? user?.name ?? "Guest builder"}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {discordUsername ? `@${discordUsername}` : (user?.email ?? "Not signed in")}
+            </p>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={user ? "Sign out" : "Sign in"}
+            onClick={() => {
+              if (user) signOut();
+              void navigate({ to: "/login" });
+              onNavigate?.();
+            }}
+          >
+            <LogOut className="size-4" aria-hidden="true" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export interface AppShellProps {
+  children: ReactNode;
+  title: string;
+  breadcrumb?: ReactNode;
+  actions?: ReactNode;
+}
+
+export function AppShell({ children, title, breadcrumb, actions }: AppShellProps) {
+  const { open, setOpen } = useCommandPalette();
+  const [drawer, setDrawer] = useState(false);
+  const saveState = useBotStore((s) => s.saveState);
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <aside className="hidden w-60 shrink-0 border-r border-sidebar-border lg:block">
+        <div className="sticky top-0 h-screen">
+          <SidebarContent />
+        </div>
+      </aside>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur">
+          <Sheet open={drawer} onOpenChange={setDrawer}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open navigation">
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0">
+              <SheetTitle className="sr-only">Navigation</SheetTitle>
+              <SidebarContent onNavigate={() => setDrawer(false)} />
+            </SheetContent>
+          </Sheet>
+
+          <div className="min-w-0 flex-1">
+            {breadcrumb ?? <h1 className="truncate text-sm font-semibold">{title}</h1>}
+          </div>
+
+          <span
+            aria-live="polite"
+            className={cn(
+              "hidden text-xs sm:inline",
+              saveState === "saving" && "text-warning",
+              saveState === "saved" && "text-success",
+              saveState === "error" && "text-destructive",
+              saveState === "idle" && "text-muted-foreground",
+            )}
+          >
+            {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved" : saveState === "error" ? "Save failed" : ""}
+          </span>
+
+          <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2">
+            <Search className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Search</span>
+            <kbd className="hidden rounded border border-border bg-elevated px-1.5 text-[10px] font-medium text-muted-foreground md:inline">
+              ⌘K
+            </kbd>
+          </Button>
+
+          {actions ?? (
+            <Button size="sm" className="gap-1.5" onClick={() => void navigate({ to: "/bots/new" })}>
+              <Plus className="size-4" aria-hidden="true" />
+              <span className="hidden sm:inline">New bot</span>
+            </Button>
+          )}
+        </header>
+
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
+
+      <CommandPalette open={open} onOpenChange={setOpen} />
+    </div>
+  );
+}

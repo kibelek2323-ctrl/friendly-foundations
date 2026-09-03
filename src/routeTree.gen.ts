@@ -10,33 +10,379 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as XadmxRouteImport } from './routes/xadmx'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
+import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
+import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authenticated/bots.index'
+import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticated/bots.new'
+import { Route as AuthenticatedBuilderFlowIdRouteImport } from './routes/_authenticated/builder.$flowId'
+import { Route as AuthenticatedMarketplaceIndexRouteImport } from './routes/_authenticated/marketplace.index'
+import { Route as AuthenticatedMarketplaceListingIdRouteImport } from './routes/_authenticated/marketplace.$listingId'
+import { Route as AuthDiscordCallbackRouteImport } from './routes/auth.discord.callback'
+import { Route as AuthenticatedBotsBotIdIndexRouteImport } from './routes/_authenticated/bots.$botId.index'
+import { Route as AuthenticatedBotsBotIdAutomationsRouteImport } from './routes/_authenticated/bots.$botId.automations'
+import { Route as AuthenticatedBotsBotIdCommandsRouteImport } from './routes/_authenticated/bots.$botId.commands'
+import { Route as AuthenticatedBotsBotIdComponentsRouteImport } from './routes/_authenticated/bots.$botId.components'
+import { Route as AuthenticatedBotsBotIdEventsRouteImport } from './routes/_authenticated/bots.$botId.events'
+import { Route as AuthenticatedBotsBotIdLogsRouteImport } from './routes/_authenticated/bots.$botId.logs'
+import { Route as AuthenticatedBotsBotIdPresenceRouteImport } from './routes/_authenticated/bots.$botId.presence'
+import { Route as AuthenticatedBotsBotIdSettingsRouteImport } from './routes/_authenticated/bots.$botId.settings'
+import { Route as ApiInternalRuntimeEventsRouteImport } from './routes/api.internal.runtime.events'
+import { Route as ApiInternalBotsBotIdTokenRouteImport } from './routes/api.internal.bots.$botId.token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const XadmxRoute = XadmxRouteImport.update({
+  id: '/xadmx',
+  path: '/xadmx',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBuilderRoute = AuthenticatedBuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminCodesRoute = AuthenticatedAdminCodesRouteImport.update({
+  id: '/admin/codes',
+  path: '/admin/codes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBotsIndexRoute = AuthenticatedBotsIndexRouteImport.update({
+  id: '/bots/',
+  path: '/bots/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBotsNewRoute = AuthenticatedBotsNewRouteImport.update({
+  id: '/bots/new',
+  path: '/bots/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBuilderFlowIdRoute =
+  AuthenticatedBuilderFlowIdRouteImport.update({
+    id: '/$flowId',
+    path: '/$flowId',
+    getParentRoute: () => AuthenticatedBuilderRoute,
+  } as any)
+const AuthenticatedMarketplaceIndexRoute =
+  AuthenticatedMarketplaceIndexRouteImport.update({
+    id: '/marketplace/',
+    path: '/marketplace/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMarketplaceListingIdRoute =
+  AuthenticatedMarketplaceListingIdRouteImport.update({
+    id: '/marketplace/$listingId',
+    path: '/marketplace/$listingId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthDiscordCallbackRoute = AuthDiscordCallbackRouteImport.update({
+  id: '/auth/discord/callback',
+  path: '/auth/discord/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBotsBotIdIndexRoute =
+  AuthenticatedBotsBotIdIndexRouteImport.update({
+    id: '/bots/$botId/',
+    path: '/bots/$botId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdAutomationsRoute =
+  AuthenticatedBotsBotIdAutomationsRouteImport.update({
+    id: '/bots/$botId/automations',
+    path: '/bots/$botId/automations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdCommandsRoute =
+  AuthenticatedBotsBotIdCommandsRouteImport.update({
+    id: '/bots/$botId/commands',
+    path: '/bots/$botId/commands',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdComponentsRoute =
+  AuthenticatedBotsBotIdComponentsRouteImport.update({
+    id: '/bots/$botId/components',
+    path: '/bots/$botId/components',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdEventsRoute =
+  AuthenticatedBotsBotIdEventsRouteImport.update({
+    id: '/bots/$botId/events',
+    path: '/bots/$botId/events',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdLogsRoute =
+  AuthenticatedBotsBotIdLogsRouteImport.update({
+    id: '/bots/$botId/logs',
+    path: '/bots/$botId/logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdPresenceRoute =
+  AuthenticatedBotsBotIdPresenceRouteImport.update({
+    id: '/bots/$botId/presence',
+    path: '/bots/$botId/presence',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBotsBotIdSettingsRoute =
+  AuthenticatedBotsBotIdSettingsRouteImport.update({
+    id: '/bots/$botId/settings',
+    path: '/bots/$botId/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiInternalRuntimeEventsRoute =
+  ApiInternalRuntimeEventsRouteImport.update({
+    id: '/api/internal/runtime/events',
+    path: '/api/internal/runtime/events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiInternalBotsBotIdTokenRoute =
+  ApiInternalBotsBotIdTokenRouteImport.update({
+    id: '/api/internal/bots/$botId/token',
+    path: '/api/internal/bots/$botId/token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/docs': typeof DocsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
+  '/xadmx': typeof XadmxRoute
+  '/billing': typeof AuthenticatedBillingRoute
+  '/builder': typeof AuthenticatedBuilderRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/bots/new': typeof AuthenticatedBotsNewRoute
+  '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
+  '/marketplace/$listingId': typeof AuthenticatedMarketplaceListingIdRoute
+  '/auth/discord/callback': typeof AuthDiscordCallbackRoute
+  '/bots/': typeof AuthenticatedBotsIndexRoute
+  '/marketplace/': typeof AuthenticatedMarketplaceIndexRoute
+  '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
+  '/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
+  '/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
+  '/bots/$botId/events': typeof AuthenticatedBotsBotIdEventsRoute
+  '/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
+  '/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
+  '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
+  '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/bots/$botId/': typeof AuthenticatedBotsBotIdIndexRoute
+  '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/docs': typeof DocsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
+  '/xadmx': typeof XadmxRoute
+  '/billing': typeof AuthenticatedBillingRoute
+  '/builder': typeof AuthenticatedBuilderRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/bots/new': typeof AuthenticatedBotsNewRoute
+  '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
+  '/marketplace/$listingId': typeof AuthenticatedMarketplaceListingIdRoute
+  '/auth/discord/callback': typeof AuthDiscordCallbackRoute
+  '/bots': typeof AuthenticatedBotsIndexRoute
+  '/marketplace': typeof AuthenticatedMarketplaceIndexRoute
+  '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
+  '/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
+  '/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
+  '/bots/$botId/events': typeof AuthenticatedBotsBotIdEventsRoute
+  '/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
+  '/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
+  '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
+  '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/bots/$botId': typeof AuthenticatedBotsBotIdIndexRoute
+  '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/docs': typeof DocsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
+  '/xadmx': typeof XadmxRoute
+  '/_authenticated/billing': typeof AuthenticatedBillingRoute
+  '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
+  '/_authenticated/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
+  '/_authenticated/marketplace/$listingId': typeof AuthenticatedMarketplaceListingIdRoute
+  '/auth/discord/callback': typeof AuthDiscordCallbackRoute
+  '/_authenticated/bots/': typeof AuthenticatedBotsIndexRoute
+  '/_authenticated/marketplace/': typeof AuthenticatedMarketplaceIndexRoute
+  '/_authenticated/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
+  '/_authenticated/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
+  '/_authenticated/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
+  '/_authenticated/bots/$botId/events': typeof AuthenticatedBotsBotIdEventsRoute
+  '/_authenticated/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
+  '/_authenticated/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
+  '/_authenticated/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
+  '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/_authenticated/bots/$botId/': typeof AuthenticatedBotsBotIdIndexRoute
+  '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/docs'
+    | '/forgot-password'
+    | '/login'
+    | '/pricing'
+    | '/register'
+    | '/xadmx'
+    | '/billing'
+    | '/builder'
+    | '/dashboard'
+    | '/admin/codes'
+    | '/bots/new'
+    | '/builder/$flowId'
+    | '/marketplace/$listingId'
+    | '/auth/discord/callback'
+    | '/bots/'
+    | '/marketplace/'
+    | '/bots/$botId/automations'
+    | '/bots/$botId/commands'
+    | '/bots/$botId/components'
+    | '/bots/$botId/events'
+    | '/bots/$botId/logs'
+    | '/bots/$botId/presence'
+    | '/bots/$botId/settings'
+    | '/api/internal/runtime/events'
+    | '/bots/$botId/'
+    | '/api/internal/bots/$botId/token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/docs'
+    | '/forgot-password'
+    | '/login'
+    | '/pricing'
+    | '/register'
+    | '/xadmx'
+    | '/billing'
+    | '/builder'
+    | '/dashboard'
+    | '/admin/codes'
+    | '/bots/new'
+    | '/builder/$flowId'
+    | '/marketplace/$listingId'
+    | '/auth/discord/callback'
+    | '/bots'
+    | '/marketplace'
+    | '/bots/$botId/automations'
+    | '/bots/$botId/commands'
+    | '/bots/$botId/components'
+    | '/bots/$botId/events'
+    | '/bots/$botId/logs'
+    | '/bots/$botId/presence'
+    | '/bots/$botId/settings'
+    | '/api/internal/runtime/events'
+    | '/bots/$botId'
+    | '/api/internal/bots/$botId/token'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/docs'
+    | '/forgot-password'
+    | '/login'
+    | '/pricing'
+    | '/register'
+    | '/xadmx'
+    | '/_authenticated/billing'
+    | '/_authenticated/builder'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/admin/codes'
+    | '/_authenticated/bots/new'
+    | '/_authenticated/builder/$flowId'
+    | '/_authenticated/marketplace/$listingId'
+    | '/auth/discord/callback'
+    | '/_authenticated/bots/'
+    | '/_authenticated/marketplace/'
+    | '/_authenticated/bots/$botId/automations'
+    | '/_authenticated/bots/$botId/commands'
+    | '/_authenticated/bots/$botId/components'
+    | '/_authenticated/bots/$botId/events'
+    | '/_authenticated/bots/$botId/logs'
+    | '/_authenticated/bots/$botId/presence'
+    | '/_authenticated/bots/$botId/settings'
+    | '/api/internal/runtime/events'
+    | '/_authenticated/bots/$botId/'
+    | '/api/internal/bots/$botId/token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  DocsRoute: typeof DocsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
+  RegisterRoute: typeof RegisterRoute
+  XadmxRoute: typeof XadmxRoute
+  AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
+  ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
+  ApiInternalBotsBotIdTokenRoute: typeof ApiInternalBotsBotIdTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +394,264 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/xadmx': {
+      id: '/xadmx'
+      path: '/xadmx'
+      fullPath: '/xadmx'
+      preLoaderRoute: typeof XadmxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/builder': {
+      id: '/_authenticated/builder'
+      path: '/builder'
+      fullPath: '/builder'
+      preLoaderRoute: typeof AuthenticatedBuilderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/codes': {
+      id: '/_authenticated/admin/codes'
+      path: '/admin/codes'
+      fullPath: '/admin/codes'
+      preLoaderRoute: typeof AuthenticatedAdminCodesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/': {
+      id: '/_authenticated/bots/'
+      path: '/bots'
+      fullPath: '/bots/'
+      preLoaderRoute: typeof AuthenticatedBotsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/new': {
+      id: '/_authenticated/bots/new'
+      path: '/bots/new'
+      fullPath: '/bots/new'
+      preLoaderRoute: typeof AuthenticatedBotsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/builder/$flowId': {
+      id: '/_authenticated/builder/$flowId'
+      path: '/$flowId'
+      fullPath: '/builder/$flowId'
+      preLoaderRoute: typeof AuthenticatedBuilderFlowIdRouteImport
+      parentRoute: typeof AuthenticatedBuilderRoute
+    }
+    '/_authenticated/marketplace/': {
+      id: '/_authenticated/marketplace/'
+      path: '/marketplace'
+      fullPath: '/marketplace/'
+      preLoaderRoute: typeof AuthenticatedMarketplaceIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/marketplace/$listingId': {
+      id: '/_authenticated/marketplace/$listingId'
+      path: '/marketplace/$listingId'
+      fullPath: '/marketplace/$listingId'
+      preLoaderRoute: typeof AuthenticatedMarketplaceListingIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth/discord/callback': {
+      id: '/auth/discord/callback'
+      path: '/auth/discord/callback'
+      fullPath: '/auth/discord/callback'
+      preLoaderRoute: typeof AuthDiscordCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/bots/$botId/': {
+      id: '/_authenticated/bots/$botId/'
+      path: '/bots/$botId'
+      fullPath: '/bots/$botId/'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/automations': {
+      id: '/_authenticated/bots/$botId/automations'
+      path: '/bots/$botId/automations'
+      fullPath: '/bots/$botId/automations'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdAutomationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/commands': {
+      id: '/_authenticated/bots/$botId/commands'
+      path: '/bots/$botId/commands'
+      fullPath: '/bots/$botId/commands'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdCommandsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/components': {
+      id: '/_authenticated/bots/$botId/components'
+      path: '/bots/$botId/components'
+      fullPath: '/bots/$botId/components'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdComponentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/events': {
+      id: '/_authenticated/bots/$botId/events'
+      path: '/bots/$botId/events'
+      fullPath: '/bots/$botId/events'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdEventsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/logs': {
+      id: '/_authenticated/bots/$botId/logs'
+      path: '/bots/$botId/logs'
+      fullPath: '/bots/$botId/logs'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/presence': {
+      id: '/_authenticated/bots/$botId/presence'
+      path: '/bots/$botId/presence'
+      fullPath: '/bots/$botId/presence'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdPresenceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bots/$botId/settings': {
+      id: '/_authenticated/bots/$botId/settings'
+      path: '/bots/$botId/settings'
+      fullPath: '/bots/$botId/settings'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/internal/runtime/events': {
+      id: '/api/internal/runtime/events'
+      path: '/api/internal/runtime/events'
+      fullPath: '/api/internal/runtime/events'
+      preLoaderRoute: typeof ApiInternalRuntimeEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/bots/$botId/token': {
+      id: '/api/internal/bots/$botId/token'
+      path: '/api/internal/bots/$botId/token'
+      fullPath: '/api/internal/bots/$botId/token'
+      preLoaderRoute: typeof ApiInternalBotsBotIdTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedBuilderRouteChildren {
+  AuthenticatedBuilderFlowIdRoute: typeof AuthenticatedBuilderFlowIdRoute
+}
+
+const AuthenticatedBuilderRouteChildren: AuthenticatedBuilderRouteChildren = {
+  AuthenticatedBuilderFlowIdRoute: AuthenticatedBuilderFlowIdRoute,
+}
+
+const AuthenticatedBuilderRouteWithChildren =
+  AuthenticatedBuilderRoute._addFileChildren(AuthenticatedBuilderRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
+  AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
+  AuthenticatedBotsNewRoute: typeof AuthenticatedBotsNewRoute
+  AuthenticatedMarketplaceListingIdRoute: typeof AuthenticatedMarketplaceListingIdRoute
+  AuthenticatedBotsIndexRoute: typeof AuthenticatedBotsIndexRoute
+  AuthenticatedMarketplaceIndexRoute: typeof AuthenticatedMarketplaceIndexRoute
+  AuthenticatedBotsBotIdAutomationsRoute: typeof AuthenticatedBotsBotIdAutomationsRoute
+  AuthenticatedBotsBotIdCommandsRoute: typeof AuthenticatedBotsBotIdCommandsRoute
+  AuthenticatedBotsBotIdComponentsRoute: typeof AuthenticatedBotsBotIdComponentsRoute
+  AuthenticatedBotsBotIdEventsRoute: typeof AuthenticatedBotsBotIdEventsRoute
+  AuthenticatedBotsBotIdLogsRoute: typeof AuthenticatedBotsBotIdLogsRoute
+  AuthenticatedBotsBotIdPresenceRoute: typeof AuthenticatedBotsBotIdPresenceRoute
+  AuthenticatedBotsBotIdSettingsRoute: typeof AuthenticatedBotsBotIdSettingsRoute
+  AuthenticatedBotsBotIdIndexRoute: typeof AuthenticatedBotsBotIdIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
+  AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
+  AuthenticatedBotsNewRoute: AuthenticatedBotsNewRoute,
+  AuthenticatedMarketplaceListingIdRoute:
+    AuthenticatedMarketplaceListingIdRoute,
+  AuthenticatedBotsIndexRoute: AuthenticatedBotsIndexRoute,
+  AuthenticatedMarketplaceIndexRoute: AuthenticatedMarketplaceIndexRoute,
+  AuthenticatedBotsBotIdAutomationsRoute:
+    AuthenticatedBotsBotIdAutomationsRoute,
+  AuthenticatedBotsBotIdCommandsRoute: AuthenticatedBotsBotIdCommandsRoute,
+  AuthenticatedBotsBotIdComponentsRoute: AuthenticatedBotsBotIdComponentsRoute,
+  AuthenticatedBotsBotIdEventsRoute: AuthenticatedBotsBotIdEventsRoute,
+  AuthenticatedBotsBotIdLogsRoute: AuthenticatedBotsBotIdLogsRoute,
+  AuthenticatedBotsBotIdPresenceRoute: AuthenticatedBotsBotIdPresenceRoute,
+  AuthenticatedBotsBotIdSettingsRoute: AuthenticatedBotsBotIdSettingsRoute,
+  AuthenticatedBotsBotIdIndexRoute: AuthenticatedBotsBotIdIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  DocsRoute: DocsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
+  RegisterRoute: RegisterRoute,
+  XadmxRoute: XadmxRoute,
+  AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
+  ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
+  ApiInternalBotsBotIdTokenRoute: ApiInternalBotsBotIdTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
