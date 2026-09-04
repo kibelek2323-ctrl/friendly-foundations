@@ -10,7 +10,23 @@ export const Route = createFileRoute("/faq")({
     { property: "og:description", content: "Answers about building, running and buying Discord bots with Bottly." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
-  ]}),
+    { property: "og:url", content: "https://bottly.xyz/faq" },
+  ],
+  links: [{ rel: "canonical", href: "https://bottly.xyz/faq" }],
+  scripts: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: questions.map(([question, answer]) => ({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: { "@type": "Answer", text: answer },
+        })),
+      }),
+    },
+  ] }),
   component: Page,
 });
 
