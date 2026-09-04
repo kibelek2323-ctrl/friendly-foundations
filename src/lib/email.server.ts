@@ -1,6 +1,8 @@
-/** Server-only transactional email helper (Resend). */
+/** Server-only transactional email helper (Lovable managed email). */
+import { sendLovableEmail } from "@lovable.dev/email-js";
 
 const FROM = "Bottly <auth@bottly.xyz>";
+const SENDER_DOMAIN = "notify.bottly.xyz";
 
 export interface SendEmailInput {
   to: string;
@@ -9,23 +11,22 @@ export interface SendEmailInput {
 }
 
 export async function sendTransactionalEmail({ to, subject, html }: SendEmailInput): Promise<void> {
-  const apiKey = process.env["RESEND_API_KEY"];
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("Email delivery is not configured yet.");
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+  await sendLovableEmail(
+    {
+      to,
+      from: FROM,
+      sender_domain: SENDER_DOMAIN,
+      subject,
+      html,
+      text: html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+      purpose: "transactional",
+      label: "bottly-auth",
     },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    console.error("Resend send failed", response.status, detail);
-    throw new Error("Could not send the email. Please try again.");
-  }
+    { apiKey, sendUrl: process.env["LOVABLE_SEND_URL"] },
+  );
 }
 
 /** Modern, brand-styled shell used by all Bottly transactional emails. */
