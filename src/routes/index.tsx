@@ -26,11 +26,6 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const demoDesign = {
-  ...defaultDesign("Bottly Helper"),
-  messageContent: "Welcome to the server, <@newcomer>! Here's everything you need to get started.",
-};
-const demoComponents = [createComponent("button"), createComponent("string-select")];
 
 const FEATURE_CARDS = [
   { icon: Palette, title: "Visual embed designer", body: "Build rich embeds with authors, fields, images and footers — see them exactly as Discord renders them." },
