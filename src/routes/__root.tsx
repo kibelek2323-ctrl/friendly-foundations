@@ -143,6 +143,7 @@ function RootComponent() {
       <TooltipProvider delayDuration={300}>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <AuthBootstrap />
+        <NavigationProgress />
         <CountdownGate>
           <Outlet />
         </CountdownGate>
