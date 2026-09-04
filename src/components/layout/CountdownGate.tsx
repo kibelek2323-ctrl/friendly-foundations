@@ -257,11 +257,26 @@ export function CountdownGate({ children }: { children: ReactNode }) {
   const isOpenRoute = OPEN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const adminBypass = !!user && initialized && !isLoading && isAdmin === true;
 
-  if (!gated || isOpenRoute || adminBypass) return <>{children}</>;
+  if (!gated || isOpenRoute || adminBypass || unlocked) return <>{children}</>;
   // Before the settings load: trust the remembered "open" verdict, otherwise hold the gate.
   if (!gate && cachedOpen) return <>{children}</>;
   if (!gate) return <div className="min-h-screen bg-background" />;
 
-  if (maintenance.enabled) return <MaintenanceScreen settings={maintenance} />;
+  if (maintenance.enabled)
+    return (
+      <MaintenanceScreen
+        settings={maintenance}
+        hasPassword={gate.maintenancePassword}
+        onUnlock={() => {
+          try {
+            window.sessionStorage.setItem(UNLOCK_KEY, "1");
+          } catch {
+            /* storage unavailable */
+          }
+          setUnlocked(true);
+        }}
+      />
+    );
   return <CountdownScreen target={countdown.launchAt} />;
 }
+
