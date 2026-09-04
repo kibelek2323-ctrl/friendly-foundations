@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowDownLeft, ArrowUpRight, DollarSign, Loader2, Plus } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Bitcoin, DollarSign, Loader2, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,12 @@ import {
 } from "@/components/ui/dialog";
 import { getBalanceHistory, redeemBalanceCode } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
+import {
+  MAX_TOPUP_USD,
+  MIN_TOPUP_USD,
+  TOPUP_PRESETS,
+  createCryptoPayment,
+} from "@/lib/crypto-payments.functions";
 
 export const Route = createFileRoute("/_authenticated/balance")({
   head: () => ({
@@ -42,6 +48,25 @@ function Page() {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [amount, setAmount] = useState<number>(10);
+  const [paying, setPaying] = useState(false);
+  const startPayment = useServerFn(createCryptoPayment);
+
+  const payWithCrypto = async () => {
+    setPaying(true);
+    try {
+      const res = await startPayment({ data: { purpose: "topup", amount } });
+      if (res.ok && res.url) {
+        window.location.href = res.url;
+      } else {
+        toast.error(res.error ?? "Could not start the payment.");
+      }
+    } catch {
+      toast.error("Could not start the payment.");
+    } finally {
+      setPaying(false);
+    }
+  };
 
   const submit = async () => {
     if (!code.trim()) return;
