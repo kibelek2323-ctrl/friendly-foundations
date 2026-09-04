@@ -160,13 +160,6 @@
   html {
     color-scheme: dark;
     -webkit-font-smoothing: antialiased;
-    scroll-behavior: smooth;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
   }
 
   body {
