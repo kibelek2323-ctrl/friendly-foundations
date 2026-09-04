@@ -56,7 +56,7 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
     let appliedCodeId: string | null = null;
     if (data.purpose === "plan" && data.code && data.code.trim()) {
       const quote = await quotePlan(data.code, PLAN_PRICE_USD[data.plan]);
-      if (!quote.ok) return { ok: false, error: quote.error };
+      if (!quote.ok) return { ok: false, error: quote.error ?? "Invalid discount code." };
       amount = quote.finalPrice!;
       appliedCodeId = quote.id!;
     }
