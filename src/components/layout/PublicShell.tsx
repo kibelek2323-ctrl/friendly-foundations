@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeft, Zap } from "lucide-react";
 import { AccountNav } from "@/components/auth/AccountNav";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
 export function PublicShell({ children }: { children: ReactNode }) {
