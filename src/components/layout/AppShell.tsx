@@ -179,19 +179,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           <div className="space-y-0.5">
             <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
 
-            <NavItem to="/balance" icon={DollarSign} label="Balance" onNavigate={onNavigate} />
+            <NavItem to="/balance" icon={Wallet} label="Balance" onNavigate={onNavigate} />
             <NavItem to="/referrals" icon={Gift} label="Invite friends" onNavigate={onNavigate} />
             <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
-            {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/homepage" icon={Home} label="Homepage" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/payouts" icon={Wallet} label="Payouts" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/referrals" icon={Share2} label="Referrals" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/countdown" icon={Timer} label="Countdown" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
+            {isAdmin && <AdminNav onNavigate={onNavigate} />}
             <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
             <NavItem to="/templates" icon={LayoutTemplate} label="Templates" onNavigate={onNavigate} />
             <NavItem to="/pricing" icon={Tag} label="Pricing" onNavigate={onNavigate} />
