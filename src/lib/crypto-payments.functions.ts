@@ -92,12 +92,16 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
       const invoice = (await res.json()) as { id?: string | number; invoice_url?: string };
       if (!invoice.invoice_url) return { ok: false, error: "The payment provider returned no checkout link." };
 
-      await supabaseAdmin
-        .from("crypto_payments")
-        .update({ invoice_id: invoice.id ? String(invoice.id) : null })
-        .eq("order_id", orderId);
+      const invoiceId = invoice.id != null ? String(invoice.id) : null;
+      await supabaseAdmin.from("crypto_payments").update({ invoice_id: invoiceId }).eq("order_id", orderId);
 
-      return { ok: true, url: invoice.invoice_url };
+      return {
+        ok: true,
+        url: invoice.invoice_url,
+        widgetUrl: invoiceId ? `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}` : undefined,
+        orderId,
+        amount,
+      };
     } catch (error) {
       console.error("NOWPayments invoice error", error);
       await supabaseAdmin.from("crypto_payments").update({ status: "failed" }).eq("order_id", orderId);
