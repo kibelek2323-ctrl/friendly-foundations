@@ -1,3 +1,4 @@
+import { BackLink } from "@/components/common/BackLink";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,12 +63,7 @@ function Page() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-16">
-        <Link
-          to="/"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back to home
-        </Link>
+        <BackLink />
 
         <h1 className="mt-6 text-3xl font-semibold tracking-tight">
           Pricing that scales with your server

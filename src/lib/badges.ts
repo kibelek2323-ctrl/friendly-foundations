@@ -2,6 +2,7 @@
 
 export type BadgeKey =
   | "verified"
+  | "developer"
   | "official"
   | "staff"
   | "partner"
@@ -35,6 +36,14 @@ export interface BadgeDef {
 }
 
 export const BADGES: BadgeDef[] = [
+  {
+    key: "developer",
+    label: "Developer",
+    description: "Can publish bots on the marketplace and receive earnings.",
+    kind: "manual",
+    tone: "primary",
+    icon: "hammer",
+  },
   {
     key: "verified",
     label: "Verified",

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackLink } from "@/components/common/BackLink";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { DiscordMarkdown } from "@/components/discord/DiscordMarkdown";
 
@@ -267,9 +268,7 @@ function Page() {
   return (
     <PublicShell>
       <div className="mx-auto max-w-6xl px-4 py-16">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Back to home
-        </Link>
+        <BackLink />
         <h1 className="mt-6 text-3xl font-semibold tracking-tight">Documentation</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Everything you need to go from an empty workspace to a live Discord bot — and to selling it on the

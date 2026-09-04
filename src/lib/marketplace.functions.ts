@@ -275,6 +275,12 @@ export const publishListing = createServerFn({ method: "POST" })
       .maybeSingle();
     if (profile?.banned) return { ok: false, error: "Your account is suspended from publishing." };
 
+    const { hasDeveloperAccess } = await import("./roles.functions");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(await hasDeveloperAccess(context as any))) {
+      return { ok: false, error: "Publishing is limited to Developer accounts. Ask the Bottly team for access." };
+    }
+
     const { error, data: row } = await context.supabase
       .from("marketplace_listings")
       .insert({
