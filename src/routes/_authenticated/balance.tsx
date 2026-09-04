@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowDownLeft, ArrowUpRight, DollarSign, Loader2, Plus } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Bitcoin, DollarSign, Loader2, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,12 @@ import {
 } from "@/components/ui/dialog";
 import { getBalanceHistory, redeemBalanceCode } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
+import {
+  MAX_TOPUP_USD,
+  MIN_TOPUP_USD,
+  TOPUP_PRESETS,
+  createCryptoPayment,
+} from "@/lib/crypto-payments.functions";
 
 export const Route = createFileRoute("/_authenticated/balance")({
   head: () => ({
@@ -42,6 +48,25 @@ function Page() {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [amount, setAmount] = useState<number>(10);
+  const [paying, setPaying] = useState(false);
+  const startPayment = useServerFn(createCryptoPayment);
+
+  const payWithCrypto = async () => {
+    setPaying(true);
+    try {
+      const res = await startPayment({ data: { purpose: "topup", amount } });
+      if (res.ok && res.url) {
+        window.location.href = res.url;
+      } else {
+        toast.error(res.error ?? "Could not start the payment.");
+      }
+    } catch {
+      toast.error("Could not start the payment.");
+    } finally {
+      setPaying(false);
+    }
+  };
 
   const submit = async () => {
     if (!code.trim()) return;
@@ -92,13 +117,53 @@ function Page() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Top up your balance</DialogTitle>
-                <DialogDescription>Enter a Bottly balance code to add funds to your account.</DialogDescription>
+                <DialogDescription>Pay with crypto or redeem a Bottly balance code.</DialogDescription>
               </DialogHeader>
-              <div className="space-y-1.5">
+
+              <div className="space-y-3">
+                <Label>Pay with crypto</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TOPUP_PRESETS.map((p) => (
+                    <Button
+                      key={p}
+                      type="button"
+                      size="sm"
+                      variant={amount === p ? "default" : "outline"}
+                      onClick={() => setAmount(p)}
+                    >
+                      {usd(p)}
+                    </Button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={MIN_TOPUP_USD}
+                    max={MAX_TOPUP_USD}
+                    value={amount}
+                    aria-label="Custom top-up amount in USD"
+                    onChange={(e) => setAmount(Math.round(Number(e.target.value) || 0))}
+                  />
+                  <Button
+                    type="button"
+                    className="shrink-0 gap-1.5"
+                    disabled={paying || amount < MIN_TOPUP_USD || amount > MAX_TOPUP_USD}
+                    onClick={() => void payWithCrypto()}
+                  >
+                    {paying ? <Loader2 className="size-4 animate-spin" /> : <Bitcoin className="size-4" />} Pay with
+                    crypto
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Minimum {usd(MIN_TOPUP_USD)}. Your balance is credited automatically once the payment is confirmed on
+                  the blockchain.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 border-t border-border pt-4">
                 <Label htmlFor="topup-code">Balance code</Label>
                 <Input
                   id="topup-code"
-                  autoFocus
                   value={code}
                   placeholder="CR-XXXX-XXXX-XXXX"
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -106,7 +171,12 @@ function Page() {
                 />
               </div>
               <DialogFooter>
-                <Button disabled={busy || !code.trim()} onClick={() => void submit()} className="gap-1.5">
+                <Button
+                  variant="outline"
+                  disabled={busy || !code.trim()}
+                  onClick={() => void submit()}
+                  className="gap-1.5"
+                >
                   {busy ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />} Redeem code
                 </Button>
               </DialogFooter>
