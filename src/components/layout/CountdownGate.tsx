@@ -106,13 +106,39 @@ function CountdownScreen({ target }: { target: number }) {
   );
 }
 
-function MaintenanceScreen({ settings }: { settings: MaintenanceSettings }) {
+function MaintenanceScreen({
+  settings,
+  hasPassword,
+  onUnlock,
+}: {
+  settings: MaintenanceSettings;
+  hasPassword: boolean;
+  onUnlock: () => void;
+}) {
   const back = settings.endsAt ? new Date(settings.endsAt) : null;
+  const unlock = useServerFn(unlockMaintenance);
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(false);
+
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(false);
+    try {
+      const res = await unlock({ data: { password } });
+      if (res.ok) onUnlock();
+      else setError(true);
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-center">
-      <Wordmark />
-
-      <span className="mt-8 flex size-14 items-center justify-center rounded-2xl bg-elevated text-primary">
+      <span className="flex size-14 items-center justify-center rounded-2xl bg-elevated text-primary">
         <Wrench className="size-7" aria-hidden="true" />
       </span>
       <h1 className="mt-6 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
@@ -126,6 +152,31 @@ function MaintenanceScreen({ settings }: { settings: MaintenanceSettings }) {
           {back ? back.toLocaleString() : "Not known yet"}
         </span>
       </div>
+
+      {hasPassword && (
+        <form onSubmit={submit} className="panel mt-6 w-full max-w-sm space-y-3 rounded-xl p-5 text-left">
+          <label htmlFor="maintenance-password" className="flex items-center gap-2 text-sm font-medium">
+            <Lock className="size-4 text-primary" aria-hidden="true" /> Admin password
+          </label>
+          <input
+            id="maintenance-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password to continue"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
+          {error && <p className="text-xs text-destructive">Incorrect password.</p>}
+          <button
+            type="submit"
+            disabled={busy || !password}
+            className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+          >
+            {busy ? "Checking…" : "Enter site"}
+          </button>
+        </form>
+      )}
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
@@ -148,6 +199,7 @@ function MaintenanceScreen({ settings }: { settings: MaintenanceSettings }) {
     </div>
   );
 }
+
 
 export function CountdownGate({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
