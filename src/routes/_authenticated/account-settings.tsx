@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { BadgeCheck, ExternalLink, Loader2, Save } from "lucide-react";
+import { BadgeCheck, ExternalLink, ImagePlus, Loader2, Save, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getMyProfile, updateMyProfile } from "@/lib/creators.functions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getMyProfile, removeMyAvatar, updateMyProfile, uploadMyAvatar } from "@/lib/creators.functions";
 import { TwoFactorSettings } from "@/components/auth/TwoFactorSettings";
 
 export const Route = createFileRoute("/_authenticated/account-settings")({

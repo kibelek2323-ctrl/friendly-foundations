@@ -196,15 +196,26 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
       <div className="border-t border-sidebar-border px-3 py-3">
         <div className="flex items-center gap-2.5 rounded-md px-2.5 py-2">
 
-          <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+          <Link
+            to="/account-settings"
+            onClick={onNavigate}
+            aria-label="Edit profile"
+            className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground ring-primary/40 transition-shadow hover:ring-2"
+          >
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="size-full object-cover" />
             ) : (
               initials(user?.name ?? "Guest") || "G"
             )}
-          </span>
+          </Link>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-foreground">{displayName ?? user?.name ?? "Guest builder"}</p>
+            <Link
+              to="/account-settings"
+              onClick={onNavigate}
+              className="block truncate text-sm font-medium text-foreground hover:underline"
+            >
+              {displayName ?? user?.name ?? "Guest builder"}
+            </Link>
             {user && (
               <Link
                 to="/balance"
@@ -214,9 +225,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
                 {usd(balance?.balance ?? 0)}
               </Link>
             )}
-            <p className="truncate text-xs text-muted-foreground">
+            <Link
+              to="/account-settings"
+              onClick={onNavigate}
+              className="block truncate text-xs text-muted-foreground hover:underline"
+            >
               {discordUsername ? `@${discordUsername}` : (user?.email ?? "Not signed in")}
-            </p>
+            </Link>
           </div>
 
           <Button
