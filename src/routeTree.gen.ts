@@ -34,6 +34,8 @@ import { Route as AuthenticatedReferralsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedStorageRouteImport } from './routes/_authenticated/storage'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as DocsIndexRouteImport } from './routes/docs.index'
+import { Route as DocsSlugRouteImport } from './routes/docs.$slug'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -196,6 +198,16 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/docs/',
+  path: '/docs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsSlugRoute = DocsSlugRouteImport.update({
+  id: '/docs/$slug',
+  path: '/docs/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
@@ -438,9 +450,11 @@ export interface FileRoutesByFullPath {
   '/referrals': typeof AuthenticatedReferralsRoute
   '/storage': typeof AuthenticatedStorageRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
   '/blog/': typeof BlogIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
@@ -502,9 +516,11 @@ export interface FileRoutesByTo {
   '/referrals': typeof AuthenticatedReferralsRoute
   '/storage': typeof AuthenticatedStorageRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
   '/blog': typeof BlogIndexRoute
+  '/docs': typeof DocsIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
@@ -568,9 +584,11 @@ export interface FileRoutesById {
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/storage': typeof AuthenticatedStorageRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
   '/blog/': typeof BlogIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
@@ -634,9 +652,11 @@ export interface FileRouteTypes {
     | '/referrals'
     | '/storage'
     | '/blog/$slug'
+    | '/docs/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
     | '/blog/'
+    | '/docs/'
     | '/marketplace/'
     | '/admin/announcements'
     | '/admin/blog'
@@ -698,9 +718,11 @@ export interface FileRouteTypes {
     | '/referrals'
     | '/storage'
     | '/blog/$slug'
+    | '/docs/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
     | '/blog'
+    | '/docs'
     | '/marketplace'
     | '/admin/announcements'
     | '/admin/blog'
@@ -763,9 +785,11 @@ export interface FileRouteTypes {
     | '/_authenticated/referrals'
     | '/_authenticated/storage'
     | '/blog/$slug'
+    | '/docs/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
     | '/blog/'
+    | '/docs/'
     | '/marketplace/'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/blog'
@@ -820,9 +844,11 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   XadmxRoute: typeof XadmxRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  DocsSlugRoute: typeof DocsSlugRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   UUsernameRoute: typeof UUsernameRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  DocsIndexRoute: typeof DocsIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
@@ -1007,6 +1033,20 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/docs'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/$slug': {
+      id: '/docs/$slug'
+      path: '/docs/$slug'
+      fullPath: '/docs/$slug'
+      preLoaderRoute: typeof DocsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace/': {
@@ -1393,9 +1433,11 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   XadmxRoute: XadmxRoute,
   BlogSlugRoute: BlogSlugRoute,
+  DocsSlugRoute: DocsSlugRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   UUsernameRoute: UUsernameRoute,
   BlogIndexRoute: BlogIndexRoute,
+  DocsIndexRoute: DocsIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,

@@ -140,6 +140,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
   const [address, setAddress] = useState<CryptoAddress | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
+  const [qrMode, setQrMode] = useState<"address" | "amount">("amount");
 
   const [status, setStatus] = useState<string>("waiting");
   const [live, setLive] = useState<CryptoPaymentStatus | null>(null);
@@ -170,14 +171,24 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
     }
   };
 
+  const qrValue = useMemo(
+    () =>
+      address?.payAddress
+        ? qrMode === "amount"
+          ? buildPaymentUri(address.payCurrency, address.payAddress, address.payAmount, address.payinExtraId)
+          : address.payAddress
+        : null,
+    [address?.payAddress, address?.payAmount, address?.payCurrency, address?.payinExtraId, qrMode],
+  );
+
   // QR code for the deposit address (rendered with Bottly's palette).
   useEffect(() => {
-    if (!address?.payAddress) {
+    if (!qrValue) {
       setQr(null);
       return;
     }
     let active = true;
-    void QRCode.toDataURL(address.payAddress, {
+    void QRCode.toDataURL(qrValue, {
       margin: 1,
       width: 320,
       errorCorrectionLevel: "M",
