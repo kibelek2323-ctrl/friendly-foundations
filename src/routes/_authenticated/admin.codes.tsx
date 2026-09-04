@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { BadgeCheck, Copy, Loader2, ShieldAlert } from "lucide-react";
+import { BadgeCheck, Copy, Download, Loader2, ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,67 @@ export const Route = createFileRoute("/_authenticated/admin/codes")({
   }),
   component: Page,
 });
+
+type ExportRow = { code: string; usedCount: number; maxUses: number; active: boolean };
+type ExportFilter = "all" | "unused" | "used" | "active" | "inactive";
+
+const EXPORT_FILTERS: { value: ExportFilter; label: string }[] = [
+  { value: "all", label: "All codes" },
+  { value: "unused", label: "Unused only" },
+  { value: "used", label: "Used only" },
+  { value: "active", label: "Active only" },
+  { value: "inactive", label: "Inactive only" },
+];
+
+function matchesFilter(row: ExportRow, filter: ExportFilter) {
+  if (filter === "unused") return row.usedCount === 0;
+  if (filter === "used") return row.usedCount > 0;
+  if (filter === "active") return row.active;
+  if (filter === "inactive") return !row.active;
+  return true;
+}
+
+/** Filter + download-as-txt toolbar shown above every code list. */
+function ExportBar({ rows, filename }: { rows: ExportRow[]; filename: string }) {
+  const [filter, setFilter] = useState<ExportFilter>("all");
+  const selected = rows.filter((r) => matchesFilter(r, filter));
+
+  const download = () => {
+    if (selected.length === 0) {
+      toast.error("No codes match this filter.");
+      return;
+    }
+    const blob = new Blob([selected.map((r) => r.code).join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Downloaded ${selected.length} codes`);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
+      <Select value={filter} onValueChange={(v) => setFilter(v as ExportFilter)}>
+        <SelectTrigger className="w-44">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {EXPORT_FILTERS.map((f) => (
+            <SelectItem key={f.value} value={f.value}>
+              {f.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <span className="text-xs text-muted-foreground">{selected.length} codes</span>
+      <Button variant="outline" size="sm" className="ml-auto gap-1.5" onClick={download}>
+        <Download className="size-4" /> Download .txt
+      </Button>
+    </div>
+  );
+}
 
 function Page() {
   const checkAdmin = useServerFn(amIAdmin);
@@ -206,6 +267,7 @@ function Page() {
         </section>
 
         <section className="panel divide-y divide-border">
+          <ExportBar rows={codes.data ?? []} filename="plan-codes.txt" />
           {codes.isLoading && (
             <div className="flex justify-center p-8">
               <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
@@ -276,6 +338,7 @@ function Page() {
         </section>
 
         <section className="panel divide-y divide-border">
+          <ExportBar rows={balCodes.data ?? []} filename="balance-codes.txt" />
           {balCodes.isLoading && (
             <div className="flex justify-center p-8">
               <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
@@ -344,6 +407,7 @@ function Page() {
         </section>
 
         <section className="panel divide-y divide-border">
+          <ExportBar rows={discCodes.data ?? []} filename="discount-codes.txt" />
           {discCodes.isLoading && (
             <div className="flex justify-center p-8">
               <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
