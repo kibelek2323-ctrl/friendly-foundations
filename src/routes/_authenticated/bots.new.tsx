@@ -115,7 +115,9 @@ function Page() {
 
   const finish = async () => {
     try {
+      if (mode === "flow" && draft.language !== "javascript") updateDraft({ language: "javascript" });
       const bot = commitDraft();
+
       if (mode === "code") {
         const result = await createProject({ data: { botId: bot.id, name: bot.name, runtime: "javascript" } });
         if (!result.ok || !result.project) throw new Error(result.error ?? "Could not create the project.");
@@ -315,18 +317,21 @@ function Page() {
                 />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="w-lang">Runtime</Label>
-                  <Select value={draft.language} onValueChange={(v) => updateDraft({ language: v as BotLanguage })}>
-                    <SelectTrigger id="w-lang">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="javascript">JavaScript (discord.js)</SelectItem>
-                      <SelectItem value="python">Python (discord.py)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {mode === "code" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="w-lang">Runtime</Label>
+                    <Select value={draft.language} onValueChange={(v) => updateDraft({ language: v as BotLanguage })}>
+                      <SelectTrigger id="w-lang">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="javascript">JavaScript (discord.js)</SelectItem>
+                        <SelectItem value="python">Python (discord.py)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div className="space-y-1.5">
                   <Label htmlFor="w-tz">Timezone</Label>
                   <Select value={draft.timezone} onValueChange={(v) => updateDraft({ timezone: v })}>
