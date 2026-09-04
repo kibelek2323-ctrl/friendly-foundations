@@ -98,6 +98,7 @@ const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
   { to: "/admin/stats", icon: ChartLine, label: "Platform stats" },
   { to: "/admin/users", icon: Users, label: "Users" },
   { to: "/admin/reports", icon: Flag, label: "Moderation" },
+  { to: "/admin/applications", icon: UserRoundCheck, label: "Applications" },
   { to: "/admin/codes", icon: KeyRound, label: "Codes" },
   { to: "/admin/payouts", icon: Landmark, label: "Payouts" },
   { to: "/admin/referrals", icon: Share2, label: "Referrals" },
