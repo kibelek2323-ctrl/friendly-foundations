@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { BadgeCheck, ExternalLink, Loader2, Save } from "lucide-react";
+import { BadgeCheck, ExternalLink, ImagePlus, Loader2, Save, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getMyProfile, updateMyProfile } from "@/lib/creators.functions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getMyProfile, removeMyAvatar, updateMyProfile, uploadMyAvatar } from "@/lib/creators.functions";
 import { TwoFactorSettings } from "@/components/auth/TwoFactorSettings";
 
 export const Route = createFileRoute("/_authenticated/account-settings")({
@@ -29,12 +30,17 @@ export const Route = createFileRoute("/_authenticated/account-settings")({
 function Page() {
   const fetchProfile = useServerFn(getMyProfile);
   const save = useServerFn(updateMyProfile);
+  const uploadAvatar = useServerFn(uploadMyAvatar);
+  const deleteAvatar = useServerFn(removeMyAvatar);
+  const queryClient = useQueryClient();
   const { data, isLoading, refetch } = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [busy, setBusy] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -42,6 +48,42 @@ function Page() {
     setUsername(data.username ?? "");
     setBio(data.bio);
   }, [data]);
+
+  const pickAvatar = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > 2_000_000) {
+      toast.error("The image is larger than 2 MB.");
+      return;
+    }
+    setAvatarBusy(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      await uploadAvatar({ data: form });
+      toast.success("Profile photo updated.");
+      await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+      void refetch();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the photo.");
+    } finally {
+      setAvatarBusy(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  };
+
+  const clearAvatar = async () => {
+    setAvatarBusy(true);
+    try {
+      await deleteAvatar();
+      toast.success("Profile photo removed.");
+      await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+      void refetch();
+    } catch {
+      toast.error("Could not remove the photo.");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const submit = async () => {
     if (displayName.trim().length < 2) {
@@ -91,6 +133,51 @@ function Page() {
                 <BadgeCheck className="size-4" aria-hidden="true" /> Verified creator
               </p>
             )}
+
+            <div className="space-y-1.5">
+              <Label>Profile photo</Label>
+              <div className="flex items-center gap-4">
+                <Avatar className="size-16 border border-border">
+                  {data?.avatarUrl ? <AvatarImage src={data.avatarUrl} alt="Your profile photo" /> : null}
+                  <AvatarFallback className="text-lg">
+                    {(displayName || "U").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                    className="hidden"
+                    onChange={(e) => void pickAvatar(e.target.files?.[0])}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    disabled={avatarBusy}
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    {avatarBusy ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" aria-hidden="true" />}
+                    {data?.avatarUrl ? "Change photo" : "Upload photo"}
+                  </Button>
+                  {data?.avatarUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 text-destructive hover:text-destructive"
+                      disabled={avatarBusy}
+                      onClick={() => void clearAvatar()}
+                    >
+                      <Trash2 className="size-4" aria-hidden="true" /> Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">PNG, JPG, WebP, GIF or AVIF — up to 2 MB.</p>
+            </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="p-name">Display name</Label>
