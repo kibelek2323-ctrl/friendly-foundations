@@ -184,6 +184,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
             <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
             {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/homepage" icon={Home} label="Homepage" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/payouts" icon={Wallet} label="Payouts" onNavigate={onNavigate} />}
