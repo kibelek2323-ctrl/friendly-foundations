@@ -376,6 +376,54 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          credited_at: string | null
+          id: string
+          invoice_id: string | null
+          order_id: string
+          pay_currency: string | null
+          payment_id: string | null
+          plan: Database["public"]["Enums"]["plan_tier"] | null
+          purpose: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credited_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          order_id: string
+          pay_currency?: string | null
+          payment_id?: string | null
+          plan?: Database["public"]["Enums"]["plan_tier"] | null
+          purpose: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credited_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          order_id?: string
+          pay_currency?: string | null
+          payment_id?: string | null
+          plan?: Database["public"]["Enums"]["plan_tier"] | null
+          purpose?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       discord_connections: {
         Row: {
           access_token: string
@@ -1283,6 +1331,10 @@ export type Database = {
       }
       bump_ai_usage: { Args: { _user_id: string }; Returns: number }
       bump_listing_view: { Args: { _listing_id: string }; Returns: undefined }
+      credit_crypto_payment: {
+        Args: { _order_id: string; _pay_currency: string; _payment_id: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
