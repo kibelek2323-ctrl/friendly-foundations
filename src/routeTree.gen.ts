@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as XadmxRouteImport } from './routes/xadmx'
 import { Route as AuthenticatedAccountSettingsRouteImport } from './routes/_authenticated/account-settings'
@@ -26,6 +27,7 @@ import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPayoutsRouteImport } from './routes/_authenticated/payouts'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -109,6 +111,11 @@ const StatusRoute = StatusRouteImport.update({
   path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -143,6 +150,11 @@ const AuthenticatedBuilderRoute = AuthenticatedBuilderRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPayoutsRoute = AuthenticatedPayoutsRouteImport.update({
@@ -340,6 +352,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/status': typeof StatusRoute
+  '/templates': typeof TemplatesRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/account-settings': typeof AuthenticatedAccountSettingsRoute
@@ -347,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/payouts': typeof AuthenticatedPayoutsRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -391,6 +405,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/status': typeof StatusRoute
+  '/templates': typeof TemplatesRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/account-settings': typeof AuthenticatedAccountSettingsRoute
@@ -398,6 +413,7 @@ export interface FileRoutesByTo {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/payouts': typeof AuthenticatedPayoutsRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -444,6 +460,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/status': typeof StatusRoute
+  '/templates': typeof TemplatesRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/_authenticated/account-settings': typeof AuthenticatedAccountSettingsRoute
@@ -451,6 +468,7 @@ export interface FileRoutesById {
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/payouts': typeof AuthenticatedPayoutsRoute
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -497,6 +515,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/status'
+    | '/templates'
     | '/terms'
     | '/xadmx'
     | '/account-settings'
@@ -504,6 +523,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/onboarding'
     | '/payouts'
     | '/referrals'
     | '/blog/$slug'
@@ -548,6 +568,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/status'
+    | '/templates'
     | '/terms'
     | '/xadmx'
     | '/account-settings'
@@ -555,6 +576,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/onboarding'
     | '/payouts'
     | '/referrals'
     | '/blog/$slug'
@@ -600,6 +622,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/status'
+    | '/templates'
     | '/terms'
     | '/xadmx'
     | '/_authenticated/account-settings'
@@ -607,6 +630,7 @@ export interface FileRouteTypes {
     | '/_authenticated/billing'
     | '/_authenticated/builder'
     | '/_authenticated/dashboard'
+    | '/_authenticated/onboarding'
     | '/_authenticated/payouts'
     | '/_authenticated/referrals'
     | '/blog/$slug'
@@ -653,6 +677,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   RegisterRoute: typeof RegisterRoute
   StatusRoute: typeof StatusRoute
+  TemplatesRoute: typeof TemplatesRoute
   TermsRoute: typeof TermsRoute
   XadmxRoute: typeof XadmxRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -737,6 +762,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -784,6 +816,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/payouts': {
@@ -1037,6 +1076,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPayoutsRoute: typeof AuthenticatedPayoutsRoute
   AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
@@ -1069,6 +1109,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPayoutsRoute: AuthenticatedPayoutsRoute,
   AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
@@ -1112,6 +1153,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   RegisterRoute: RegisterRoute,
   StatusRoute: StatusRoute,
+  TemplatesRoute: TemplatesRoute,
   TermsRoute: TermsRoute,
   XadmxRoute: XadmxRoute,
   BlogSlugRoute: BlogSlugRoute,
