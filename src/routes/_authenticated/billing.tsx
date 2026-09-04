@@ -153,6 +153,17 @@ function Page() {
                 <li>{PLAN_LIMITS[id].aiPerDay} AI messages / day</li>
                 <li>{PLAN_LIMITS[id].branding ? "Description & branding editing" : "No branding editing"}</li>
               </ul>
+              {id !== "free" && (
+                <Button
+                  variant={id === plan ? "outline" : "default"}
+                  className="mt-4 w-full gap-1.5"
+                  disabled={paying !== null}
+                  onClick={() => void buyPlan(id as "pro" | "ultimate")}
+                >
+                  {paying === id ? <Loader2 className="size-4 animate-spin" /> : <Bitcoin className="size-4" />}
+                  {id === plan ? "Extend" : "Buy"} — ${PLAN_PRICE_USD[id as "pro" | "ultimate"]} / 30 days
+                </Button>
+              )}
             </div>
           ))}
         </section>
