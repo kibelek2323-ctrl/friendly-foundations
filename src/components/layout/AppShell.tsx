@@ -172,22 +172,27 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           <div className="space-y-0.5">
             <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
 
-        <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
-        <NavItem to="/referrals" icon={Gift} iconClassName="text-success" label="Invite friends" onNavigate={onNavigate} />
-        <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
-        {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
-        <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
-        <NavItem to="/templates" icon={Sparkles} label="Templates" onNavigate={onNavigate} />
-        <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
-        <Separator className="my-2" />
+            <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
+            <NavItem to="/referrals" icon={Gift} iconClassName="text-success" label="Invite friends" onNavigate={onNavigate} />
+            <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
+            {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
+            <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
+            <NavItem to="/templates" icon={Sparkles} label="Templates" onNavigate={onNavigate} />
+            <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
+          </div>
+        </nav>
+      </div>
+
+      <div className="border-t border-sidebar-border px-3 py-3">
         <div className="flex items-center gap-2.5 rounded-md px-2.5 py-2">
+
           <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="size-full object-cover" />
