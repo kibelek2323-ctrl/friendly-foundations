@@ -44,7 +44,10 @@ export const requireAppAuth = createMiddleware({ type: "function" }).server(asyn
   });
   const { data, error } = await supabase.auth.getClaims(token);
   const userId = data?.claims?.sub;
-  if (error || !userId) throw new Error("Unauthorized: Invalid token");
+  if (error || !userId) {
+    console.error(`[auth] token rejected by Supabase: ${error?.message ?? "no claims"}`);
+    throw new Error("Unauthorized: Invalid token");
+  }
 
   return next({ context: { supabase, userId, claims: data.claims } });
 });
