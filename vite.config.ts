@@ -19,8 +19,8 @@ export default defineConfig({
 
           // Public, non-secret Lovable Cloud values. Used as a fallback when the
           // build environment does not expose the managed variables.
-          const FALLBACK_URL = "https://luwooudtcydwbnfgjuzz.supabase.co";
-          const FALLBACK_KEY = "sb_publishable_foOAAPkU65MF1qlhpj0nRg_91UY1aLb";
+          const FALLBACK_URL = "https://ruzadhybuyplehtixpyy.supabase.co";
+          const FALLBACK_KEY = "sb_publishable_gamQjaTa7vfYCfR_If5W-g_8dUrfKzp";
 
           const supabaseUrl =
             process.env['VITE_SUPABASE_URL'] ?? process.env['SUPABASE_URL'] ?? FALLBACK_URL;
