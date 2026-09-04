@@ -40,16 +40,76 @@ import { usd } from "@/lib/money";
 
 
 export const Route = createFileRoute("/marketplace/$listingId")({
-  head: () => ({
-    meta: [
-      { title: "Bot details — Bottly marketplace" },
-      { name: "description", content: "Read the full description of a community Discord bot and add it to your Bottly workspace." },
-      { property: "og:title", content: "Bot details — Bottly marketplace" },
-      { property: "og:description", content: "Read the full description of a community Discord bot and add it to your Bottly workspace." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const listing = await getListing({ data: { id: params.listingId } });
+      if (!listing) return { seo: null };
+      return {
+        seo: {
+          id: listing.id,
+          title: listing.title,
+          summary: listing.summary,
+          price: listing.price,
+          rating: listing.rating,
+          reviewCount: listing.reviewCount,
+        },
+      };
+    } catch {
+      return { seo: null };
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const seo = loaderData?.seo;
+    const title = seo ? `${seo.title} — Bottly Marketplace` : "Bot details — Bottly Marketplace";
+    const description =
+      seo?.summary?.trim() ||
+      (seo
+        ? `Buy “${seo.title}” on the Bottly marketplace and add it to your Discord workspace in one click.`
+        : "Read the full description of a community Discord bot and add it to your Bottly workspace.");
+    const url = `https://bottly.xyz/marketplace/${params.listingId}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: seo
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: seo.title,
+                description,
+                url,
+                offers: {
+                  "@type": "Offer",
+                  price: (seo.price / 100).toFixed(2),
+                  priceCurrency: "USD",
+                  availability: "https://schema.org/InStock",
+                  url,
+                },
+                ...(seo.reviewCount > 0
+                  ? {
+                      aggregateRating: {
+                        "@type": "AggregateRating",
+                        ratingValue: seo.rating,
+                        reviewCount: seo.reviewCount,
+                      },
+                    }
+                  : {}),
+              }),
+            },
+          ]
+        : [],
+    };
+  },
   component: Page,
 });
 
