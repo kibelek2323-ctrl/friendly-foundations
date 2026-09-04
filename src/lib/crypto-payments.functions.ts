@@ -37,8 +37,6 @@ export interface CreatedCryptoPayment {
   error?: string;
   /** Hosted checkout link (fallback / "open in new tab"). */
   url?: string;
-  /** Embeddable NOWPayments widget URL for an iframe inside our own payment box. */
-  widgetUrl?: string;
   orderId?: string;
   amount?: number;
 }
@@ -122,9 +120,7 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
           .eq("id", appliedCodeId);
       }
 
-      const result: CreatedCryptoPayment = { ok: true, url: invoice.invoice_url, orderId, amount };
-      if (invoiceId) result.widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}`;
-      return result;
+      return { ok: true, url: invoice.invoice_url, orderId, amount };
     } catch (error) {
       console.error("NOWPayments invoice error", error);
       await supabaseAdmin.from("crypto_payments").update({ status: "failed" }).eq("order_id", orderId);
