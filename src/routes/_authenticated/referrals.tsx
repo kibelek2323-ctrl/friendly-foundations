@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { applyReferralCode, getMyReferrals } from "@/lib/referrals.functions";
+import { applyReferralCode, getMyReferrals, setMyReferralCode } from "@/lib/referrals.functions";
 import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/referrals")({
