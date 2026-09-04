@@ -39,6 +39,7 @@ import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
 import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
+import { Route as AuthenticatedAdminCountdownRouteImport } from './routes/_authenticated/admin.countdown'
 import { Route as AuthenticatedAdminPayoutsRouteImport } from './routes/_authenticated/admin.payouts'
 import { Route as AuthenticatedAdminReferralsRouteImport } from './routes/_authenticated/admin.referrals'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
@@ -216,6 +217,12 @@ const AuthenticatedAdminCodesRoute = AuthenticatedAdminCodesRouteImport.update({
   path: '/admin/codes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminCountdownRoute =
+  AuthenticatedAdminCountdownRouteImport.update({
+    id: '/admin/countdown',
+    path: '/admin/countdown',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPayoutsRoute =
   AuthenticatedAdminPayoutsRouteImport.update({
     id: '/admin/payouts',
@@ -390,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
   '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -446,6 +454,7 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
   '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -504,6 +513,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/_authenticated/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/_authenticated/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
   '/_authenticated/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -562,6 +572,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/blog'
     | '/admin/codes'
+    | '/admin/countdown'
     | '/admin/payouts'
     | '/admin/referrals'
     | '/admin/reports'
@@ -618,6 +629,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/blog'
     | '/admin/codes'
+    | '/admin/countdown'
     | '/admin/payouts'
     | '/admin/referrals'
     | '/admin/reports'
@@ -675,6 +687,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/blog'
     | '/_authenticated/admin/codes'
+    | '/_authenticated/admin/countdown'
     | '/_authenticated/admin/payouts'
     | '/_authenticated/admin/referrals'
     | '/_authenticated/admin/reports'
@@ -941,6 +954,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCodesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/countdown': {
+      id: '/_authenticated/admin/countdown'
+      path: '/admin/countdown'
+      fullPath: '/admin/countdown'
+      preLoaderRoute: typeof AuthenticatedAdminCountdownRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/payouts': {
       id: '/_authenticated/admin/payouts'
       path: '/admin/payouts'
@@ -1142,6 +1162,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
+  AuthenticatedAdminCountdownRoute: typeof AuthenticatedAdminCountdownRoute
   AuthenticatedAdminPayoutsRoute: typeof AuthenticatedAdminPayoutsRoute
   AuthenticatedAdminReferralsRoute: typeof AuthenticatedAdminReferralsRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
@@ -1175,6 +1196,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
+  AuthenticatedAdminCountdownRoute: AuthenticatedAdminCountdownRoute,
   AuthenticatedAdminPayoutsRoute: AuthenticatedAdminPayoutsRoute,
   AuthenticatedAdminReferralsRoute: AuthenticatedAdminReferralsRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
