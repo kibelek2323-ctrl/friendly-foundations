@@ -147,9 +147,7 @@ function MaintenanceScreen({
         type="button"
         onClick={() => hasPassword && setOpen(true)}
         aria-label={hasPassword ? "Admin access" : undefined}
-        className={`flex size-14 items-center justify-center rounded-2xl bg-elevated text-primary transition ${
-          hasPassword ? "hover:scale-105 hover:bg-primary/10" : "cursor-default"
-        }`}
+        className="flex size-14 cursor-default items-center justify-center rounded-2xl bg-elevated text-primary"
       >
         <Wrench className="size-7" aria-hidden="true" />
       </button>
