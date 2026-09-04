@@ -119,8 +119,8 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
               title="NOWPayments checkout"
               onLoad={() => setLoaded(true)}
               className="h-[26rem] w-full sm:h-[30rem]"
-              allow="payment"
-              referrerPolicy="no-referrer"
+              allow="payment; clipboard-write; clipboard-read"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
             />
           ) : (
             <div className="p-6 text-center text-sm text-muted-foreground">
