@@ -600,6 +600,54 @@ export type Database = {
         }
         Relationships: []
       }
+      developer_applications: {
+        Row: {
+          admin_note: string
+          ai_usage: string
+          created_at: string
+          experience: string
+          github_url: string
+          id: string
+          motivation: string
+          portfolio_url: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string
+          ai_usage?: string
+          created_at?: string
+          experience?: string
+          github_url?: string
+          id?: string
+          motivation?: string
+          portfolio_url?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string
+          ai_usage?: string
+          created_at?: string
+          experience?: string
+          github_url?: string
+          id?: string
+          motivation?: string
+          portfolio_url?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       discord_connections: {
         Row: {
           access_token: string
@@ -1605,7 +1653,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "developer"
       plan_tier: "free" | "pro" | "ultimate"
     }
     CompositeTypes: {
@@ -1734,7 +1782,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "developer"],
       plan_tier: ["free", "pro", "ultimate"],
     },
   },
