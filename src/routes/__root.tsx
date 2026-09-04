@@ -4,10 +4,27 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+
+/** Thin animated bar at the top of the viewport while a route is loading. */
+function NavigationProgress() {
+  const isLoading = useRouterState({ select: (s) => s.isLoading });
+  return (
+    <div
+      aria-hidden="true"
+      className={`fixed inset-x-0 top-0 z-[100] h-0.5 overflow-hidden transition-opacity duration-300 ${
+        isLoading ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <div className="h-full w-1/3 animate-[nav-progress_1s_ease-in-out_infinite] rounded-full bg-primary" />
+      <style>{`@keyframes nav-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }`}</style>
+    </div>
+  );
+}
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthBootstrap } from "@/components/auth/AuthBootstrap";
