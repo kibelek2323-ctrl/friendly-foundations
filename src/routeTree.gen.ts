@@ -41,7 +41,6 @@ import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticated/bots.new'
 import { Route as AuthenticatedBuilderFlowIdRouteImport } from './routes/_authenticated/builder.$flowId'
 import { Route as AuthenticatedMarketplacePublishRouteImport } from './routes/_authenticated/marketplace.publish'
-import { Route as ApiPublicDiagRouteImport } from './routes/api.public.diag'
 import { Route as AuthDiscordCallbackRouteImport } from './routes/auth.discord.callback'
 import { Route as AuthenticatedBotsBotIdIndexRouteImport } from './routes/_authenticated/bots.$botId.index'
 import { Route as AuthenticatedBotsBotIdAutomationsRouteImport } from './routes/_authenticated/bots.$botId.automations'
@@ -218,11 +217,6 @@ const AuthenticatedMarketplacePublishRoute =
     path: '/marketplace/publish',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiPublicDiagRoute = ApiPublicDiagRouteImport.update({
-  id: '/api/public/diag',
-  path: '/api/public/diag',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthDiscordCallbackRoute = AuthDiscordCallbackRouteImport.update({
   id: '/auth/discord/callback',
   path: '/auth/discord/callback',
@@ -320,7 +314,6 @@ export interface FileRoutesByFullPath {
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
-  '/api/public/diag': typeof ApiPublicDiagRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots/': typeof AuthenticatedBotsIndexRoute
   '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
@@ -365,7 +358,6 @@ export interface FileRoutesByTo {
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
-  '/api/public/diag': typeof ApiPublicDiagRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots': typeof AuthenticatedBotsIndexRoute
   '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
@@ -412,7 +404,6 @@ export interface FileRoutesById {
   '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
   '/_authenticated/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
   '/_authenticated/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
-  '/api/public/diag': typeof ApiPublicDiagRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/_authenticated/bots/': typeof AuthenticatedBotsIndexRoute
   '/_authenticated/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
@@ -459,7 +450,6 @@ export interface FileRouteTypes {
     | '/bots/new'
     | '/builder/$flowId'
     | '/marketplace/publish'
-    | '/api/public/diag'
     | '/auth/discord/callback'
     | '/bots/'
     | '/bots/$botId/automations'
@@ -504,7 +494,6 @@ export interface FileRouteTypes {
     | '/bots/new'
     | '/builder/$flowId'
     | '/marketplace/publish'
-    | '/api/public/diag'
     | '/auth/discord/callback'
     | '/bots'
     | '/bots/$botId/automations'
@@ -550,7 +539,6 @@ export interface FileRouteTypes {
     | '/_authenticated/bots/new'
     | '/_authenticated/builder/$flowId'
     | '/_authenticated/marketplace/publish'
-    | '/api/public/diag'
     | '/auth/discord/callback'
     | '/_authenticated/bots/'
     | '/_authenticated/bots/$botId/automations'
@@ -583,7 +571,6 @@ export interface RootRouteChildren {
   UUsernameRoute: typeof UUsernameRoute
   BlogIndexRoute: typeof BlogIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
-  ApiPublicDiagRoute: typeof ApiPublicDiagRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
   ApiInternalBotsBotIdTokenRoute: typeof ApiInternalBotsBotIdTokenRoute
@@ -815,13 +802,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketplacePublishRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/diag': {
-      id: '/api/public/diag'
-      path: '/api/public/diag'
-      fullPath: '/api/public/diag'
-      preLoaderRoute: typeof ApiPublicDiagRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/discord/callback': {
       id: '/auth/discord/callback'
       path: '/auth/discord/callback'
@@ -985,7 +965,6 @@ const rootRouteChildren: RootRouteChildren = {
   UUsernameRoute: UUsernameRoute,
   BlogIndexRoute: BlogIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
-  ApiPublicDiagRoute: ApiPublicDiagRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
   ApiInternalBotsBotIdTokenRoute: ApiInternalBotsBotIdTokenRoute,
