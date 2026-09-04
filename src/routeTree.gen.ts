@@ -26,6 +26,7 @@ import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPayoutsRouteImport } from './routes/_authenticated/payouts'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -143,6 +144,11 @@ const AuthenticatedBuilderRoute = AuthenticatedBuilderRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPayoutsRoute = AuthenticatedPayoutsRouteImport.update({
@@ -347,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/payouts': typeof AuthenticatedPayoutsRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/payouts': typeof AuthenticatedPayoutsRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -451,6 +459,7 @@ export interface FileRoutesById {
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/payouts': typeof AuthenticatedPayoutsRoute
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -504,6 +513,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/onboarding'
     | '/payouts'
     | '/referrals'
     | '/blog/$slug'
@@ -555,6 +565,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/onboarding'
     | '/payouts'
     | '/referrals'
     | '/blog/$slug'
@@ -607,6 +618,7 @@ export interface FileRouteTypes {
     | '/_authenticated/billing'
     | '/_authenticated/builder'
     | '/_authenticated/dashboard'
+    | '/_authenticated/onboarding'
     | '/_authenticated/payouts'
     | '/_authenticated/referrals'
     | '/blog/$slug'
@@ -784,6 +796,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/payouts': {
@@ -1037,6 +1056,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPayoutsRoute: typeof AuthenticatedPayoutsRoute
   AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
@@ -1069,6 +1089,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPayoutsRoute: AuthenticatedPayoutsRoute,
   AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
