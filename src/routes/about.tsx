@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Code2, Heart, Rocket, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Code2, Heart, Rocket, ShieldCheck, Sparkles, User, Users } from "lucide-react";
 import { PublicShell } from "@/components/layout/PublicShell";
 
 export const Route = createFileRoute("/about")({
