@@ -1,9 +1,73 @@
+import { useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { motion, useMotionValue, useMotionTemplate } from "motion/react";
 import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
 import { PublicShell } from "@/components/layout/PublicShell";
+
+/** Fades a section in as it scrolls into view. */
+function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Mouse-reactive dot grid behind the hero. */
+function InteractiveGrid() {
+  const ref = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(-400);
+  const my = useMotionValue(-400);
+  const mask = useMotionTemplate`radial-gradient(320px circle at ${mx}px ${my}px, black 0%, transparent 100%)`;
+
+  return (
+    <div
+      ref={ref}
+      className="pointer-events-none absolute inset-0"
+      onPointerMove={(e) => {
+        const rect = ref.current?.getBoundingClientRect();
+        if (!rect) return;
+        mx.set(e.clientX - rect.left);
+        my.set(e.clientY - rect.top);
+      }}
+      onPointerLeave={() => {
+        mx.set(-400);
+        my.set(-400);
+      }}
+      style={{ pointerEvents: "auto" }}
+      aria-hidden="true"
+    >
+      {/* base faint grid */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px)",
+          backgroundSize: "26px 26px",
+        }}
+      />
+      {/* highlighted grid following the cursor */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent) 1.5px, transparent 1.5px)",
+          backgroundSize: "26px 26px",
+          WebkitMaskImage: mask,
+          maskImage: mask,
+        }}
+      />
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
