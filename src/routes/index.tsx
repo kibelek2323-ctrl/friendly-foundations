@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useMotionTemplate } from "motion/react";
 import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
