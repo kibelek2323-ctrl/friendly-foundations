@@ -248,7 +248,7 @@ function Landing() {
           </Reveal>
         </section>
 
-        <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+        <Reveal className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
           <div>
             <span className="flex size-10 items-center justify-center rounded-lg bg-elevated text-primary"><CloudCog className="size-5" /></span>
             <h2 className="mt-4 text-2xl font-semibold">Built for real communities</h2>
@@ -261,15 +261,27 @@ function Landing() {
               ["Safer iteration", "Preview Discord output before publishing changes and keep sensitive bot credentials on the server."],
               ["Reusable marketplace bots", "Start from a complete community-built bot, then customise its identity for your server."],
               ["Operational visibility", "See runtime state, recent events, errors and important account updates from the dashboard."],
-            ].map(([title, body]) => <article key={title} className="border-t border-border pt-4"><h3 className="text-sm font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p></article>)}
+            ].map(([title, body], i) => (
+              <motion.article
+                key={title}
+                className="border-t border-border pt-4"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: i * 0.07 }}
+              >
+                <h3 className="text-sm font-semibold">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              </motion.article>
+            ))}
           </div>
-        </section>
+        </Reveal>
 
         <section className="border-t border-border py-16">
-          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center">
+          <Reveal className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center">
             <div><p className="text-sm font-medium text-primary">Questions before you start?</p><h2 className="mt-2 text-2xl font-semibold">Get clear answers about bots, hosting and the marketplace.</h2></div>
             <Button asChild size="lg"><Link to="/faq">Read the FAQ <ArrowRight className="size-4" /></Link></Button>
-          </div>
+          </Reveal>
         </section>
       </PublicShell>
     </>
