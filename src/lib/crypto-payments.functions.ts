@@ -20,11 +20,17 @@ const inputSchema = z.union([
 
 export interface CryptoPaymentRow {
   id: string;
+  orderId: string;
   purpose: string;
   plan: string | null;
   amount: number;
   status: string;
+  credited: boolean;
   payCurrency: string | null;
+  payAmount: number | null;
+  payAddress: string | null;
+  expiresAt: string | null;
+  explorerUrl: string | null;
   createdAt: string;
 }
 
@@ -134,19 +140,27 @@ export const listCryptoPayments = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<CryptoPaymentRow[]> => {
     const { data } = await context.supabase
       .from("crypto_payments")
-      .select("id, purpose, plan, amount, status, pay_currency, created_at")
+      .select(
+        "id, order_id, purpose, plan, amount, status, credited_at, pay_currency, pay_amount, pay_address, expires_at, created_at",
+      )
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(25);
 
     return (data ?? []).map((r) => ({
       id: r.id,
+      orderId: r.order_id,
       purpose: r.purpose,
       plan: r.plan,
       amount: r.amount,
       status: r.status,
+      credited: r.credited_at != null,
       payCurrency: r.pay_currency,
-      createdAt: r.created_at,
+      payAmount: r.pay_amount != null ? Number(r.pay_amount) : null,
+      payAddress: r.pay_address,
+      expiresAt: r.expires_at,
+      explorerUrl: addressExplorerUrl(r.pay_currency, r.pay_address),
+    createdAt: r.created_at,
     }));
   });
 
@@ -278,6 +292,9 @@ export const createCryptoAddress = createServerFn({ method: "POST" })
         .update({
           payment_id: p.payment_id != null ? String(p.payment_id) : null,
           pay_currency: p.pay_currency ?? data.payCurrency,
+          pay_amount: p.pay_amount,
+          pay_address: p.pay_address,
+          expires_at: p.valid_until ?? p.expiration_estimate_date ?? null,
         })
         .eq("order_id", data.orderId)
         .is("credited_at", null);
@@ -303,6 +320,51 @@ export interface CryptoPaymentStatus {
   credited: boolean;
   payCurrency: string | null;
   amount: number;
+  /** How much of the expected coin amount arrived so far. */
+  actuallyPaid: number | null;
+  payAmount: number | null;
+  /** Rough confirmation progress derived from the provider status. */
+  confirmations: number;
+  requiredConfirmations: number;
+  /** Link to the transaction (or deposit address) on a block explorer. */
+  explorerUrl: string | null;
+  txHash: string | null;
+}
+
+/** Block explorers per coin — {v} is the tx hash, {a} the address. */
+const EXPLORERS: Record<string, { tx: string; address: string }> = {
+  btc: { tx: "https://mempool.space/tx/{v}", address: "https://mempool.space/address/{a}" },
+  eth: { tx: "https://etherscan.io/tx/{v}", address: "https://etherscan.io/address/{a}" },
+  usdterc20: { tx: "https://etherscan.io/tx/{v}", address: "https://etherscan.io/address/{a}" },
+  usdc: { tx: "https://etherscan.io/tx/{v}", address: "https://etherscan.io/address/{a}" },
+  usdttrc20: { tx: "https://tronscan.org/#/transaction/{v}", address: "https://tronscan.org/#/address/{a}" },
+  trx: { tx: "https://tronscan.org/#/transaction/{v}", address: "https://tronscan.org/#/address/{a}" },
+  sol: { tx: "https://solscan.io/tx/{v}", address: "https://solscan.io/account/{a}" },
+  ltc: { tx: "https://blockchair.com/litecoin/transaction/{v}", address: "https://blockchair.com/litecoin/address/{a}" },
+  doge: { tx: "https://blockchair.com/dogecoin/transaction/{v}", address: "https://blockchair.com/dogecoin/address/{a}" },
+  ton: { tx: "https://tonviewer.com/transaction/{v}", address: "https://tonviewer.com/{a}" },
+  bnbbsc: { tx: "https://bscscan.com/tx/{v}", address: "https://bscscan.com/address/{a}" },
+  matic: { tx: "https://polygonscan.com/tx/{v}", address: "https://polygonscan.com/address/{a}" },
+  usdcmatic: { tx: "https://polygonscan.com/tx/{v}", address: "https://polygonscan.com/address/{a}" },
+};
+
+function explorerUrl(currency: string | null, txHash: string | null, address: string | null): string | null {
+  const e = EXPLORERS[(currency ?? "").toLowerCase()];
+  if (!e) return null;
+  if (txHash) return e.tx.replace("{v}", txHash);
+  if (address) return e.address.replace("{a}", address);
+  return null;
+}
+
+function addressExplorerUrl(currency: string | null, address: string | null): string | null {
+  return explorerUrl(currency, null, address);
+}
+
+/** waiting -> 0, confirming/sending -> 1, confirmed/finished -> 2 out of 2. */
+function progressOf(status: string): number {
+  if (status === "confirmed" || status === "finished") return 2;
+  if (status === "confirming" || status === "sending" || status === "partially_paid") return 1;
+  return 0;
 }
 
 /**
@@ -315,13 +377,16 @@ export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<CryptoPaymentStatus | null> => {
     const { data: row } = await context.supabase
       .from("crypto_payments")
-      .select("status, credited_at, pay_currency, amount, payment_id")
+      .select("status, credited_at, pay_currency, amount, payment_id, pay_amount, pay_address")
       .eq("order_id", data.orderId)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!row) return null;
 
     let status = row.status;
+    let actuallyPaid: number | null = null;
+    let txHash: string | null = null;
+    let confirmations: number | null = null;
     // Mirror the provider's live status for the UI. Credits are still granted
     // only by the signature-verified IPN webhook.
     const apiKey = process.env["NOWPAYMENTS_API_KEY"];
@@ -331,7 +396,14 @@ export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
           headers: { "x-api-key": apiKey },
         });
         if (res.ok) {
-          const p = (await res.json()) as { payment_status?: string };
+          const p = (await res.json()) as {
+            payment_status?: string;
+            actually_paid?: number;
+            payin_hash?: string | null;
+            outcome?: { hash?: string | null } | null;
+          };
+          if (typeof p.actually_paid === "number") actuallyPaid = p.actually_paid;
+          txHash = p.payin_hash ?? p.outcome?.hash ?? null;
           if (p.payment_status && p.payment_status !== status) {
             status = p.payment_status;
             const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -347,11 +419,18 @@ export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
       }
     }
 
+    const credited = row.credited_at != null;
     return {
       status,
-      credited: row.credited_at != null,
+      credited,
       payCurrency: row.pay_currency,
       amount: row.amount,
+      actuallyPaid,
+      payAmount: row.pay_amount != null ? Number(row.pay_amount) : null,
+      confirmations: confirmations ?? (credited ? 2 : progressOf(status)),
+      requiredConfirmations: 2,
+      explorerUrl: explorerUrl(row.pay_currency, txHash, row.pay_address),
+      txHash,
     };
   });
 
