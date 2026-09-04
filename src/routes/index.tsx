@@ -106,9 +106,9 @@ function Landing() {
     <>
       <SiteAnnouncements />
       <PublicShell>
-        <section className="relative mx-auto max-w-4xl px-4 py-20 text-center lg:py-28">
+        <section className="relative px-4 py-20 text-center lg:py-28">
           <InteractiveGrid />
-          <motion.div className="relative" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <motion.div className="relative z-10 mx-auto max-w-4xl" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <span className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
               <Zap className="size-3 text-primary" aria-hidden="true" /> No code. No hosting headaches.
             </span>
