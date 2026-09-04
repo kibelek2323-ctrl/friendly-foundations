@@ -48,7 +48,10 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
 
     const amount = data.purpose === "topup" ? data.amount : PLAN_PRICE_USD[data.plan];
     const orderId = `bottly_${data.purpose}_${crypto.randomUUID()}`;
-    const origin = process.env["PUBLIC_SITE_URL"] ?? "https://bottly.xyz";
+    // PUBLIC_SITE_URL may be unset or malformed (e.g. missing scheme); NOWPayments
+    // rejects anything that isn't a valid absolute URI, so fall back robustly.
+    const rawOrigin = (process.env["PUBLIC_SITE_URL"] ?? "").trim().replace(/\/+$/, "");
+    const origin = /^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(rawOrigin) ? rawOrigin : "https://bottly.xyz";
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error: insertError } = await supabaseAdmin.from("crypto_payments").insert({
