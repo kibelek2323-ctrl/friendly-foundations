@@ -59,14 +59,22 @@ export const DEFAULT_MAINTENANCE: MaintenanceSettings = {
 export interface SiteGate {
   countdown: CountdownSettings;
   maintenance: MaintenanceSettings;
+  /** True when an admin bypass password is configured for the maintenance screen. */
+  maintenancePassword: boolean;
 }
+
+const PASSWORD_KEY = "maintenance_password";
 
 export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): Promise<SiteGate> => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.from("app_settings").select("key, value").in("key", ["countdown", "maintenance"]);
+  const { data } = await supabaseAdmin
+    .from("app_settings")
+    .select("key, value")
+    .in("key", ["countdown", "maintenance", PASSWORD_KEY]);
   const rows = new Map((data ?? []).map((r) => [r.key, (r.value ?? {}) as Record<string, unknown>]));
   const c = (rows.get("countdown") ?? {}) as Partial<CountdownSettings>;
   const m = (rows.get("maintenance") ?? {}) as Partial<MaintenanceSettings>;
+  const p = (rows.get(PASSWORD_KEY) ?? {}) as { password?: unknown };
   return {
     countdown: {
       enabled: typeof c.enabled === "boolean" ? c.enabled : DEFAULT_COUNTDOWN.enabled,
@@ -77,6 +85,7 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
       status: typeof m.status === "string" && m.status.trim() ? m.status : DEFAULT_MAINTENANCE.status,
       endsAt: typeof m.endsAt === "number" ? m.endsAt : null,
     },
+    maintenancePassword: typeof p.password === "string" && p.password.length > 0,
   };
 });
 
@@ -97,3 +106,40 @@ export const adminSaveMaintenance = createServerFn({ method: "POST" })
     if (error) return { ok: false, error: "Could not save the maintenance settings." };
     return { ok: true };
   });
+
+/** Sets or clears the password that lets someone through the maintenance screen. */
+export const adminSaveMaintenancePassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ password: z.string().max(200) }).parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (isAdmin !== true) return { ok: false, error: "Forbidden" };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const password = data.password.trim();
+    const { error } = await supabaseAdmin
+      .from("app_settings")
+      .upsert({ key: PASSWORD_KEY, value: { password }, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    if (error) return { ok: false, error: "Could not save the maintenance password." };
+    return { ok: true };
+  });
+
+/** Checks a visitor-typed maintenance password. Never returns the stored value. */
+export const unlockMaintenance = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ password: z.string().max(200) }).parse(data))
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", PASSWORD_KEY)
+      .maybeSingle();
+    const expected = (row?.value as { password?: unknown } | null)?.password;
+    if (typeof expected !== "string" || expected.length === 0) return { ok: false };
+    const a = new TextEncoder().encode(data.password);
+    const b = new TextEncoder().encode(expected);
+    if (a.length !== b.length) return { ok: false };
+    let diff = 0;
+    for (let i = 0; i < a.length; i += 1) diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
+    return { ok: diff === 0 };
+  });
+
