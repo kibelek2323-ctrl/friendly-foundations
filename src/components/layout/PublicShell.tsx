@@ -33,14 +33,14 @@ export function PublicShell({ children }: { children: ReactNode }) {
             </span>
             <span className="font-semibold tracking-tight">Bottly</span>
           </Link>
-          <nav className="ml-6 hidden gap-5 text-sm text-muted-foreground md:flex" aria-label="Marketing">
-            <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
-            <Link to="/templates" className="hover:text-foreground">Templates</Link>
-            <Link to="/docs" className="hover:text-foreground">Docs</Link>
-            <Link to="/blog" className="hover:text-foreground">Blog</Link>
+          <nav className="ml-6 hidden gap-1 text-sm text-muted-foreground md:flex" aria-label="Marketing">
+            <Link to="/marketplace" className="group relative rounded-md px-2 py-1 transition-colors hover:bg-elevated hover:text-foreground">Marketplace<span className="pointer-events-none absolute inset-x-2 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" /></Link>
+            <Link to="/templates" className="group relative rounded-md px-2 py-1 transition-colors hover:bg-elevated hover:text-foreground">Templates<span className="pointer-events-none absolute inset-x-2 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" /></Link>
+            <Link to="/docs" className="group relative rounded-md px-2 py-1 transition-colors hover:bg-elevated hover:text-foreground">Docs<span className="pointer-events-none absolute inset-x-2 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" /></Link>
+            <Link to="/blog" className="group relative rounded-md px-2 py-1 transition-colors hover:bg-elevated hover:text-foreground">Blog<span className="pointer-events-none absolute inset-x-2 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" /></Link>
 
-            <Link to="/faq" className="hover:text-foreground">FAQ</Link>
-            <Link to="/status" className="hover:text-foreground">Status</Link>
+            <Link to="/faq" className="group relative rounded-md px-2 py-1 transition-colors hover:bg-elevated hover:text-foreground">FAQ<span className="pointer-events-none absolute inset-x-2 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" /></Link>
+            <Link to="/status" className="group relative rounded-md px-2 py-1 transition-colors hover:bg-elevated hover:text-foreground">Status<span className="pointer-events-none absolute inset-x-2 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" /></Link>
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <AccountNav />
