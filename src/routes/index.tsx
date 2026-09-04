@@ -1,10 +1,19 @@
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { motion, useMotionValue, useMotionTemplate } from "motion/react";
-import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
+import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
 import { PublicShell } from "@/components/layout/PublicShell";
+import { announcementIcon } from "@/lib/announcement-icons";
+import { getHomepageContent, DEFAULT_HOMEPAGE } from "@/lib/site-content.functions";
+
+const homepageQuery = queryOptions({
+  queryKey: ["homepage-content"],
+  queryFn: () => getHomepageContent(),
+  staleTime: 5 * 60 * 1000,
+});
 
 /** Fades a section in as it scrolls into view. */
 function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -67,6 +76,7 @@ function InteractiveGrid() {
 }
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(homepageQuery),
   head: () => ({
     meta: [
       { title: "Bottly — Build Discord bots without code" },
@@ -101,48 +111,70 @@ const BUILD_STEPS = [
   { icon: Play, step: "3", title: "Launch and monitor", body: "Connect your Discord bot, start it from the dashboard and follow runtime activity." },
 ];
 
+function HeroFallback() {
+  const c = DEFAULT_HOMEPAGE;
+  return (
+    <section className="relative px-4 py-20 text-center lg:py-28">
+      <InteractiveGrid />
+      <div className="relative z-10 mx-auto max-w-4xl">
+        <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+          {c.headlineBefore} <span className="text-primary">{c.headlineAccent}</span>.
+        </h1>
+      </div>
+    </section>
+  );
+}
+
+function Hero() {
+  const { data: c } = useSuspenseQuery(homepageQuery);
+  const BadgeIcon = announcementIcon(c.badgeIcon);
+  return (
+    <section className="relative px-4 py-20 text-center lg:py-28">
+      <InteractiveGrid />
+      <motion.div className="relative z-10 mx-auto max-w-4xl" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <span className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
+          <BadgeIcon className="size-3 text-primary" aria-hidden="true" /> {c.badgeText}
+        </span>
+        <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+          {c.headlineBefore} <span className="text-primary">{c.headlineAccent}</span>.
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">{c.subtext}</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Button asChild size="lg" className="gap-1.5">
+            <Link to="/bots/new">
+              Create your bot <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="border-primary/60 text-primary transition-all hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_24px_-6px_var(--primary)]"
+          >
+            <Link to="/marketplace">Browse the marketplace</Link>
+          </Button>
+        </div>
+        <dl className="mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4">
+          {c.stats.map((s) => (
+            <div key={s.label}>
+              <dt className="text-2xl font-semibold">{s.value}</dt>
+              <dd className="text-xs text-muted-foreground">{s.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </motion.div>
+    </section>
+  );
+}
+
 function Landing() {
   return (
     <>
       <SiteAnnouncements />
       <PublicShell>
-        <section className="relative px-4 py-20 text-center lg:py-28">
-          <InteractiveGrid />
-          <motion.div className="relative z-10 mx-auto max-w-4xl" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <span className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
-              <Zap className="size-3 text-primary" aria-hidden="true" /> No code. No hosting headaches.
-            </span>
-            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-              Build Discord bots <span className="text-primary">visually</span>.
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-              Bottly turns embeds, slash commands, buttons and automations into a drag-and-drop workspace with a
-              pixel-accurate Discord preview beside every change.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg" className="gap-1.5">
-                <Link to="/bots/new">
-                  Create your bot <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/marketplace">Browse the marketplace</Link>
-              </Button>
-            </div>
-            <dl className="mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4">
-              {[
-                ["120k+", "bots built"],
-                ["18M", "members reached"],
-                ["99.9%", "uptime"],
-              ].map(([v, l]) => (
-                <div key={l}>
-                  <dt className="text-2xl font-semibold">{v}</dt>
-                  <dd className="text-xs text-muted-foreground">{l}</dd>
-                </div>
-              ))}
-            </dl>
-          </motion.div>
-        </section>
+        <Suspense fallback={<HeroFallback />}>
+          <Hero />
+        </Suspense>
 
         <section className="border-y border-border bg-surface/50 py-16">
           <Reveal className="mx-auto max-w-6xl px-4">
@@ -154,7 +186,7 @@ function Landing() {
               {FEATURE_CARDS.map((f, i) => (
                 <motion.article
                   key={f.title}
-                  className="panel p-5"
+                  className="panel p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_14px_36px_-12px_var(--primary)]"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -202,7 +234,7 @@ function Landing() {
               ].map(([t, d], i) => (
                 <motion.li
                   key={t}
-                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3"
+                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_28px_-12px_var(--primary)]"
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -230,7 +262,7 @@ function Landing() {
               {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
                 <motion.li
                   key={step}
-                  className="bg-background p-6"
+                  className="bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_14px_36px_-12px_var(--primary)]"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
