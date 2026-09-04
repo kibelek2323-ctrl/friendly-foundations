@@ -259,11 +259,11 @@ function Landing() {
               <h2 className="mt-2 text-2xl font-semibold">Build, connect and run everything in one workspace</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Every tool shares the same bot data, so a command response can reuse your designs, components and automation variables without rebuilding them in separate apps.</p>
             </div>
-            <ol className="mt-9 grid gap-px overflow-hidden rounded-lg bg-border md:grid-cols-3">
+            <ol className="mt-9 grid gap-4 md:grid-cols-3">
               {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
                 <motion.li
                   key={step}
-                  className="group relative bg-background p-6 transition-all duration-200 hover:-translate-y-1"
+                  className="group relative overflow-hidden rounded-lg border border-border bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:border-b-primary"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

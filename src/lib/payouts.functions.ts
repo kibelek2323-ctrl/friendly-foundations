@@ -55,6 +55,11 @@ export const requestPayout = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
+    const { hasDeveloperAccess } = await import("./roles.functions");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(await hasDeveloperAccess(context as any))) {
+      return { ok: false, error: "Payouts are limited to Developer accounts." };
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: result, error } = await supabaseAdmin.rpc("request_payout", {
       _user_id: context.userId,
