@@ -71,6 +71,7 @@ function Page() {
                   {profile.verified && <BadgeCheck className="size-5 text-primary" aria-label="Verified creator" />}
                 </h1>
                 {profile.username && <p className="text-sm text-muted-foreground">@{profile.username}</p>}
+                <ProfileBadges badges={profile.badges} className="mt-2" />
                 {profile.bio && <p className="mt-2 max-w-xl text-sm text-muted-foreground">{profile.bio}</p>}
               </div>
               <dl className="grid grid-cols-3 gap-4 text-center">
