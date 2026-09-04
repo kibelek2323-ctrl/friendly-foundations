@@ -1,9 +1,73 @@
+import { useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { motion, useMotionValue, useMotionTemplate } from "motion/react";
 import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
 import { PublicShell } from "@/components/layout/PublicShell";
+
+/** Fades a section in as it scrolls into view. */
+function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Mouse-reactive dot grid behind the hero. */
+function InteractiveGrid() {
+  const ref = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(-400);
+  const my = useMotionValue(-400);
+  const mask = useMotionTemplate`radial-gradient(320px circle at ${mx}px ${my}px, black 0%, transparent 100%)`;
+
+  return (
+    <div
+      ref={ref}
+      className="pointer-events-none absolute inset-0"
+      onPointerMove={(e) => {
+        const rect = ref.current?.getBoundingClientRect();
+        if (!rect) return;
+        mx.set(e.clientX - rect.left);
+        my.set(e.clientY - rect.top);
+      }}
+      onPointerLeave={() => {
+        mx.set(-400);
+        my.set(-400);
+      }}
+      style={{ pointerEvents: "auto" }}
+      aria-hidden="true"
+    >
+      {/* base faint grid */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px)",
+          backgroundSize: "26px 26px",
+        }}
+      />
+      {/* highlighted grid following the cursor */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent) 1.5px, transparent 1.5px)",
+          backgroundSize: "26px 26px",
+          WebkitMaskImage: mask,
+          maskImage: mask,
+        }}
+      />
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,8 +109,9 @@ function Landing() {
     <>
       <SiteAnnouncements />
       <PublicShell>
-        <section className="mx-auto max-w-4xl px-4 py-20 text-center lg:py-28">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <section className="relative mx-auto max-w-4xl px-4 py-20 text-center lg:py-28">
+          <InteractiveGrid />
+          <motion.div className="relative" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <span className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
               <Zap className="size-3 text-primary" aria-hidden="true" /> No code. No hosting headaches.
             </span>
@@ -83,27 +148,34 @@ function Landing() {
         </section>
 
         <section className="border-y border-border bg-surface/50 py-16">
-          <div className="mx-auto max-w-6xl px-4">
+          <Reveal className="mx-auto max-w-6xl px-4">
             <h2 className="text-2xl font-semibold tracking-tight">Everything your bot needs</h2>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               A complete builder: from the first embed to a multi-step moderation workflow.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {FEATURE_CARDS.map((f) => (
-                <article key={f.title} className="panel p-5">
+              {FEATURE_CARDS.map((f, i) => (
+                <motion.article
+                  key={f.title}
+                  className="panel p-5"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
+                >
                   <span className="flex size-9 items-center justify-center rounded-lg bg-elevated text-primary">
                     <f.icon className="size-4" aria-hidden="true" />
                   </span>
                   <h3 className="mt-3 text-sm font-semibold">{f.title}</h3>
                   <p className="mt-1.5 text-sm text-muted-foreground">{f.body}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="grid gap-10 md:grid-cols-2 md:items-center">
+          <Reveal className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
                 <Store className="size-3 text-primary" aria-hidden="true" /> Bottly Marketplace
@@ -130,39 +202,53 @@ function Landing() {
                 ["Screenshots & markdown", "Sellers showcase their bot with an image gallery and rich description."],
                 ["USD balance", "Top up with a balance code and buy in one click."],
                 ["Earn from your builds", "Publish once, keep selling to the community."],
-              ].map(([t, d]) => (
-                <li key={t} className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3">
+              ].map(([t, d], i) => (
+                <motion.li
+                  key={t}
+                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3"
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: i * 0.07 }}
+                >
                   <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                   <span>
                     <span className="font-medium text-foreground">{t}</span>
                     <span className="block text-muted-foreground">{d}</span>
                   </span>
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </section>
 
         <section className="border-y border-border bg-surface/50 py-16">
-          <div className="mx-auto max-w-6xl px-4">
+          <Reveal className="mx-auto max-w-6xl px-4">
             <div className="max-w-2xl">
               <p className="text-sm font-medium text-primary">From idea to online bot</p>
               <h2 className="mt-2 text-2xl font-semibold">Build, connect and run everything in one workspace</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Every tool shares the same bot data, so a command response can reuse your designs, components and automation variables without rebuilding them in separate apps.</p>
             </div>
             <ol className="mt-9 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
-              {BUILD_STEPS.map(({ icon: Icon, step, title, body }) => (
-                <li key={step} className="bg-background p-6">
+              {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
+                <motion.li
+                  key={step}
+                  className="bg-background p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                >
                   <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {step}</span><Icon className="size-5 text-primary" /></div>
                   <h3 className="mt-7 font-semibold">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-                </li>
+                </motion.li>
               ))}
             </ol>
-          </div>
+          </Reveal>
         </section>
 
-        <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+        <Reveal className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
           <div>
             <span className="flex size-10 items-center justify-center rounded-lg bg-elevated text-primary"><CloudCog className="size-5" /></span>
             <h2 className="mt-4 text-2xl font-semibold">Built for real communities</h2>
@@ -175,15 +261,27 @@ function Landing() {
               ["Safer iteration", "Preview Discord output before publishing changes and keep sensitive bot credentials on the server."],
               ["Reusable marketplace bots", "Start from a complete community-built bot, then customise its identity for your server."],
               ["Operational visibility", "See runtime state, recent events, errors and important account updates from the dashboard."],
-            ].map(([title, body]) => <article key={title} className="border-t border-border pt-4"><h3 className="text-sm font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p></article>)}
+            ].map(([title, body], i) => (
+              <motion.article
+                key={title}
+                className="border-t border-border pt-4"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: i * 0.07 }}
+              >
+                <h3 className="text-sm font-semibold">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              </motion.article>
+            ))}
           </div>
-        </section>
+        </Reveal>
 
         <section className="border-t border-border py-16">
-          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center">
+          <Reveal className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center">
             <div><p className="text-sm font-medium text-primary">Questions before you start?</p><h2 className="mt-2 text-2xl font-semibold">Get clear answers about bots, hosting and the marketplace.</h2></div>
             <Button asChild size="lg"><Link to="/faq">Read the FAQ <ArrowRight className="size-4" /></Link></Button>
-          </div>
+          </Reveal>
         </section>
       </PublicShell>
     </>
