@@ -59,7 +59,7 @@ function buildPaymentUri(
 ): string {
   const base = (currency ?? "").toLowerCase().split(/[_-]/)[0] ?? "";
   const scheme = URI_SCHEME[base];
-  if (!scheme) return addressValue;
+  if (!scheme || amount == null) return addressValue;
   const params = new URLSearchParams({ amount: String(amount) });
   if (extraId) params.set(base === "xrp" || base === "xlm" ? "dt" : "memo", extraId);
   return `${scheme}:${addressValue}?${params.toString()}`;
