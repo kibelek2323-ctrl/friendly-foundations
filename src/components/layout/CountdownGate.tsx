@@ -124,6 +124,7 @@ function MaintenanceScreen({
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -142,9 +143,16 @@ function MaintenanceScreen({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-center">
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-elevated text-primary">
+      <button
+        type="button"
+        onClick={() => hasPassword && setOpen(true)}
+        aria-label={hasPassword ? "Admin access" : undefined}
+        className={`flex size-14 items-center justify-center rounded-2xl bg-elevated text-primary transition ${
+          hasPassword ? "hover:scale-105 hover:bg-primary/10" : "cursor-default"
+        }`}
+      >
         <Wrench className="size-7" aria-hidden="true" />
-      </span>
+      </button>
       <h1 className="mt-6 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
         We are under <span className="text-primary">maintenance</span>
       </h1>
@@ -157,30 +165,50 @@ function MaintenanceScreen({
         </span>
       </div>
 
-      {hasPassword && (
-        <form onSubmit={submit} className="panel mt-6 w-full max-w-sm space-y-3 rounded-xl p-5 text-left">
-          <label htmlFor="maintenance-password" className="flex items-center gap-2 text-sm font-medium">
-            <Lock className="size-4 text-primary" aria-hidden="true" /> Admin password
-          </label>
-          <input
-            id="maintenance-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password to continue"
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-          />
-          {error && <p className="text-xs text-destructive">Incorrect password.</p>}
-          <button
-            type="submit"
-            disabled={busy || !password}
-            className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+      {hasPassword && open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        >
+          <form
+            onSubmit={submit}
+            onClick={(e) => e.stopPropagation()}
+            className="panel w-full max-w-sm space-y-3 rounded-2xl p-6 text-left shadow-2xl"
           >
-            {busy ? "Checking…" : "Enter site"}
-          </button>
-        </form>
+            <label htmlFor="maintenance-password" className="flex items-center gap-2 text-sm font-medium">
+              <Lock className="size-4 text-primary" aria-hidden="true" /> Admin password
+            </label>
+            <input
+              id="maintenance-password"
+              type="password"
+              autoFocus
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password to continue"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+            {error && <p className="text-xs text-destructive">Incorrect password.</p>}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex-1 rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={busy || !password}
+                className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+              >
+                {busy ? "Checking…" : "Enter site"}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
+
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
