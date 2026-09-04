@@ -49,6 +49,21 @@ export const getCreatorProfile = createServerFn({ method: "GET" })
     const total = (reviews ?? []).reduce((sum, r) => sum + r.rating, 0);
     const count = (reviews ?? []).length;
 
+    const { data: granted } = await supabaseAdmin
+      .from("profile_badges")
+      .select("badge")
+      .eq("user_id", profile.id);
+
+    const stats = {
+      salesCount: (listings ?? []).reduce((sum, l) => sum + (l.sales_count ?? 0), 0),
+      listingCount: listingIds.length,
+      rating: count > 0 ? Math.round((total / count) * 10) / 10 : 0,
+      reviewCount: count,
+    };
+
+    const manual = (granted ?? []).map((b) => b.badge);
+    if (profile.verified && !manual.includes("verified")) manual.unshift("verified");
+
     return {
       id: profile.id,
       displayName: profile.display_name ?? "Bottly creator",
@@ -57,10 +72,8 @@ export const getCreatorProfile = createServerFn({ method: "GET" })
       avatarUrl: profile.avatar_url ?? null,
       verified: profile.verified ?? false,
       joinedAt: profile.created_at,
-      salesCount: (listings ?? []).reduce((sum, l) => sum + (l.sales_count ?? 0), 0),
-      listingCount: listingIds.length,
-      rating: count > 0 ? Math.round((total / count) * 10) / 10 : 0,
-      reviewCount: count,
+      ...stats,
+      badges: [...manual, ...earnedBadges(stats)],
     };
   });
 
