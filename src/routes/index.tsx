@@ -2,7 +2,7 @@ import { Suspense, useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { motion, useMotionValue, useMotionTemplate } from "motion/react";
-import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow } from "lucide-react";
+import { ArrowRight, Check, CloudCog, Code2, Palette, Play, Puzzle, Store, Terminal, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
 import { PublicShell } from "@/components/layout/PublicShell";
