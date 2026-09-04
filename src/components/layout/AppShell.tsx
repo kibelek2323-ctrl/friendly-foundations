@@ -32,6 +32,7 @@ import {
   Sparkles,
   Store,
   Terminal,
+  Timer,
   Workflow,
   Zap,
 } from "lucide-react";
@@ -182,6 +183,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
             {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/countdown" icon={Timer} label="Countdown" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
             <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
