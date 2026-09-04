@@ -24,6 +24,22 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: description },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary" },
+        { property: "og:url", content: `https://bottly.xyz/blog/${loaderData.post.slug}` },
+      ],
+      links: [{ rel: "canonical", href: `https://bottly.xyz/blog/${loaderData.post.slug}` }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: title,
+            description,
+            datePublished: loaderData.post.publishedAt ?? loaderData.post.createdAt,
+            url: `https://bottly.xyz/blog/${loaderData.post.slug}`,
+            publisher: { "@type": "Organization", name: "Bottly", url: "https://bottly.xyz" },
+          }),
+        },
       ],
     };
   },

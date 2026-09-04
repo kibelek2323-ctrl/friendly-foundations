@@ -38,7 +38,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
             <Link to="/templates" className="hover:text-foreground">Templates</Link>
             <Link to="/docs" className="hover:text-foreground">Docs</Link>
             <Link to="/blog" className="hover:text-foreground">Blog</Link>
-            <Link to="/changelog" className="hover:text-foreground">Changelog</Link>
+
             <Link to="/faq" className="hover:text-foreground">FAQ</Link>
             <Link to="/status" className="hover:text-foreground">Status</Link>
           </nav>
@@ -55,6 +55,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
           <Link to="/faq" className="hover:text-foreground">FAQ</Link>
           <Link to="/status" className="hover:text-foreground">Status</Link>
           <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <Link to="/changelog" className="hover:text-foreground">Changelog</Link>
           <Link to="/docs" className="ml-auto hover:text-foreground">Docs</Link>
         </div>
       </footer>
