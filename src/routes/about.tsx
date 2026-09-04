@@ -117,6 +117,9 @@ function Page() {
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             {team.map((m) => (
               <div key={m.name} className="panel rounded-2xl p-5">
+                <span className="mb-3 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <User className="size-6" aria-hidden="true" />
+                </span>
                 <p className="font-medium">{m.name}</p>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">{m.role}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.body}</p>
