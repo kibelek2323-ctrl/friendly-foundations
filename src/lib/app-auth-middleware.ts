@@ -18,7 +18,7 @@ function createApiFetch(apiKey: string): typeof fetch {
 }
 
 /** Auth middleware that survives proxies which replace the standard Authorization header. */
-export const requireAppAuth = createMiddleware({ type: "function" }).server(async ({ next }) => {
+export const requireAppAuth = createMiddleware({ type: "function" }).server(async ({ next, context }) => {
   const url = process.env["SUPABASE_URL"];
   const apiKey = process.env["SUPABASE_PUBLISHABLE_KEY"];
   if (!url || !apiKey) throw new Error("Backend authentication is not configured");
@@ -26,8 +26,14 @@ export const requireAppAuth = createMiddleware({ type: "function" }).server(asyn
   const headers = getRequest().headers;
   const forwardedToken = headers.get("x-bottly-access-token")?.trim();
   const bearer = headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
-  const token = forwardedToken || bearer;
-  if (!token || token.split(".").length !== 3) throw new Error("Unauthorized: Invalid token");
+  const payloadToken = (context as { bottlyAccessToken?: string } | undefined)?.bottlyAccessToken?.trim();
+  const token = forwardedToken || bearer || payloadToken;
+  if (!token || token.split(".").length !== 3) {
+    console.error(
+      `[auth] no usable token (header=${Boolean(forwardedToken)} bearer=${Boolean(bearer)} payload=${Boolean(payloadToken)})`,
+    );
+    throw new Error("Unauthorized: Invalid token");
+  }
 
   const supabase = createClient<Database>(url, apiKey, {
     global: {
@@ -38,7 +44,10 @@ export const requireAppAuth = createMiddleware({ type: "function" }).server(asyn
   });
   const { data, error } = await supabase.auth.getClaims(token);
   const userId = data?.claims?.sub;
-  if (error || !userId) throw new Error("Unauthorized: Invalid token");
+  if (error || !userId) {
+    console.error(`[auth] token rejected by Supabase: ${error?.message ?? "no claims"}`);
+    throw new Error("Unauthorized: Invalid token");
+  }
 
   return next({ context: { supabase, userId, claims: data.claims } });
 });

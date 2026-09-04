@@ -18,6 +18,9 @@ export const attachVerifiedAuth = createMiddleware({ type: "function" }).client(
   }
 
   return next({
+    // Some edge proxies rewrite or drop custom auth headers, so the token also
+    // travels inside the RPC payload (the server still verifies it).
+    sendContext: { bottlyAccessToken: token },
     headers: token
       ? {
           Authorization: `Bearer ${token}`,
