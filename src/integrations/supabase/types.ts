@@ -225,6 +225,51 @@ export type Database = {
         }
         Relationships: []
       }
+      bot_config_schemas: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string | null
+          project_id: string
+          schema: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          project_id: string
+          schema?: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          project_id?: string
+          schema?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_config_schemas_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bot_config_schemas_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "code_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_runtime_events: {
         Row: {
           bot_id: string
@@ -373,6 +418,128 @@ export type Database = {
           name?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      buyer_configurations: {
+        Row: {
+          bot_id: string | null
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          project_id: string | null
+          updated_at: string
+          values: Json
+        }
+        Insert: {
+          bot_id?: string | null
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          project_id?: string | null
+          updated_at?: string
+          values?: Json
+        }
+        Update: {
+          bot_id?: string | null
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          project_id?: string | null
+          updated_at?: string
+          values?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_configurations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buyer_configurations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "code_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      code_project_files: {
+        Row: {
+          content_type: string
+          created_at: string
+          id: string
+          is_folder: boolean
+          path: string
+          project_id: string
+          size: number
+          updated_at: string
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_folder?: boolean
+          path: string
+          project_id: string
+          size?: number
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_folder?: boolean
+          path?: string
+          project_id?: string
+          size?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "code_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      code_projects: {
+        Row: {
+          bot_id: string
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          runtime: string
+          storage_prefix: string
+          updated_at: string
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          runtime?: string
+          storage_prefix: string
+          updated_at?: string
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          runtime?: string
+          storage_prefix?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -777,11 +944,13 @@ export type Database = {
           flow_data: Json | null
           id: string
           images: string[]
+          kind: string
           price: number
           published: boolean
           sales_count: number
           seller_id: string
           source_bot_id: string | null
+          source_project_id: string | null
           summary: string
           tags: string[]
           title: string
@@ -797,11 +966,13 @@ export type Database = {
           flow_data?: Json | null
           id?: string
           images?: string[]
+          kind?: string
           price?: number
           published?: boolean
           sales_count?: number
           seller_id: string
           source_bot_id?: string | null
+          source_project_id?: string | null
           summary?: string
           tags?: string[]
           title: string
@@ -817,11 +988,13 @@ export type Database = {
           flow_data?: Json | null
           id?: string
           images?: string[]
+          kind?: string
           price?: number
           published?: boolean
           sales_count?: number
           seller_id?: string
           source_bot_id?: string | null
+          source_project_id?: string | null
           summary?: string
           tags?: string[]
           title?: string
@@ -829,7 +1002,15 @@ export type Database = {
           version?: number
           views?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listings_source_project_id_fkey"
+            columns: ["source_project_id"]
+            isOneToOne: false
+            referencedRelation: "code_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       marketplace_purchases: {
         Row: {

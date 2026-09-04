@@ -32,6 +32,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPayoutsRouteImport } from './routes/_authenticated/payouts'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
+import { Route as AuthenticatedStorageRouteImport } from './routes/_authenticated/storage'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
@@ -60,11 +61,13 @@ import { Route as AuthenticatedBotsBotIdIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedBotsBotIdAutomationsRouteImport } from './routes/_authenticated/bots.$botId.automations'
 import { Route as AuthenticatedBotsBotIdCommandsRouteImport } from './routes/_authenticated/bots.$botId.commands'
 import { Route as AuthenticatedBotsBotIdComponentsRouteImport } from './routes/_authenticated/bots.$botId.components'
+import { Route as AuthenticatedBotsBotIdConfigurationRouteImport } from './routes/_authenticated/bots.$botId.configuration'
 import { Route as AuthenticatedBotsBotIdEventsRouteImport } from './routes/_authenticated/bots.$botId.events'
 import { Route as AuthenticatedBotsBotIdLogsRouteImport } from './routes/_authenticated/bots.$botId.logs'
 import { Route as AuthenticatedBotsBotIdPresenceRouteImport } from './routes/_authenticated/bots.$botId.presence'
 import { Route as AuthenticatedBotsBotIdSettingsRouteImport } from './routes/_authenticated/bots.$botId.settings'
 import { Route as AuthenticatedMarketplaceEditListingIdRouteImport } from './routes/_authenticated/marketplace.edit.$listingId'
+import { Route as AuthenticatedProjectsProjectIdCodeRouteImport } from './routes/_authenticated/projects.$projectId.code'
 import { Route as ApiInternalRuntimeEventsRouteImport } from './routes/api.internal.runtime.events'
 import { Route as ApiPublicWebhooksNowpaymentsRouteImport } from './routes/api.public.webhooks.nowpayments'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -184,6 +187,11 @@ const AuthenticatedPayoutsRoute = AuthenticatedPayoutsRouteImport.update({
 const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStorageRoute = AuthenticatedStorageRouteImport.update({
+  id: '/storage',
+  path: '/storage',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
@@ -341,6 +349,12 @@ const AuthenticatedBotsBotIdComponentsRoute =
     path: '/bots/$botId/components',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBotsBotIdConfigurationRoute =
+  AuthenticatedBotsBotIdConfigurationRouteImport.update({
+    id: '/bots/$botId/configuration',
+    path: '/bots/$botId/configuration',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBotsBotIdEventsRoute =
   AuthenticatedBotsBotIdEventsRouteImport.update({
     id: '/bots/$botId/events',
@@ -369,6 +383,12 @@ const AuthenticatedMarketplaceEditListingIdRoute =
   AuthenticatedMarketplaceEditListingIdRouteImport.update({
     id: '/marketplace/edit/$listingId',
     path: '/marketplace/edit/$listingId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProjectsProjectIdCodeRoute =
+  AuthenticatedProjectsProjectIdCodeRouteImport.update({
+    id: '/projects/$projectId/code',
+    path: '/projects/$projectId/code',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiInternalRuntimeEventsRoute =
@@ -423,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/payouts': typeof AuthenticatedPayoutsRoute
   '/referrals': typeof AuthenticatedReferralsRoute
+  '/storage': typeof AuthenticatedStorageRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -450,11 +471,13 @@ export interface FileRoutesByFullPath {
   '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
   '/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
   '/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
+  '/bots/$botId/configuration': typeof AuthenticatedBotsBotIdConfigurationRoute
   '/bots/$botId/events': typeof AuthenticatedBotsBotIdEventsRoute
   '/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
   '/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
   '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
   '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
+  '/projects/$projectId/code': typeof AuthenticatedProjectsProjectIdCodeRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
   '/api/public/webhooks/nowpayments': typeof ApiPublicWebhooksNowpaymentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -485,6 +508,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/payouts': typeof AuthenticatedPayoutsRoute
   '/referrals': typeof AuthenticatedReferralsRoute
+  '/storage': typeof AuthenticatedStorageRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -512,11 +536,13 @@ export interface FileRoutesByTo {
   '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
   '/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
   '/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
+  '/bots/$botId/configuration': typeof AuthenticatedBotsBotIdConfigurationRoute
   '/bots/$botId/events': typeof AuthenticatedBotsBotIdEventsRoute
   '/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
   '/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
   '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
   '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
+  '/projects/$projectId/code': typeof AuthenticatedProjectsProjectIdCodeRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
   '/api/public/webhooks/nowpayments': typeof ApiPublicWebhooksNowpaymentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -549,6 +575,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/payouts': typeof AuthenticatedPayoutsRoute
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
+  '/_authenticated/storage': typeof AuthenticatedStorageRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -576,11 +603,13 @@ export interface FileRoutesById {
   '/_authenticated/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
   '/_authenticated/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
   '/_authenticated/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
+  '/_authenticated/bots/$botId/configuration': typeof AuthenticatedBotsBotIdConfigurationRoute
   '/_authenticated/bots/$botId/events': typeof AuthenticatedBotsBotIdEventsRoute
   '/_authenticated/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
   '/_authenticated/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
   '/_authenticated/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
   '/_authenticated/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
+  '/_authenticated/projects/$projectId/code': typeof AuthenticatedProjectsProjectIdCodeRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
   '/api/public/webhooks/nowpayments': typeof ApiPublicWebhooksNowpaymentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -613,6 +642,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/payouts'
     | '/referrals'
+    | '/storage'
     | '/blog/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
@@ -640,11 +670,13 @@ export interface FileRouteTypes {
     | '/bots/$botId/automations'
     | '/bots/$botId/commands'
     | '/bots/$botId/components'
+    | '/bots/$botId/configuration'
     | '/bots/$botId/events'
     | '/bots/$botId/logs'
     | '/bots/$botId/presence'
     | '/bots/$botId/settings'
     | '/marketplace/edit/$listingId'
+    | '/projects/$projectId/code'
     | '/api/internal/runtime/events'
     | '/api/public/webhooks/nowpayments'
     | '/lovable/email/auth/preview'
@@ -675,6 +707,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/payouts'
     | '/referrals'
+    | '/storage'
     | '/blog/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
@@ -702,11 +735,13 @@ export interface FileRouteTypes {
     | '/bots/$botId/automations'
     | '/bots/$botId/commands'
     | '/bots/$botId/components'
+    | '/bots/$botId/configuration'
     | '/bots/$botId/events'
     | '/bots/$botId/logs'
     | '/bots/$botId/presence'
     | '/bots/$botId/settings'
     | '/marketplace/edit/$listingId'
+    | '/projects/$projectId/code'
     | '/api/internal/runtime/events'
     | '/api/public/webhooks/nowpayments'
     | '/lovable/email/auth/preview'
@@ -738,6 +773,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/payouts'
     | '/_authenticated/referrals'
+    | '/_authenticated/storage'
     | '/blog/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
@@ -765,11 +801,13 @@ export interface FileRouteTypes {
     | '/_authenticated/bots/$botId/automations'
     | '/_authenticated/bots/$botId/commands'
     | '/_authenticated/bots/$botId/components'
+    | '/_authenticated/bots/$botId/configuration'
     | '/_authenticated/bots/$botId/events'
     | '/_authenticated/bots/$botId/logs'
     | '/_authenticated/bots/$botId/presence'
     | '/_authenticated/bots/$botId/settings'
     | '/_authenticated/marketplace/edit/$listingId'
+    | '/_authenticated/projects/$projectId/code'
     | '/api/internal/runtime/events'
     | '/api/public/webhooks/nowpayments'
     | '/lovable/email/auth/preview'
@@ -970,6 +1008,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReferralsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/storage': {
+      id: '/_authenticated/storage'
+      path: '/storage'
+      fullPath: '/storage'
+      preLoaderRoute: typeof AuthenticatedStorageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -1166,6 +1211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBotsBotIdComponentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bots/$botId/configuration': {
+      id: '/_authenticated/bots/$botId/configuration'
+      path: '/bots/$botId/configuration'
+      fullPath: '/bots/$botId/configuration'
+      preLoaderRoute: typeof AuthenticatedBotsBotIdConfigurationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/bots/$botId/events': {
       id: '/_authenticated/bots/$botId/events'
       path: '/bots/$botId/events'
@@ -1199,6 +1251,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace/edit/$listingId'
       fullPath: '/marketplace/edit/$listingId'
       preLoaderRoute: typeof AuthenticatedMarketplaceEditListingIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projects/$projectId/code': {
+      id: '/_authenticated/projects/$projectId/code'
+      path: '/projects/$projectId/code'
+      fullPath: '/projects/$projectId/code'
+      preLoaderRoute: typeof AuthenticatedProjectsProjectIdCodeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/internal/runtime/events': {
@@ -1259,6 +1318,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPayoutsRoute: typeof AuthenticatedPayoutsRoute
   AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
+  AuthenticatedStorageRoute: typeof AuthenticatedStorageRoute
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
@@ -1279,11 +1339,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBotsBotIdAutomationsRoute: typeof AuthenticatedBotsBotIdAutomationsRoute
   AuthenticatedBotsBotIdCommandsRoute: typeof AuthenticatedBotsBotIdCommandsRoute
   AuthenticatedBotsBotIdComponentsRoute: typeof AuthenticatedBotsBotIdComponentsRoute
+  AuthenticatedBotsBotIdConfigurationRoute: typeof AuthenticatedBotsBotIdConfigurationRoute
   AuthenticatedBotsBotIdEventsRoute: typeof AuthenticatedBotsBotIdEventsRoute
   AuthenticatedBotsBotIdLogsRoute: typeof AuthenticatedBotsBotIdLogsRoute
   AuthenticatedBotsBotIdPresenceRoute: typeof AuthenticatedBotsBotIdPresenceRoute
   AuthenticatedBotsBotIdSettingsRoute: typeof AuthenticatedBotsBotIdSettingsRoute
   AuthenticatedMarketplaceEditListingIdRoute: typeof AuthenticatedMarketplaceEditListingIdRoute
+  AuthenticatedProjectsProjectIdCodeRoute: typeof AuthenticatedProjectsProjectIdCodeRoute
   AuthenticatedBotsBotIdIndexRoute: typeof AuthenticatedBotsBotIdIndexRoute
 }
 
@@ -1296,6 +1358,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPayoutsRoute: AuthenticatedPayoutsRoute,
   AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
+  AuthenticatedStorageRoute: AuthenticatedStorageRoute,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
@@ -1318,12 +1381,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedBotsBotIdAutomationsRoute,
   AuthenticatedBotsBotIdCommandsRoute: AuthenticatedBotsBotIdCommandsRoute,
   AuthenticatedBotsBotIdComponentsRoute: AuthenticatedBotsBotIdComponentsRoute,
+  AuthenticatedBotsBotIdConfigurationRoute:
+    AuthenticatedBotsBotIdConfigurationRoute,
   AuthenticatedBotsBotIdEventsRoute: AuthenticatedBotsBotIdEventsRoute,
   AuthenticatedBotsBotIdLogsRoute: AuthenticatedBotsBotIdLogsRoute,
   AuthenticatedBotsBotIdPresenceRoute: AuthenticatedBotsBotIdPresenceRoute,
   AuthenticatedBotsBotIdSettingsRoute: AuthenticatedBotsBotIdSettingsRoute,
   AuthenticatedMarketplaceEditListingIdRoute:
     AuthenticatedMarketplaceEditListingIdRoute,
+  AuthenticatedProjectsProjectIdCodeRoute:
+    AuthenticatedProjectsProjectIdCodeRoute,
   AuthenticatedBotsBotIdIndexRoute: AuthenticatedBotsBotIdIndexRoute,
 }
 

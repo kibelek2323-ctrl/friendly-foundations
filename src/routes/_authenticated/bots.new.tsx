@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Code2, Loader2, Workflow } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ import { useFlowStore } from "@/stores/useFlowStore";
 import { slugify } from "@/lib/id";
 import { listPublicTemplates, instantiateTemplate } from "@/lib/templates.functions";
 import { usePlan } from "@/hooks/usePlan";
+import { myAccountRank } from "@/lib/roles.functions";
+import { createCodeProject } from "@/lib/code-projects.functions";
 import { PLAN_LABEL } from "@/data/plan-limits";
 import type { BotLanguage } from "@/types/bot";
 import { cn } from "@/lib/utils";
@@ -38,7 +40,8 @@ export const Route = createFileRoute("/_authenticated/bots/new")({
   component: Page,
 });
 
-const STEPS = ["Template", "Basics"];
+const FLOW_STEPS = ["Template", "Basics"];
+const CODE_STEPS = ["Basics"];
 
 function CreatingOverlay({ onDone }: { onDone: () => void | Promise<void> }) {
   const [index, setIndex] = useState(0);
@@ -80,6 +83,7 @@ function Page() {
   const [creating, setCreating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [method, setMethod] = useState<"flow" | "code" | null>(null);
 
   const listTemplates = useServerFn(listPublicTemplates);
   const instantiateTemplateFn = useServerFn(instantiateTemplate);
@@ -90,6 +94,12 @@ function Page() {
   });
 
   const { plan, limits, botCount, canCreateBot } = usePlan();
+  const rank = useQuery({ queryKey: ["account-rank"], queryFn: () => myAccountRank() });
+  const isDeveloper = rank.data?.developer === true;
+  const createProject = useServerFn(createCodeProject);
+
+  const mode: "flow" | "code" = isDeveloper ? (method ?? "flow") : "flow";
+  const STEPS = mode === "code" ? CODE_STEPS : FLOW_STEPS;
 
   const step = Math.min(draft.step, STEPS.length - 1);
   const setStep = (n: number) => updateDraft({ step: Math.max(0, Math.min(STEPS.length - 1, n)) });
@@ -106,6 +116,13 @@ function Page() {
   const finish = async () => {
     try {
       const bot = commitDraft();
+      if (mode === "code") {
+        const result = await createProject({ data: { botId: bot.id, name: bot.name, runtime: "javascript" } });
+        if (!result.ok || !result.project) throw new Error(result.error ?? "Could not create the project.");
+        toast.success(`${bot.name} saved to your account`, { description: "Opening the Code Editor…" });
+        void navigate({ to: "/projects/$projectId/code", params: { projectId: result.project.id } });
+        return;
+      }
       let flowId: string;
       if (templateId) {
         const result = await instantiateTemplateFn({
@@ -132,7 +149,8 @@ function Page() {
         <div>
           <h1 className="text-xl font-semibold">Create a new bot</h1>
           <p className="text-sm text-muted-foreground">
-            Step {step + 1} of {STEPS.length} — {STEPS[step]}. Everything else is built visually in the flow builder.
+            Step {step + 1} of {STEPS.length} — {STEPS[step]}.{" "}
+            {mode === "code" ? "Then you jump straight into the Code Editor." : "Everything else is built visually in the flow builder."}
           </p>
         </div>
 
@@ -148,6 +166,40 @@ function Page() {
           </div>
         )}
 
+        {isDeveloper && method === null && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => {
+                setMethod("flow");
+                updateDraft({ step: 0 });
+              }}
+              className="panel p-6 text-left transition hover:-translate-y-0.5 hover:border-primary"
+            >
+              <Workflow className="size-6 text-primary" aria-hidden="true" />
+              <p className="mt-3 text-sm font-semibold">Flow Builder</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Visual bot builder for creating bots without writing code.
+              </p>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMethod("code");
+                updateDraft({ step: 0 });
+              }}
+              className="panel p-6 text-left transition hover:-translate-y-0.5 hover:border-primary"
+            >
+              <Code2 className="size-6 text-primary" aria-hidden="true" />
+              <p className="mt-3 text-sm font-semibold">Code Editor</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Build and customise your bot using source code, stored in Bottly Storage.
+              </p>
+            </button>
+          </div>
+        )}
+
+        {(!isDeveloper || method !== null) && (
         <ol className="flex flex-wrap gap-2" aria-label="Progress">
           {STEPS.map((label, i) => (
             <li key={label}>
@@ -167,9 +219,11 @@ function Page() {
             </li>
           ))}
         </ol>
+        )}
 
+        {(!isDeveloper || method !== null) && (
         <motion.div key={step} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-          {step === 0 && (
+          {mode === "flow" && step === 0 && (
             <div className="mx-auto max-w-3xl">
               <p className="mb-4 text-sm text-muted-foreground">
                 Start from a prebuilt workflow, or skip this step to begin with a blank canvas.
@@ -219,7 +273,7 @@ function Page() {
             </div>
           )}
 
-          {step === 1 && (
+          {STEPS[step] === "Basics" && (
             <div className="grid max-w-2xl gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="w-name">Bot name</Label>
@@ -292,7 +346,9 @@ function Page() {
             </div>
           )}
         </motion.div>
+        )}
 
+        {(!isDeveloper || method !== null) && (
         <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
           <Button variant="outline" className="gap-1.5" disabled={step === 0} onClick={() => setStep(step - 1)}>
             <ArrowLeft className="size-4" /> Back
@@ -319,6 +375,7 @@ function Page() {
             </Button>
           )}
         </div>
+        )}
       </div>
 
       {creating && <CreatingOverlay onDone={finish} />}

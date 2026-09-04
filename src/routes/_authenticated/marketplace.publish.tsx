@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { ArrowLeft, Eye, EyeOff, Loader2, Trash2, Upload, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { myAccountRank } from "@/lib/roles.functions";
+import { getProjectForBot } from "@/lib/code-projects.functions";
+import { linkSchemaToListing, validateProjectForPublish } from "@/lib/bot-config.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,6 +118,18 @@ function Page() {
 
     setBusy(true);
     try {
+      // Code bots must pass the configuration checks before they can be listed.
+      const project = await getProjectForBot({ data: { botId: bot.id } });
+      if (project) {
+        const check = await validateProjectForPublish({ data: { projectId: project.id } });
+        if (!check.ok) {
+          toast.error("Fix your project before publishing", {
+            description: check.issues.map((i) => `${i.key}: ${i.message}`).join(" · "),
+          });
+          return;
+        }
+      }
+
       const flow = bot.flowId ? (flows[bot.flowId] ?? null) : null;
       const res = await publish({
         data: {
@@ -135,6 +149,7 @@ function Page() {
         toast.error(res.error ?? "Could not publish this bot.");
         return;
       }
+      if (project && res.id) await linkSchemaToListing({ data: { projectId: project.id, listingId: res.id } });
       toast.success("Listing created — publish it below when you're ready.");
       setTitle("");
       setSummary("");

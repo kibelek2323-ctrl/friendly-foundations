@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { myAccountRank } from "@/lib/roles.functions";
 import { amIAdmin } from "@/lib/admin-codes.functions";
 import { getMyBalance } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
@@ -44,6 +45,8 @@ import {
   Workflow,
   Zap,
   Wrench,
+  FolderTree,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -153,6 +156,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
     queryFn: () => checkAdmin(),
     staleTime: 5 * 60 * 1000,
   });
+  const fetchRank = useServerFn(myAccountRank);
+  const { data: rank } = useQuery({
+    queryKey: ["account-rank"],
+    queryFn: () => fetchRank(),
+    staleTime: 5 * 60 * 1000,
+  });
   const fetchBalance = useServerFn(getMyBalance);
   const { data: balance } = useQuery({
     queryKey: ["my-balance"],
@@ -220,6 +229,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
                 <NavItem to={`/bots/${bot.id}/automations`} icon={Workflow} label="Automations" onNavigate={onNavigate} />
                 <NavItem to={`/bots/${bot.id}/events`} icon={Zap} label="Events" onNavigate={onNavigate} />
                 <NavItem to={`/bots/${bot.id}/logs`} icon={ScrollText} label="Logs" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/configuration`} icon={SlidersHorizontal} label="Configuration" onNavigate={onNavigate} />
                 <NavItem to={`/bots/${bot.id}/settings`} icon={Settings} label="Settings" onNavigate={onNavigate} />
               </div>
               <div className="mt-2 flex items-center justify-between rounded-md bg-sidebar-accent/50 px-2.5 py-2">
@@ -230,6 +240,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           )}
 
           <div className="space-y-0.5">
+            {rank?.developer && (
+              <NavItem to="/storage" icon={FolderTree} label="Storage Center" onNavigate={onNavigate} />
+            )}
             <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
 
             <NavItem to="/balance" icon={Wallet} label="Balance" onNavigate={onNavigate} />
