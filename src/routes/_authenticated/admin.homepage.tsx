@@ -74,7 +74,7 @@ function Page() {
 
   if (checking || (isAdmin && content.isLoading)) {
     return (
-      <AppShell>
+      <AppShell title="Homepage">
         <div className="flex justify-center py-20"><Loader2 className="size-5 animate-spin text-muted-foreground" /></div>
       </AppShell>
     );
@@ -82,7 +82,7 @@ function Page() {
 
   if (!isAdmin) {
     return (
-      <AppShell>
+      <AppShell title="Homepage">
         <div className="mx-auto max-w-md py-20 text-center">
           <ShieldAlert className="mx-auto size-8 text-muted-foreground" />
           <p className="mt-3 text-sm text-muted-foreground">Admins only.</p>
@@ -94,7 +94,7 @@ function Page() {
   const BadgeIcon = announcementIcon(form.badgeIcon);
 
   return (
-    <AppShell>
+    <AppShell title="Homepage">
       <div className="mx-auto max-w-2xl space-y-6 p-6">
         <div>
           <h1 className="text-xl font-semibold">Homepage hero</h1>
