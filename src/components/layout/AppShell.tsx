@@ -14,7 +14,10 @@ import {
   LogOut,
   Megaphone,
   Newspaper,
-  DollarSign,
+  ShieldCheck,
+  Landmark,
+  FileText,
+  ChevronRight,
   Menu,
   BadgeCheck,
   KeyRound,
@@ -84,6 +87,54 @@ function NavItem({
       <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden="true" />
       <span className="truncate">{label}</span>
     </Link>
+  );
+}
+
+const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
+  { to: "/admin/stats", icon: ChartLine, label: "Platform stats" },
+  { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/reports", icon: Flag, label: "Moderation" },
+  { to: "/admin/codes", icon: KeyRound, label: "Codes" },
+  { to: "/admin/payouts", icon: Landmark, label: "Payouts" },
+  { to: "/admin/referrals", icon: Share2, label: "Referrals" },
+  { to: "/admin/announcements", icon: Megaphone, label: "Announcements" },
+  { to: "/admin/homepage", icon: Home, label: "Homepage" },
+  { to: "/admin/pages", icon: FileText, label: "Status & FAQ" },
+  { to: "/admin/blog", icon: Newspaper, label: "Blog & changelog" },
+  { to: "/admin/countdown", icon: Timer, label: "Countdown" },
+];
+
+/** Collapsible admin group with its own nested menu. */
+function AdminNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const inAdmin = pathname.startsWith("/admin");
+  const [open, setOpen] = useState(inAdmin);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+          inAdmin
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+        )}
+      >
+        <ShieldCheck className="size-4 shrink-0" aria-hidden="true" />
+        <span className="truncate">Admin</span>
+        <ChevronRight className={cn("ml-auto size-4 shrink-0 transition-transform", open && "rotate-90")} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-sidebar-border pl-2">
+          {ADMIN_LINKS.map((l) => (
+            <NavItem key={l.to} to={l.to} icon={l.icon} label={l.label} onNavigate={onNavigate} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
