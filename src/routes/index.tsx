@@ -223,22 +223,29 @@ function Landing() {
         </section>
 
         <section className="border-y border-border bg-surface/50 py-16">
-          <div className="mx-auto max-w-6xl px-4">
+          <Reveal className="mx-auto max-w-6xl px-4">
             <div className="max-w-2xl">
               <p className="text-sm font-medium text-primary">From idea to online bot</p>
               <h2 className="mt-2 text-2xl font-semibold">Build, connect and run everything in one workspace</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Every tool shares the same bot data, so a command response can reuse your designs, components and automation variables without rebuilding them in separate apps.</p>
             </div>
             <ol className="mt-9 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
-              {BUILD_STEPS.map(({ icon: Icon, step, title, body }) => (
-                <li key={step} className="bg-background p-6">
+              {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
+                <motion.li
+                  key={step}
+                  className="bg-background p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                >
                   <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {step}</span><Icon className="size-5 text-primary" /></div>
                   <h3 className="mt-7 font-semibold">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-                </li>
+                </motion.li>
               ))}
             </ol>
-          </div>
+          </Reveal>
         </section>
 
         <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
