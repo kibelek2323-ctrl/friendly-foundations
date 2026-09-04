@@ -95,13 +95,9 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
       const invoiceId = invoice.id != null ? String(invoice.id) : null;
       await supabaseAdmin.from("crypto_payments").update({ invoice_id: invoiceId }).eq("order_id", orderId);
 
-      return {
-        ok: true,
-        url: invoice.invoice_url,
-        widgetUrl: invoiceId ? `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}` : undefined,
-        orderId,
-        amount,
-      };
+      const result: CreatedCryptoPayment = { ok: true, url: invoice.invoice_url, orderId, amount };
+      if (invoiceId) result.widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}`;
+      return result;
     } catch (error) {
       console.error("NOWPayments invoice error", error);
       await supabaseAdmin.from("crypto_payments").update({ status: "failed" }).eq("order_id", orderId);
