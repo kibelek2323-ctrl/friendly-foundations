@@ -22,6 +22,9 @@ const OPEN_PATHS = ["/xadmx", "/docs", "/about"];
 /** Remembers that the site was fully open, so returning visitors never flash a gate screen. */
 const OPEN_CACHE_KEY = "bottly-site-open";
 
+/** Remembers, for this browser session, that the maintenance password was entered. */
+const UNLOCK_KEY = "bottly-maintenance-unlock";
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
