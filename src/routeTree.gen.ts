@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as XadmxRouteImport } from './routes/xadmx'
 import { Route as AuthenticatedAccountSettingsRouteImport } from './routes/_authenticated/account-settings'
@@ -108,6 +109,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
   path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -346,6 +352,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/status': typeof StatusRoute
+  '/templates': typeof TemplatesRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/account-settings': typeof AuthenticatedAccountSettingsRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/status': typeof StatusRoute
+  '/templates': typeof TemplatesRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/account-settings': typeof AuthenticatedAccountSettingsRoute
@@ -452,6 +460,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/status': typeof StatusRoute
+  '/templates': typeof TemplatesRoute
   '/terms': typeof TermsRoute
   '/xadmx': typeof XadmxRoute
   '/_authenticated/account-settings': typeof AuthenticatedAccountSettingsRoute
@@ -506,6 +515,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/status'
+    | '/templates'
     | '/terms'
     | '/xadmx'
     | '/account-settings'
@@ -558,6 +568,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/status'
+    | '/templates'
     | '/terms'
     | '/xadmx'
     | '/account-settings'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/register'
     | '/status'
+    | '/templates'
     | '/terms'
     | '/xadmx'
     | '/_authenticated/account-settings'
@@ -665,6 +677,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   RegisterRoute: typeof RegisterRoute
   StatusRoute: typeof StatusRoute
+  TemplatesRoute: typeof TemplatesRoute
   TermsRoute: typeof TermsRoute
   XadmxRoute: typeof XadmxRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -747,6 +760,13 @@ declare module '@tanstack/react-router' {
       path: '/status'
       fullPath: '/status'
       preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -1133,6 +1153,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   RegisterRoute: RegisterRoute,
   StatusRoute: StatusRoute,
+  TemplatesRoute: TemplatesRoute,
   TermsRoute: TermsRoute,
   XadmxRoute: XadmxRoute,
   BlogSlugRoute: BlogSlugRoute,
