@@ -762,6 +762,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_badges: {
+        Row: {
+          badge: string
+          created_at: string
+          granted_by: string | null
+          id: string
+          note: string
+          user_id: string
+        }
+        Insert: {
+          badge: string
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          note?: string
+          user_id: string
+        }
+        Update: {
+          badge?: string
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          note?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
