@@ -211,13 +211,16 @@ export function CountdownGate({ children }: { children: ReactNode }) {
 
   // Remembered "site is open" verdict: skips any gate flash on later visits.
   const [cachedOpen, setCachedOpen] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
   useEffect(() => {
     try {
       setCachedOpen(window.localStorage.getItem(OPEN_CACHE_KEY) === "1");
+      setUnlocked(window.sessionStorage.getItem(UNLOCK_KEY) === "1");
     } catch {
       /* storage unavailable */
     }
   }, []);
+
 
   const { data: gate } = useQuery({
     queryKey: ["site-gate"],
