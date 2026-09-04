@@ -28,10 +28,21 @@ export interface CryptoPaymentRow {
  * Creates a NOWPayments hosted invoice for a balance top-up or a 30-day plan.
  * The balance/plan is only granted once the IPN webhook confirms the payment.
  */
+export interface CreatedCryptoPayment {
+  ok: boolean;
+  error?: string;
+  /** Hosted checkout link (fallback / "open in new tab"). */
+  url?: string;
+  /** Embeddable NOWPayments widget URL for an iframe inside our own payment box. */
+  widgetUrl?: string;
+  orderId?: string;
+  amount?: number;
+}
+
 export const createCryptoPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
-  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; url?: string }> => {
+  .handler(async ({ data, context }): Promise<CreatedCryptoPayment> => {
     const apiKey = process.env["NOWPAYMENTS_API_KEY"];
     if (!apiKey) return { ok: false, error: "Crypto payments are not configured yet." };
 
@@ -81,12 +92,12 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
       const invoice = (await res.json()) as { id?: string | number; invoice_url?: string };
       if (!invoice.invoice_url) return { ok: false, error: "The payment provider returned no checkout link." };
 
-      await supabaseAdmin
-        .from("crypto_payments")
-        .update({ invoice_id: invoice.id ? String(invoice.id) : null })
-        .eq("order_id", orderId);
+      const invoiceId = invoice.id != null ? String(invoice.id) : null;
+      await supabaseAdmin.from("crypto_payments").update({ invoice_id: invoiceId }).eq("order_id", orderId);
 
-      return { ok: true, url: invoice.invoice_url };
+      const result: CreatedCryptoPayment = { ok: true, url: invoice.invoice_url, orderId, amount };
+      if (invoiceId) result.widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}`;
+      return result;
     } catch (error) {
       console.error("NOWPayments invoice error", error);
       await supabaseAdmin.from("crypto_payments").update({ status: "failed" }).eq("order_id", orderId);
@@ -114,4 +125,39 @@ export const listCryptoPayments = createServerFn({ method: "GET" })
       payCurrency: r.pay_currency,
       createdAt: r.created_at,
     }));
+  });
+
+/** Statuses that mean the payment can no longer complete. */
+export const FAILED_STATUSES = ["failed", "expired", "refunded"] as const;
+/** Statuses that mean credits/plan have been (or are about to be) granted. */
+export const SUCCESS_STATUSES = ["confirmed", "finished"] as const;
+
+export interface CryptoPaymentStatus {
+  status: string;
+  credited: boolean;
+  payCurrency: string | null;
+  amount: number;
+}
+
+/**
+ * Status of one of the signed-in user's own payments. Read-only: crediting happens
+ * exclusively in the verified IPN webhook, never from the browser.
+ */
+export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ orderId: z.string().min(8).max(128) }).parse(data))
+  .handler(async ({ data, context }): Promise<CryptoPaymentStatus | null> => {
+    const { data: row } = await context.supabase
+      .from("crypto_payments")
+      .select("status, credited_at, pay_currency, amount")
+      .eq("order_id", data.orderId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!row) return null;
+    return {
+      status: row.status,
+      credited: row.credited_at != null,
+      payCurrency: row.pay_currency,
+      amount: row.amount,
+    };
   });

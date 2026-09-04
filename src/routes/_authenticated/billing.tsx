@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { redeemPlanCode } from "@/lib/plan.functions";
-import { PLAN_PRICE_USD, createCryptoPayment } from "@/lib/crypto-payments.functions";
+import { type CreatedCryptoPayment, PLAN_PRICE_USD, createCryptoPayment } from "@/lib/crypto-payments.functions";
+import { CryptoCheckout } from "@/components/billing/CryptoCheckout";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABEL, PLAN_LIMITS, limitLabel } from "@/data/plan-limits";
 import type { PlanId } from "@/types/bot";
@@ -50,14 +51,15 @@ function Page() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [paying, setPaying] = useState<string | null>(null);
+  const [checkout, setCheckout] = useState<CreatedCryptoPayment | null>(null);
   const startPayment = useServerFn(createCryptoPayment);
 
   const buyPlan = async (target: "pro" | "ultimate") => {
     setPaying(target);
     try {
       const res = await startPayment({ data: { purpose: "plan", plan: target } });
-      if (res.ok && res.url) {
-        window.location.href = res.url;
+      if (res.ok) {
+        setCheckout(res);
       } else {
         toast.error(res.error ?? "Could not start the payment.");
       }
@@ -161,6 +163,19 @@ function Page() {
           </div>
         </section>
 
+
+        {checkout && (
+          <section className="panel p-5">
+            <CryptoCheckout
+              payment={checkout}
+              refreshKeys={[["plan"], ["balance-history"]]}
+              onClose={() => {
+                setCheckout(null);
+                refetch();
+              }}
+            />
+          </section>
+        )}
 
         <section className="grid gap-4 md:grid-cols-3">
           {(Object.keys(PLAN_LIMITS) as PlanId[]).map((id) => (

@@ -20,11 +20,13 @@ import {
 import { getBalanceHistory, redeemBalanceCode } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import {
+  type CreatedCryptoPayment,
   MAX_TOPUP_USD,
   MIN_TOPUP_USD,
   TOPUP_PRESETS,
   createCryptoPayment,
 } from "@/lib/crypto-payments.functions";
+import { CryptoCheckout } from "@/components/billing/CryptoCheckout";
 
 export const Route = createFileRoute("/_authenticated/balance")({
   head: () => ({
@@ -50,14 +52,15 @@ function Page() {
   const [busy, setBusy] = useState(false);
   const [amount, setAmount] = useState<number>(10);
   const [paying, setPaying] = useState(false);
+  const [checkout, setCheckout] = useState<CreatedCryptoPayment | null>(null);
   const startPayment = useServerFn(createCryptoPayment);
 
   const payWithCrypto = async () => {
     setPaying(true);
     try {
       const res = await startPayment({ data: { purpose: "topup", amount } });
-      if (res.ok && res.url) {
-        window.location.href = res.url;
+      if (res.ok) {
+        setCheckout(res);
       } else {
         toast.error(res.error ?? "Could not start the payment.");
       }
@@ -66,6 +69,11 @@ function Page() {
     } finally {
       setPaying(false);
     }
+  };
+
+  const closeCheckout = () => {
+    setCheckout(null);
+    void history.refetch();
   };
 
   const submit = async () => {
@@ -108,7 +116,7 @@ function Page() {
               {history.isLoading ? <Loader2 className="size-6 animate-spin" /> : usd(history.data?.balance ?? 0)}
             </p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) closeCheckout(); }}>
             <DialogTrigger asChild>
               <Button className="gap-1.5">
                 <Plus className="size-4" aria-hidden="true" /> Top up
@@ -120,6 +128,14 @@ function Page() {
                 <DialogDescription>Pay with crypto or redeem a Bottly balance code.</DialogDescription>
               </DialogHeader>
 
+              {checkout ? (
+                <CryptoCheckout
+                  payment={checkout}
+                  onClose={closeCheckout}
+                  refreshKeys={[["balance-history"], ["my-balance"]]}
+                />
+              ) : (
+              <>
               <div className="space-y-3">
                 <Label>Pay with crypto</Label>
                 <div className="flex flex-wrap gap-2">
@@ -180,6 +196,8 @@ function Page() {
                   {busy ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />} Redeem code
                 </Button>
               </DialogFooter>
+              </>
+              )}
             </DialogContent>
           </Dialog>
         </section>
