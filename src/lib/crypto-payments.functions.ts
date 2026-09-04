@@ -37,8 +37,6 @@ export interface CreatedCryptoPayment {
   error?: string;
   /** Hosted checkout link (fallback / "open in new tab"). */
   url?: string;
-  /** Embeddable NOWPayments widget URL for an iframe inside our own payment box. */
-  widgetUrl?: string;
   orderId?: string;
   amount?: number;
 }
@@ -122,9 +120,7 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
           .eq("id", appliedCodeId);
       }
 
-      const result: CreatedCryptoPayment = { ok: true, url: invoice.invoice_url, orderId, amount };
-      if (invoiceId) result.widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}`;
-      return result;
+      return { ok: true, url: invoice.invoice_url, orderId, amount };
     } catch (error) {
       console.error("NOWPayments invoice error", error);
       await supabaseAdmin.from("crypto_payments").update({ status: "failed" }).eq("order_id", orderId);
@@ -154,10 +150,153 @@ export const listCryptoPayments = createServerFn({ method: "GET" })
     }));
   });
 
-/** Statuses that mean the payment can no longer complete. */
-export const FAILED_STATUSES = ["failed", "expired", "refunded"] as const;
-/** Statuses that mean credits/plan have been (or are about to be) granted. */
-export const SUCCESS_STATUSES = ["confirmed", "finished"] as const;
+
+/* ------------------------------------------------------------------ */
+/* Custom checkout: coin list + address generation                     */
+/* ------------------------------------------------------------------ */
+
+export interface CryptoCoin {
+  /** NOWPayments currency ticker, e.g. "usdttrc20". */
+  code: string;
+  /** Human label, e.g. "Tether". */
+  name: string;
+  /** Short symbol shown in the picker, e.g. "USDT". */
+  symbol: string;
+  /** Network label, e.g. "TRC-20". */
+  network?: string;
+}
+
+/** Curated set of coins we offer, in display order. */
+const COIN_CATALOG: CryptoCoin[] = [
+  { code: "btc", name: "Bitcoin", symbol: "BTC" },
+  { code: "eth", name: "Ethereum", symbol: "ETH", network: "ERC-20" },
+  { code: "usdttrc20", name: "Tether", symbol: "USDT", network: "TRC-20" },
+  { code: "usdterc20", name: "Tether", symbol: "USDT", network: "ERC-20" },
+  { code: "usdcmatic", name: "USD Coin", symbol: "USDC", network: "Polygon" },
+  { code: "usdc", name: "USD Coin", symbol: "USDC", network: "ERC-20" },
+  { code: "sol", name: "Solana", symbol: "SOL" },
+  { code: "ltc", name: "Litecoin", symbol: "LTC" },
+  { code: "trx", name: "TRON", symbol: "TRX" },
+  { code: "ton", name: "Toncoin", symbol: "TON" },
+  { code: "bnbbsc", name: "BNB", symbol: "BNB", network: "BSC" },
+  { code: "doge", name: "Dogecoin", symbol: "DOGE" },
+  { code: "xmr", name: "Monero", symbol: "XMR" },
+  { code: "matic", name: "Polygon", symbol: "POL", network: "Polygon" },
+];
+
+/** Coins the merchant account actually accepts, filtered to our catalog. */
+export const listCryptoCoins = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async (): Promise<CryptoCoin[]> => {
+    const apiKey = process.env["NOWPAYMENTS_API_KEY"];
+    if (!apiKey) return [];
+    try {
+      const res = await fetch("https://api.nowpayments.io/v1/merchants/coins", {
+        headers: { "x-api-key": apiKey },
+      });
+      if (!res.ok) return COIN_CATALOG;
+      const body = (await res.json()) as { selectedCurrencies?: string[] };
+      const enabled = new Set((body.selectedCurrencies ?? []).map((c) => c.toLowerCase()));
+      if (enabled.size === 0) return COIN_CATALOG;
+      const filtered = COIN_CATALOG.filter((c) => enabled.has(c.code));
+      return filtered.length > 0 ? filtered : COIN_CATALOG;
+    } catch {
+      return COIN_CATALOG;
+    }
+  });
+
+export interface CryptoAddress {
+  ok: boolean;
+  error?: string | undefined;
+  payAddress?: string | undefined;
+  payAmount?: number | undefined;
+  payCurrency?: string | undefined;
+  network?: string | undefined;
+  /** Extra memo/tag some chains require. */
+  payinExtraId?: string | null | undefined;
+  expiresAt?: string | null | undefined;
+  paymentId?: string | undefined;
+}
+
+/**
+ * Turns an existing invoice into a concrete on-chain payment for one coin and
+ * returns the deposit address so we can render our own checkout (no widget).
+ */
+export const createCryptoAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ orderId: z.string().min(8).max(128), payCurrency: z.string().min(2).max(24) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<CryptoAddress> => {
+    const apiKey = process.env["NOWPAYMENTS_API_KEY"];
+    if (!apiKey) return { ok: false, error: "Crypto payments are not configured yet." };
+    if (!COIN_CATALOG.some((c) => c.code === data.payCurrency)) {
+      return { ok: false, error: "That coin is not supported." };
+    }
+
+    const { data: row } = await context.supabase
+      .from("crypto_payments")
+      .select("invoice_id, amount, credited_at")
+      .eq("order_id", data.orderId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!row?.invoice_id) return { ok: false, error: "This payment could not be found." };
+    if (row.credited_at) return { ok: false, error: "This payment is already complete." };
+
+    try {
+      const res = await fetch("https://api.nowpayments.io/v1/invoice-payment", {
+        method: "POST",
+        headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          iid: Number(row.invoice_id),
+          pay_currency: data.payCurrency,
+          order_description: "Bottly",
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.text();
+        console.error(`NOWPayments invoice-payment failed [${res.status}]: ${body}`);
+        return { ok: false, error: "That coin could not be used right now. Try another one." };
+      }
+      const p = (await res.json()) as {
+        payment_id?: string | number;
+        pay_address?: string;
+        pay_amount?: number;
+        pay_currency?: string;
+        network?: string;
+        payin_extra_id?: string | null;
+        expiration_estimate_date?: string;
+        valid_until?: string;
+      };
+      if (!p.pay_address || p.pay_amount == null) {
+        return { ok: false, error: "The payment provider returned no deposit address." };
+      }
+
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("crypto_payments")
+        .update({
+          payment_id: p.payment_id != null ? String(p.payment_id) : null,
+          pay_currency: p.pay_currency ?? data.payCurrency,
+        })
+        .eq("order_id", data.orderId)
+        .is("credited_at", null);
+
+      return {
+        ok: true,
+        payAddress: p.pay_address,
+        payAmount: p.pay_amount,
+        payCurrency: (p.pay_currency ?? data.payCurrency).toUpperCase(),
+        network: p.network ?? undefined,
+        payinExtraId: p.payin_extra_id ?? null,
+        expiresAt: p.valid_until ?? p.expiration_estimate_date ?? null,
+        paymentId: p.payment_id != null ? String(p.payment_id) : undefined,
+      };
+    } catch (error) {
+      console.error("NOWPayments invoice-payment error", error);
+      return { ok: false, error: "Could not reach the payment provider." };
+    }
+  });
 
 export interface CryptoPaymentStatus {
   status: string;
@@ -176,18 +315,46 @@ export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<CryptoPaymentStatus | null> => {
     const { data: row } = await context.supabase
       .from("crypto_payments")
-      .select("status, credited_at, pay_currency, amount")
+      .select("status, credited_at, pay_currency, amount, payment_id")
       .eq("order_id", data.orderId)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!row) return null;
+
+    let status = row.status;
+    // Mirror the provider's live status for the UI. Credits are still granted
+    // only by the signature-verified IPN webhook.
+    const apiKey = process.env["NOWPAYMENTS_API_KEY"];
+    if (apiKey && row.payment_id && !row.credited_at) {
+      try {
+        const res = await fetch(`https://api.nowpayments.io/v1/payment/${row.payment_id}`, {
+          headers: { "x-api-key": apiKey },
+        });
+        if (res.ok) {
+          const p = (await res.json()) as { payment_status?: string };
+          if (p.payment_status && p.payment_status !== status) {
+            status = p.payment_status;
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            await supabaseAdmin
+              .from("crypto_payments")
+              .update({ status })
+              .eq("order_id", data.orderId)
+              .is("credited_at", null);
+          }
+        }
+      } catch {
+        /* keep the stored status */
+      }
+    }
+
     return {
-      status: row.status,
+      status,
       credited: row.credited_at != null,
       payCurrency: row.pay_currency,
       amount: row.amount,
     };
   });
+
 
 
 /* ------------------------------------------------------------------ */
