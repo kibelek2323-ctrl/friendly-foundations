@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Megaphone } from "lucide-react";
+import { X, Megaphone, Sparkles, AlertTriangle, Info, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { listActiveAnnouncements, type Announcement } from "@/lib/announcements.functions";
 
 const STORAGE_KEY = "bottly.dismissed-announcements";
+const SESSION_KEY = "bottly.session-shown-announcements";
 
 function dismissed(): string[] {
   if (typeof window === "undefined") return [];
@@ -23,6 +25,20 @@ function dismiss(id: string) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
 }
 
+function shownThisSession(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(window.sessionStorage.getItem(SESSION_KEY) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+
+function markShownThisSession(id: string) {
+  const next = Array.from(new Set([...shownThisSession(), id]));
+  window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(next));
+}
+
 const VARIANT_BAR: Record<Announcement["variant"], string> = {
   info: "bg-primary text-primary-foreground",
   success: "bg-success text-background",
@@ -30,9 +46,31 @@ const VARIANT_BAR: Record<Announcement["variant"], string> = {
   promo: "bg-foreground text-background",
 };
 
+const VARIANT_ICON: Record<Announcement["variant"], typeof Info> = {
+  info: Info,
+  success: Sparkles,
+  warning: AlertTriangle,
+  promo: Tag,
+};
+
+const VARIANT_ICON_STYLE: Record<Announcement["variant"], string> = {
+  info: "bg-primary/15 text-primary",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
+  promo: "bg-foreground/10 text-foreground",
+};
+
+const VARIANT_ACCENT: Record<Announcement["variant"], string> = {
+  info: "from-primary/25",
+  success: "from-success/25",
+  warning: "from-warning/25",
+  promo: "from-foreground/15",
+};
+
 /** Renders the admin-managed announcement bar and entry popup. */
 export function SiteAnnouncements() {
   const fetchAnnouncements = useServerFn(listActiveAnnouncements);
+  const user = useAuthStore((s) => s.user);
   const { data } = useQuery({
     queryKey: ["site-announcements"],
     queryFn: () => fetchAnnouncements(),
@@ -40,25 +78,43 @@ export function SiteAnnouncements() {
   });
 
   const [hidden, setHidden] = useState<string[]>([]);
+  const [sessionShown, setSessionShown] = useState<string[]>([]);
   const [popupOpen, setPopupOpen] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setHidden(dismissed());
+    setSessionShown(shownThisSession());
     setReady(true);
   }, []);
 
   const bar = ready ? (data ?? []).find((a) => a.kind === "bar" && !hidden.includes(a.id)) : undefined;
-  const popup = ready ? (data ?? []).find((a) => a.kind === "popup" && !hidden.includes(a.id)) : undefined;
+
+  // Logged-in users see the popup at most once per browser session;
+  // guests see it until they dismiss it (persisted in localStorage).
+  const popup = ready
+    ? (data ?? []).find(
+        (a) => a.kind === "popup" && !hidden.includes(a.id) && (!user || !sessionShown.includes(a.id)),
+      )
+    : undefined;
 
   useEffect(() => {
-    if (popup) setPopupOpen(true);
+    if (popup) {
+      setPopupOpen(true);
+      if (user) {
+        markShownThisSession(popup.id);
+        setSessionShown((s) => (s.includes(popup.id) ? s : [...s, popup.id]));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popup?.id]);
 
   const close = (a: Announcement) => {
     dismiss(a.id);
     setHidden((h) => [...h, a.id]);
   };
+
+  const PopupIcon = popup ? VARIANT_ICON[popup.variant] : Info;
 
   return (
     <>
@@ -90,23 +146,43 @@ export function SiteAnnouncements() {
           open={popupOpen}
           onOpenChange={(o) => {
             setPopupOpen(o);
-            if (!o) close(popup);
+            if (!o && !user) close(popup);
           }}
         >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>{popup.title}</DialogTitle>
-              <DialogDescription className="whitespace-pre-wrap">{popup.body}</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
+          <DialogContent
+            className={cn(
+              "overflow-hidden rounded-3xl border-border/60 p-0 shadow-2xl sm:max-w-md",
+              "[&>button]:rounded-full [&>button]:bg-background/60 [&>button]:p-1 [&>button]:opacity-80 hover:[&>button]:opacity-100",
+            )}
+          >
+            <div className={cn("bg-gradient-to-b to-transparent px-6 pt-8 pb-5", VARIANT_ACCENT[popup.variant])}>
+              <div
+                className={cn(
+                  "flex size-12 items-center justify-center rounded-2xl shadow-sm",
+                  VARIANT_ICON_STYLE[popup.variant],
+                )}
+              >
+                <PopupIcon className="size-6" aria-hidden="true" />
+              </div>
+              <DialogTitle className="mt-4 text-lg font-semibold tracking-tight">{popup.title}</DialogTitle>
+              <DialogDescription className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+                {popup.body}
+              </DialogDescription>
+            </div>
+            <div className="flex items-center justify-end gap-2 px-6 pb-5">
+              <Button variant="ghost" onClick={() => setPopupOpen(false)}>
+                Later
+              </Button>
               {popup.ctaLabel && popup.ctaUrl ? (
-                <Button asChild>
+                <Button asChild className="rounded-full px-5">
                   <a href={popup.ctaUrl}>{popup.ctaLabel}</a>
                 </Button>
               ) : (
-                <Button onClick={() => setPopupOpen(false)}>Got it</Button>
+                <Button onClick={() => setPopupOpen(false)} className="rounded-full px-5">
+                  Got it
+                </Button>
               )}
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
       )}
