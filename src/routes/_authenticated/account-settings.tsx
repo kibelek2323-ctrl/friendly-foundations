@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getMyProfile, updateMyProfile } from "@/lib/creators.functions";
+import { TwoFactorSettings } from "@/components/auth/TwoFactorSettings";
 
 export const Route = createFileRoute("/_authenticated/account-settings")({
   head: () => ({
@@ -140,6 +141,8 @@ function Page() {
             </Button>
           </div>
         )}
+
+        <TwoFactorSettings />
       </div>
     </AppShell>
   );
