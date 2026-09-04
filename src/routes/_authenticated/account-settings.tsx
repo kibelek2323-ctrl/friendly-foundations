@@ -74,7 +74,7 @@ function Page() {
   const clearAvatar = async () => {
     setAvatarBusy(true);
     try {
-      await deleteAvatar({ data: {} });
+      await deleteAvatar();
       toast.success("Profile photo removed.");
       await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
       void refetch();
