@@ -211,15 +211,15 @@ export const listCryptoCoins = createServerFn({ method: "GET" })
 
 export interface CryptoAddress {
   ok: boolean;
-  error?: string;
-  payAddress?: string;
-  payAmount?: number;
-  payCurrency?: string;
-  network?: string;
+  error?: string | undefined;
+  payAddress?: string | undefined;
+  payAmount?: number | undefined;
+  payCurrency?: string | undefined;
+  network?: string | undefined;
   /** Extra memo/tag some chains require. */
-  payinExtraId?: string | null;
-  expiresAt?: string | null;
-  paymentId?: string;
+  payinExtraId?: string | null | undefined;
+  expiresAt?: string | null | undefined;
+  paymentId?: string | undefined;
 }
 
 /**
