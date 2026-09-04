@@ -219,6 +219,230 @@ Flow Builder bots always run on the managed Bottly runtime — there is nothing 
     ],
   },
   {
+    label: "Developer",
+    description: "The Developer rank: how roles work, what unlocks, and the full code-to-marketplace workflow.",
+    pages: [
+      {
+        slug: "roles-overview",
+        title: "Account roles explained",
+        summary: "Member, Developer and Admin — who can do what, and how ranks are enforced.",
+        body: `Bottly has three account ranks. They are stored server-side and checked on **every** write, so nothing can be unlocked from the browser.
+
+| Rank | Who has it | Unlocks |
+| --- | --- | --- |
+| Member | everyone by default | Flow Builder, My bots, buying on the marketplace, balance and plans |
+| Developer | granted badge (or any admin) | Code Editor, Storage Center, publishing listings, earnings and payouts |
+| Admin | staff only | Admin panel: users, reports, blog, homepage, announcements, codes, countdown, maintenance |
+
+**How the check works**
+
+1. The browser asks for your rank once and hides the screens you cannot use.
+2. Every server action re-runs the same check. A member calling a Developer-only action gets a plain \`403\`, even with a hand-crafted request.
+3. Admin implies Developer — staff can always test the creator flow.
+
+**Getting the Developer rank**
+
+Ask through support or Discord with a short description of what you plan to publish. The badge appears on your public profile at \`/u/your-name\` and on your marketplace listings, so buyers can see who they are buying from.
+
+**Example: what a member sees vs a Developer**
+
+\`\`\`
+Member       →  New bot: [ Flow Builder ]
+Developer    →  New bot: [ Flow Builder ] [ Code Editor ]
+                Sidebar:  + Storage Center, + Publish to marketplace, + Earnings
+\`\`\`
+
+Losing the rank does not delete anything — your projects and files stay, they just become read-only until it is restored.`,
+      },
+      {
+        slug: "developer-workflow",
+        title: "The Developer workflow",
+        summary: "From an empty project to a published, configurable product — step by step.",
+        body: `A complete run-through of the path most creators take.
+
+**1. Create the project**
+
+*New bot → Code Editor → name it → Save & open builder.* Bottly creates a project and seeds three files:
+
+\`\`\`
+projects/{projectId}/
+  src/index.js        ← your entry point
+  package.json        ← dependencies and metadata
+  bottly_config.json  ← the settings your buyers will see
+\`\`\`
+
+**2. Write the bot**
+
+Everything happens in the editor. A minimal welcome bot:
+
+\`\`\`js
+// src/index.js
+import { Client, GatewayIntentBits } from "discord.js";
+import config from "../bottly_config.values.js";
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+
+client.on("guildMemberAdd", (member) => {
+  const channel = member.guild.channels.cache.get(config.welcome_channel);
+  if (!channel) return;
+  channel.send(config.welcome_message.replace("{user}", member.toString()));
+});
+
+client.login(process.env.DISCORD_TOKEN);
+\`\`\`
+
+The token is injected by Bottly at runtime — never hard-code it and never put it in the config schema.
+
+**3. Expose settings**
+
+Anything a buyer should be able to change becomes a variable in \`bottly_config.json\`. Keep it small: five well-named settings beat twenty half-explained ones.
+
+**4. Test it**
+
+Connect your own bot token under *My bots → Settings*, start the runtime and watch *Logs*. Fix, save, restart.
+
+**5. Publish**
+
+*Marketplace → Publish.* The listing is linked to the project, and publishing is blocked until the schema validates. Set a price (or free), write a description, add screenshots.
+
+**6. After the sale**
+
+Buyers get their own copy of the settings form — never your source. Earnings land on your balance; Bottly keeps a 10% commission, and you request payouts in crypto.
+
+**Checklist before publishing**
+
+- [ ] \`bottly_config.json\` validates and every editable setting has a label and description
+- [ ] no secrets, tokens or personal endpoints in the code or the schema
+- [ ] defaults produce a bot that works out of the box
+- [ ] the listing screenshots match what the bot actually does`,
+      },
+      {
+        slug: "config-examples",
+        title: "Configuration examples",
+        summary: "Copy-paste schemas for welcome bots, moderation, tickets and economy.",
+        body: `Real \`bottly_config.json\` files you can adapt. Each one is valid as-is.
+
+**Welcome bot**
+
+\`\`\`json
+{
+  "version": 1,
+  "settings": {
+    "welcome_channel": {
+      "type": "channel",
+      "label": "Welcome channel",
+      "description": "Where the greeting is posted.",
+      "editable": true,
+      "required": true
+    },
+    "welcome_message": {
+      "type": "textarea",
+      "label": "Welcome message",
+      "description": "Use {user} for a mention and {server} for the server name.",
+      "default": "Welcome {user} to {server}!",
+      "editable": true
+    },
+    "accent_color": {
+      "type": "color",
+      "label": "Embed colour",
+      "default": "#5865F2",
+      "editable": true
+    }
+  }
+}
+\`\`\`
+
+**Moderation bot with a select and a range**
+
+\`\`\`json
+{
+  "version": 1,
+  "settings": {
+    "log_channel": { "type": "channel", "label": "Mod-log channel", "editable": true, "required": true },
+    "mute_role":   { "type": "role",    "label": "Mute role",       "editable": true, "required": true },
+    "warn_action": {
+      "type": "select",
+      "label": "Action after 3 warnings",
+      "default": "mute",
+      "editable": true,
+      "options": [
+        { "label": "Mute",   "value": "mute" },
+        { "label": "Kick",   "value": "kick" },
+        { "label": "Ban",    "value": "ban" },
+        { "label": "Nothing","value": "none" }
+      ]
+    },
+    "mute_minutes": { "type": "number", "label": "Mute length (minutes)", "default": 60, "min": 1, "max": 10080, "editable": true },
+    "dm_on_action": { "type": "boolean", "label": "DM the member", "default": true, "editable": true },
+    "internal_api": { "type": "url", "label": "Internal endpoint", "editable": false, "internal": true }
+  }
+}
+\`\`\`
+
+The last entry shows the two flags that matter: \`editable: false\` means buyers can see nothing to change, and \`internal: true\` hides it from them completely.
+
+**Ticket bot, grouped with categories**
+
+\`\`\`json
+{
+  "version": 1,
+  "settings": {
+    "panel_channel":  { "type": "channel", "label": "Panel channel",  "category": "Setup",      "editable": true, "required": true },
+    "ticket_category":{ "type": "channel", "label": "Ticket category","category": "Setup",      "editable": true, "required": true },
+    "support_role":   { "type": "role",    "label": "Support role",   "category": "Permissions","editable": true, "required": true },
+    "open_emoji":     { "type": "emoji",   "label": "Open button emoji", "default": "🎫", "category": "Appearance", "editable": true },
+    "max_open":       { "type": "number",  "label": "Max open tickets per member", "default": 1, "min": 1, "max": 10, "category": "Limits", "editable": true }
+  }
+}
+\`\`\`
+
+Settings that share a \`category\` are grouped together in the buyer's form.
+
+**Validation rules the backend enforces**
+
+- keys start with a letter, then letters, numbers or underscores (max 49 characters)
+- \`select\` needs at least one option, and option values must be unique
+- \`number\` rejects \`min\` greater than \`max\`
+- \`color\` must be a six-digit hex like \`#5865F2\`
+- \`role\`, \`channel\` and \`user\` must be Discord IDs (digits only)
+- \`url\` must be \`http\` or \`https\`
+- defaults are validated against their own type — a bad default blocks publishing`,
+      },
+      {
+        slug: "developer-faq",
+        title: "Developer FAQ",
+        summary: "Ownership, limits, updates, refunds and the questions creators ask most.",
+        body: `**Can a buyer see my code?**
+No. Buyers get a settings form generated from your schema. The Code Editor, the file list and the source itself stay with the owner.
+
+**Can I update a bot after selling it?**
+Yes. Saving new files updates the project; existing buyers keep their saved settings. If you remove a setting, its stored value is ignored; if you add one, buyers get its default until they change it.
+
+**What happens to buyers' values if I rename a key?**
+They are lost, because values are matched by key. Treat keys as permanent — change the label instead.
+
+**How much does Bottly take?**
+10% of each sale. The rest lands on your balance immediately and can be paid out in crypto.
+
+**Can I sell a flow-builder bot?**
+Yes. Flow bots and code bots are both publishable; only code bots have a \`bottly_config.json\`.
+
+**How big can my project be?**
+Files are stored in managed cloud storage per project. Keep individual assets reasonable — a bot is code, not a media library.
+
+**Why is publishing blocked?**
+Almost always an invalid schema. Open *Bot configuration*, hit validate and fix the listed issues — every problem is reported with its key.
+
+**Can two people work on one project?**
+Not yet. Projects belong to a single owner; team access is on the roadmap.
+
+**Do I need my own hosting?**
+No. There is no hosting, terminal, Git or deploy step — Bottly runs the project.`,
+      },
+    ],
+  },
+  {
+
     label: "Code & storage",
     description: "For Developer accounts: write real code, manage files, expose configuration.",
     pages: [
