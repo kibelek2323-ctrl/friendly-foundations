@@ -194,6 +194,9 @@ function Page() {
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value) || 0)}
               />
+              <p className="text-xs text-muted-foreground">
+                Bottly keeps a 10% platform fee — you receive {(price * 0.9).toFixed(2)} USD per sale.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="m-category">Category</Label>

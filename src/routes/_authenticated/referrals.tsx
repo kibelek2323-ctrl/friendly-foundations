@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { applyReferralCode, getMyReferrals } from "@/lib/referrals.functions";
+import { applyReferralCode, getMyReferrals, setMyReferralCode } from "@/lib/referrals.functions";
 import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/referrals")({
@@ -33,6 +33,30 @@ function Page() {
 
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const saveMyCode = useServerFn(setMyReferralCode);
+  const [custom, setCustom] = useState("");
+  const [savingCode, setSavingCode] = useState(false);
+
+  useEffect(() => {
+    if (data?.code) setCustom(data.code);
+  }, [data?.code]);
+
+  const saveCode = async () => {
+    setSavingCode(true);
+    try {
+      const res = await saveMyCode({ data: { code: custom } });
+      if (!res.ok) {
+        toast.error(res.error ?? "Could not save that code.");
+        return;
+      }
+      toast.success("Referral code updated.");
+      void refetch();
+    } catch {
+      toast.error("Could not save that code.");
+    } finally {
+      setSavingCode(false);
+    }
+  };
 
   const link = data ? `https://bottly.xyz/register?ref=${data.code}` : "";
 
@@ -87,10 +111,28 @@ function Page() {
                 <div className="space-y-1.5">
                   <Label htmlFor="r-code">Your code</Label>
                   <div className="flex gap-2">
-                    <Input id="r-code" readOnly value={data?.code ?? ""} className="font-mono" />
+                    <Input
+                      id="r-code"
+                      value={custom}
+                      onChange={(e) => setCustom(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ""))}
+                      maxLength={24}
+                      className="font-mono"
+                      aria-label="Your referral code"
+                    />
                     <Button variant="outline" size="icon" aria-label="Copy code" onClick={() => void copy(data?.code ?? "", "Code")}>
                       <Copy className="size-4" aria-hidden="true" />
                     </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={savingCode || custom.length < 3 || custom === data?.code}
+                      onClick={() => void saveCode()}
+                    >
+                      {savingCode ? <Loader2 className="size-4 animate-spin" /> : "Save custom code"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">3–24 letters, numbers, - or _</p>
                   </div>
                 </div>
                 <div className="space-y-1.5">

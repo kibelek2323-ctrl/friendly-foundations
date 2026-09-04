@@ -141,6 +141,30 @@ export const applyReferralCode = createServerFn({ method: "POST" })
     return (result as { ok: boolean; error?: string; bonus?: number }) ?? { ok: false, error: "Invalid code." };
   });
 
+/** Lets a creator pick their own memorable referral code. */
+export const setMyReferralCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ code: z.string().trim().min(3).max(24).regex(/^[a-zA-Z0-9_-]+$/) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; code?: string }> => {
+    const code = data.code.toUpperCase();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: taken } = await supabaseAdmin
+      .from("referral_codes")
+      .select("user_id")
+      .ilike("code", code)
+      .maybeSingle();
+    if (taken && taken.user_id !== context.userId) return { ok: false, error: "That code is already taken." };
+
+    const { error } = await supabaseAdmin
+      .from("referral_codes")
+      .upsert({ user_id: context.userId, code }, { onConflict: "user_id" });
+    if (error) return { ok: false, error: "Could not save that code." };
+    return { ok: true, code };
+  });
+
 /* ------------------------------------------------------------------ */
 /* Admin                                                               */
 /* ------------------------------------------------------------------ */

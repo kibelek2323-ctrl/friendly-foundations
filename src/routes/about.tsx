@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Code2, Heart, Rocket, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Code2, Heart, Rocket, ShieldCheck, Sparkles, User, Users } from "lucide-react";
 import { PublicShell } from "@/components/layout/PublicShell";
 
 export const Route = createFileRoute("/about")({
@@ -48,9 +48,26 @@ const values = [
 ];
 
 const team = [
-  { name: "Mihajlo", role: "Founder & product", body: "Runs the roadmap, design system and the marketplace economy." },
-  { name: "Core engineering", role: "Builder & runtime", body: "Flow engine, Discord gateway runtime, logs and reliability." },
-  { name: "Community & support", role: "Docs & moderation", body: "Documentation, creator reviews, reports and announcements." },
+  {
+    name: "matu",
+    role: "Founder",
+    body: "Started Bottly and runs the product, design and the marketplace economy — experienced across the whole stack.",
+  },
+  {
+    name: "david0z",
+    role: "Developer",
+    body: "3 years of Node.js experience. Works on the flow engine, Discord runtime and backend reliability.",
+  },
+  {
+    name: "Antoni D",
+    role: "Developer",
+    body: "2 years of Node.js experience. Builds the bot builder features, integrations and the marketplace.",
+  },
+  {
+    name: "Ecarnuf",
+    role: "Admin",
+    body: "Staff and moderation — reviews listings, handles reports and keeps the community safe.",
+  },
 ];
 
 function Page() {
@@ -100,6 +117,9 @@ function Page() {
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             {team.map((m) => (
               <div key={m.name} className="panel rounded-2xl p-5">
+                <span className="mb-3 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <User className="size-6" aria-hidden="true" />
+                </span>
                 <p className="font-medium">{m.name}</p>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">{m.role}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.body}</p>

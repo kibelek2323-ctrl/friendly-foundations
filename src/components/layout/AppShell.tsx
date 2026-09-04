@@ -111,7 +111,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <div className="flex items-center gap-2 px-2 py-3">
+      <div className={cn("flex items-center gap-2 px-2 py-3", onNavigate && "pr-12")}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
