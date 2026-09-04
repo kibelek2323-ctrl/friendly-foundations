@@ -35,7 +35,6 @@ import {
   ScrollText,
   Search,
   Settings,
-  Sparkles,
   Store,
   Terminal,
   Timer,
