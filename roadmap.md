@@ -8,3 +8,4 @@
 - [x] Zweryfikować wszystkie zmienione przepływy- [x] Etap 1: oceny listingów, kategorie i filtry, kody rabatowe %, profile twórców, weryfikacja
 - [x] Etap 2: zgłoszenia i moderacja, statystyki admina, zarządzanie użytkownikami
 - [x] Etap 3: blog i changelog
+- [x] Code Editor + Storage Center + bottly_config.json (schema + buyer configuration)
