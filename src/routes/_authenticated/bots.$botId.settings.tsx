@@ -74,18 +74,21 @@ function Page() {
               )}
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="s-lang">Runtime</Label>
-                <Select value={bot.language} onValueChange={(v) => patch({ language: v as BotLanguage })}>
-                  <SelectTrigger id="s-lang">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="javascript">JavaScript (discord.js)</SelectItem>
-                    <SelectItem value="python">Python (discord.py)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {!bot.flowId && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="s-lang">Runtime</Label>
+                  <Select value={bot.language} onValueChange={(v) => patch({ language: v as BotLanguage })}>
+                    <SelectTrigger id="s-lang">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="javascript">JavaScript (discord.js)</SelectItem>
+                      <SelectItem value="python">Python (discord.py)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <Label htmlFor="s-tz">Timezone</Label>
                 <Select value={bot.timezone} onValueChange={(v) => patch({ timezone: v })}>
