@@ -1088,7 +1088,9 @@ export type Database = {
           created_at: string
           cta_label: string | null
           cta_url: string | null
+          dismissible: boolean
           ends_at: string | null
+          icon: string
           id: string
           kind: string
           starts_at: string | null
@@ -1102,7 +1104,9 @@ export type Database = {
           created_at?: string
           cta_label?: string | null
           cta_url?: string | null
+          dismissible?: boolean
           ends_at?: string | null
+          icon?: string
           id?: string
           kind: string
           starts_at?: string | null
@@ -1116,7 +1120,9 @@ export type Database = {
           created_at?: string
           cta_label?: string | null
           cta_url?: string | null
+          dismissible?: boolean
           ends_at?: string | null
+          icon?: string
           id?: string
           kind?: string
           starts_at?: string | null
