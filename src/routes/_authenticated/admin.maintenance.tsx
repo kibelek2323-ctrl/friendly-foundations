@@ -3,14 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Save, Wrench } from "lucide-react";
+import { Loader2, Lock, Save, Wrench } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { adminSaveMaintenance, getSiteGate } from "@/lib/countdown.functions";
+import { adminSaveMaintenance, adminSaveMaintenancePassword, getSiteGate } from "@/lib/countdown.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/maintenance")({
   head: () => ({
@@ -35,6 +35,7 @@ function toLocalInput(ms: number): string {
 function Page() {
   const load = useServerFn(getSiteGate);
   const save = useServerFn(adminSaveMaintenance);
+  const savePassword = useServerFn(adminSaveMaintenancePassword);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["maintenance-admin"], queryFn: () => load() });
 
   const [enabled, setEnabled] = useState(false);
@@ -42,6 +43,8 @@ function Page() {
   const [unknownEnd, setUnknownEnd] = useState(true);
   const [when, setWhen] = useState("");
   const [busy, setBusy] = useState(false);
+  const [password, setPassword] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
 
   useEffect(() => {
     if (!data) return;
@@ -50,6 +53,24 @@ function Page() {
     setUnknownEnd(data.maintenance.endsAt === null);
     setWhen(toLocalInput(data.maintenance.endsAt ?? Date.now() + 60 * 60 * 1000));
   }, [data]);
+
+  const savePasswordNow = async () => {
+    setPwBusy(true);
+    try {
+      const res = await savePassword({ data: { password } });
+      if (!res.ok) {
+        toast.error(res.error ?? "Could not save the maintenance password.");
+        return;
+      }
+      toast.success(password.trim() ? "Maintenance password saved." : "Maintenance password removed.");
+      setPassword("");
+      void refetch();
+    } catch {
+      toast.error("Could not save the maintenance password.");
+    } finally {
+      setPwBusy(false);
+    }
+  };
 
   const submit = async (next?: { enabled?: boolean }) => {
     let endsAt: number | null = null;
