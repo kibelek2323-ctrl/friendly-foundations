@@ -21,6 +21,12 @@ import {
   Flag,
   Users,
   Gift,
+  Share2,
+  Home,
+  Gauge,
+  LayoutTemplate,
+  Tag,
+  Wallet,
   Heart,
   Banknote,
   ChartLine,
@@ -141,7 +147,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/" onClick={onNavigate}><Sparkles /> Homepage</Link>
+              <Link to="/" onClick={onNavigate}><Home /> Homepage</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -155,7 +161,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
                 {bot.name}
               </p>
               <div className="space-y-0.5">
-                <NavItem to={`/bots/${bot.id}`} icon={Sparkles} label="Overview" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}`} icon={Gauge} label="Overview" onNavigate={onNavigate} />
                 <NavItem to={`/bots/${bot.id}/commands`} icon={Terminal} label="Commands" onNavigate={onNavigate} />
                 <NavItem to={`/bots/${bot.id}/presence`} icon={BadgeCheck} label="Presence" onNavigate={onNavigate} />
                 <NavItem to={`/bots/${bot.id}/components`} icon={Puzzle} label="Components" onNavigate={onNavigate} />
@@ -174,21 +180,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           <div className="space-y-0.5">
             <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
 
-            <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
-            <NavItem to="/referrals" icon={Gift} iconClassName="text-success" label="Invite friends" onNavigate={onNavigate} />
+            <NavItem to="/balance" icon={DollarSign} label="Balance" onNavigate={onNavigate} />
+            <NavItem to="/referrals" icon={Gift} label="Invite friends" onNavigate={onNavigate} />
             <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
             {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/payouts" icon={Wallet} label="Payouts" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/referrals" icon={Share2} label="Referrals" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/countdown" icon={Timer} label="Countdown" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
             {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
             <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
-            <NavItem to="/templates" icon={Sparkles} label="Templates" onNavigate={onNavigate} />
-            <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
+            <NavItem to="/templates" icon={LayoutTemplate} label="Templates" onNavigate={onNavigate} />
+            <NavItem to="/pricing" icon={Tag} label="Pricing" onNavigate={onNavigate} />
           </div>
         </nav>
       </div>
