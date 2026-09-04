@@ -87,10 +87,28 @@ function Page() {
                 <div className="space-y-1.5">
                   <Label htmlFor="r-code">Your code</Label>
                   <div className="flex gap-2">
-                    <Input id="r-code" readOnly value={data?.code ?? ""} className="font-mono" />
+                    <Input
+                      id="r-code"
+                      value={custom}
+                      onChange={(e) => setCustom(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ""))}
+                      maxLength={24}
+                      className="font-mono"
+                      aria-label="Your referral code"
+                    />
                     <Button variant="outline" size="icon" aria-label="Copy code" onClick={() => void copy(data?.code ?? "", "Code")}>
                       <Copy className="size-4" aria-hidden="true" />
                     </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={savingCode || custom.length < 3 || custom === data?.code}
+                      onClick={() => void saveCode()}
+                    >
+                      {savingCode ? <Loader2 className="size-4 animate-spin" /> : "Save custom code"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">3–24 letters, numbers, - or _</p>
                   </div>
                 </div>
                 <div className="space-y-1.5">
