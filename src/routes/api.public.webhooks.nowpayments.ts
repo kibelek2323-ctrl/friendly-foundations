@@ -47,6 +47,24 @@ export const Route = createFileRoute("/api/public/webhooks/nowpayments")({
         const paymentId = payload["payment_id"] != null ? String(payload["payment_id"]) : null;
         const payCurrency = typeof payload["pay_currency"] === "string" ? payload["pay_currency"] : null;
 
+        // The order must exist in our own records, and the amount we charge is the
+        // one we stored when the invoice was created — never the one in the payload.
+        const { data: order } = await supabaseAdmin
+          .from("crypto_payments")
+          .select("id, amount, credited_at")
+          .eq("order_id", orderId)
+          .maybeSingle();
+        if (!order) return new Response("Unknown order", { status: 404 });
+
+        const priceAmount = Number(payload["price_amount"]);
+        if (Number.isFinite(priceAmount) && Math.round(priceAmount) !== order.amount) {
+          console.error(`NOWPayments amount mismatch for ${orderId}: ${priceAmount} vs ${order.amount}`);
+          return new Response("Amount mismatch", { status: 409 });
+        }
+
+        // Already credited: acknowledge without granting anything twice.
+        if (order.credited_at) return new Response("ok", { headers: { "cache-control": "no-store" } });
+
         if (status === "finished" || status === "confirmed") {
           const { error } = await supabaseAdmin.rpc("credit_crypto_payment", {
             _order_id: orderId,
