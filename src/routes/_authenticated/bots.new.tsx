@@ -115,7 +115,9 @@ function Page() {
 
   const finish = async () => {
     try {
+      if (mode === "flow" && draft.language !== "javascript") updateDraft({ language: "javascript" });
       const bot = commitDraft();
+
       if (mode === "code") {
         const result = await createProject({ data: { botId: bot.id, name: bot.name, runtime: "javascript" } });
         if (!result.ok || !result.project) throw new Error(result.error ?? "Could not create the project.");
