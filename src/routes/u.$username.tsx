@@ -11,16 +11,34 @@ import { listMarketplace } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/u/$username")({
-  head: () => ({
-    meta: [
-      { title: "Creator profile — Bottly" },
-      { name: "description", content: "See the Discord bots this Bottly creator publishes, their ratings and total sales." },
-      { property: "og:title", content: "Creator profile — Bottly" },
-      { property: "og:description", content: "See the Discord bots this Bottly creator publishes, their ratings and total sales." },
-      { property: "og:type", content: "profile" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const profile = await getCreatorProfile({ data: { handle: params.username } });
+      return profile ? { seo: { displayName: profile.displayName, bio: profile.bio } } : { seo: null };
+    } catch {
+      return { seo: null };
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const seo = loaderData?.seo;
+    const name = seo?.displayName || params.username;
+    const title = `${name} — Bottly creator profile`;
+    const description =
+      seo?.bio?.trim() || `See the Discord bots ${name} publishes on Bottly, with ratings and total sales.`;
+    const url = `https://bottly.xyz/u/${params.username}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "profile" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: Page,
 });
 
