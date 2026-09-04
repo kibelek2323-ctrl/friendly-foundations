@@ -126,6 +126,131 @@ export const setUserAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const setUserVerified = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ userId: z.string().uuid(), verified: z.boolean() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("profiles").update({ verified: data.verified }).eq("id", data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setUserBadge = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        userId: z.string().uuid(),
+        badge: z.string().min(2).max(40),
+        granted: z.boolean(),
+        note: z.string().max(200).default(""),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.granted) {
+      const { error } = await supabaseAdmin
+        .from("profile_badges")
+        .upsert(
+          { user_id: data.userId, badge: data.badge, note: data.note, granted_by: context.userId },
+          { onConflict: "user_id,badge" },
+        );
+      if (error) throw new Error(error.message);
+      if (data.badge === "verified") {
+        await supabaseAdmin.from("profiles").update({ verified: true }).eq("id", data.userId);
+      }
+    } else {
+      const { error } = await supabaseAdmin
+        .from("profile_badges")
+        .delete()
+        .eq("user_id", data.userId)
+        .eq("badge", data.badge);
+      if (error) throw new Error(error.message);
+      if (data.badge === "verified") {
+        await supabaseAdmin.from("profiles").update({ verified: false }).eq("id", data.userId);
+      }
+    }
+    return { ok: true };
+  });
+
+export interface AdminUserDetail extends AdminUser {
+  bio: string;
+  email: string | null;
+  badges: string[];
+  listingCount: number;
+  salesCount: number;
+  adjustments: { id: string; amount: number; reason: string; createdAt: string }[];
+}
+
+export const getUserDetail = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ userId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }): Promise<AdminUserDetail | null> => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const id = data.userId;
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("id, display_name, username, bio, avatar_url, verified, banned, created_at")
+      .eq("id", id)
+      .maybeSingle();
+    if (!profile) return null;
+
+    const [{ data: plan }, { data: balance }, { data: roles }, { data: bots }, { data: listings }, { data: badges }, { data: adj }] =
+      await Promise.all([
+        supabaseAdmin.from("user_plans").select("plan").eq("user_id", id).maybeSingle(),
+        supabaseAdmin.from("user_balances").select("balance").eq("user_id", id).maybeSingle(),
+        supabaseAdmin.from("user_roles").select("role").eq("user_id", id),
+        supabaseAdmin.from("bots").select("id").eq("user_id", id),
+        supabaseAdmin.from("marketplace_listings").select("id, sales_count").eq("seller_id", id),
+        supabaseAdmin.from("profile_badges").select("badge").eq("user_id", id),
+        supabaseAdmin
+          .from("balance_adjustments")
+          .select("id, amount, reason, created_at")
+          .eq("user_id", id)
+          .order("created_at", { ascending: false })
+          .limit(25),
+      ]);
+
+    let email: string | null = null;
+    try {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(id);
+      email = authUser.user?.email ?? null;
+    } catch {
+      email = null;
+    }
+
+    return {
+      id: profile.id,
+      displayName: profile.display_name ?? "Unnamed",
+      username: profile.username,
+      bio: profile.bio ?? "",
+      email,
+      avatarUrl: profile.avatar_url,
+      verified: profile.verified,
+      banned: profile.banned,
+      isAdmin: (roles ?? []).some((r) => r.role === "admin"),
+      plan: (plan?.plan as PlanTier) ?? "free",
+      balance: balance?.balance ?? 0,
+      botCount: (bots ?? []).length,
+      joinedAt: profile.created_at,
+      badges: (badges ?? []).map((b) => b.badge),
+      listingCount: (listings ?? []).length,
+      salesCount: (listings ?? []).reduce((sum, l) => sum + (l.sales_count ?? 0), 0),
+      adjustments: (adj ?? []).map((a) => ({
+        id: a.id,
+        amount: a.amount,
+        reason: a.reason ?? "",
+        createdAt: a.created_at,
+      })),
+    };
+  });
+
 /** Adjust a user's balance in cents (positive or negative). */
 export const adjustUserBalance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
