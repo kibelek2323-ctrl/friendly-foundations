@@ -2,10 +2,11 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BookOpen, Users, Wrench, Zap } from "lucide-react";
+import { BookOpen, Lock, Users, Wrench, Zap } from "lucide-react";
 import { amIAdmin } from "@/lib/admin-codes.functions";
 import {
   getSiteGate,
+  unlockMaintenance,
   DEFAULT_COUNTDOWN,
   DEFAULT_MAINTENANCE,
   DEFAULT_LAUNCH_AT,
