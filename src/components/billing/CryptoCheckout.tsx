@@ -360,14 +360,51 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
         /* ---- Step 2: pay ---- */
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-start">
-            <div className="mx-auto rounded-2xl border border-border bg-white p-3">
-              {qr ? (
-                <img src={qr} alt="Deposit address QR code" className="size-40 rounded-lg sm:size-44" />
-              ) : (
-                <div className="flex size-40 items-center justify-center sm:size-44">
-                  <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
-                </div>
-              )}
+            <div className="mx-auto space-y-2">
+              <div className="rounded-2xl border border-border bg-white p-3">
+                {qr ? (
+                  <img
+                    src={qr}
+                    alt={qrMode === "amount" ? "Payment QR code including the amount" : "Deposit address QR code"}
+                    className="size-40 rounded-lg sm:size-44"
+                  />
+                ) : (
+                  <div className="flex size-40 items-center justify-center sm:size-44">
+                    <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+              <div
+                role="group"
+                aria-label="QR code contents"
+                className="flex rounded-lg border border-border bg-elevated p-0.5 text-xs"
+              >
+                {(
+                  [
+                    ["amount", "With amount"],
+                    ["address", "Address only"],
+                  ] as const
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={qrMode === mode}
+                    onClick={() => setQrMode(mode)}
+                    className={`flex-1 rounded-md px-2 py-1.5 font-medium transition-colors ${
+                      qrMode === mode
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="max-w-44 text-center text-[11px] leading-snug text-muted-foreground">
+                {qrMode === "amount"
+                  ? "Most wallets fill in the amount automatically."
+                  : "Scan and type the amount yourself."}
+              </p>
             </div>
             <div className="space-y-3">
               <CopyField
