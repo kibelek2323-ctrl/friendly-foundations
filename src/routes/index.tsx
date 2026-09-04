@@ -313,11 +313,12 @@ function Landing() {
             <div className="max-w-2xl">
               <p className="text-sm font-medium text-primary">Become a developer</p>
               <h2 className="mt-2 text-2xl font-semibold">Sell the bots you build to the whole community</h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Bottly developers publish bots, templates and configurable projects on the marketplace, set their own price in USD and cash out what they earn. Apply once, tell us about your experience and your workflow, and we review it by hand.</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Bottly developers publish bots, templates and configurable projects on the marketplace, get access to a built-in code editor for advanced configuration, set their own price in USD and cash out what they earn. Apply once, tell us about your experience and your workflow, and we review it by hand.</p>
             </div>
-            <div className="mt-9 grid gap-4 md:grid-cols-3">
+            <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {[
                 ["Publish your work", "Package a finished bot or template and list it with screenshots, tags and a price."],
+                ["Code editor access", "Edit bot config, files and code projects directly inside Bottly."],
                 ["Earn in USD", "Buyers pay in balance, you request a payout whenever you want."],
                 ["Verified badge", "Approved developers get a badge on their public profile."],
               ].map(([title, body]) => (

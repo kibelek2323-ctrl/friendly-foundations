@@ -35,6 +35,7 @@ export const Route = createFileRoute("/developer")({
 
 const PERKS = [
   { icon: Code2, title: "Publish on the marketplace", body: "Package your bots and templates and list them for the whole Bottly community." },
+  { icon: FileCode, title: "Built-in code editor", body: "Edit bot config, files and code projects directly in Bottly with a project browser and JSON builder." },
   { icon: Coins, title: "Earn and cash out", body: "Set your own price in USD and request a payout of everything you earned." },
   { icon: BadgeCheck, title: "Developer badge", body: "A visible badge on your public profile so buyers know who they are buying from." },
 ];
@@ -59,10 +60,11 @@ function Page() {
           <p className="text-sm font-medium text-primary">Become a developer</p>
           <h1 className="mt-2 text-3xl font-semibold">Build bots other communities actually run</h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Bottly developers publish bots, templates and configurable projects on the marketplace. Tell us about your
-            experience and how you work — we review every application by hand.
+            Bottly developers publish bots, templates and configurable projects on the marketplace, and get access to
+            the built-in code editor for advanced configuration. Tell us about your experience and how you work — we
+            review every application by hand.
           </p>
-          <ul className="mt-9 grid gap-4 md:grid-cols-3">
+          <ul className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {PERKS.map(({ icon: Icon, title, body }) => (
               <li key={title} className="rounded-lg border border-border bg-background p-5">
                 <Icon className="size-5 text-primary" aria-hidden="true" />
