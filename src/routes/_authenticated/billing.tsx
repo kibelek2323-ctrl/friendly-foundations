@@ -10,7 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { redeemPlanCode } from "@/lib/plan.functions";
-import { type CreatedCryptoPayment, PLAN_PRICE_USD, createCryptoPayment } from "@/lib/crypto-payments.functions";
+import {
+  type CreatedCryptoPayment,
+  PLAN_PRICE_USD,
+  createCryptoPayment,
+  quotePlanDiscount,
+} from "@/lib/crypto-payments.functions";
+import { Tag } from "lucide-react";
 import { CryptoCheckout } from "@/components/billing/CryptoCheckout";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABEL, PLAN_LIMITS, limitLabel } from "@/data/plan-limits";
@@ -53,11 +59,43 @@ function Page() {
   const [paying, setPaying] = useState<string | null>(null);
   const [checkout, setCheckout] = useState<CreatedCryptoPayment | null>(null);
   const startPayment = useServerFn(createCryptoPayment);
+  const quote = useServerFn(quotePlanDiscount);
+  const [discount, setDiscount] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [applied, setApplied] = useState<{ percent: number; prices: Record<"pro" | "ultimate", number> } | null>(null);
+
+  const checkDiscount = async () => {
+    const code = discount.trim();
+    if (!code) return;
+    setChecking(true);
+    try {
+      const [pro, ultimate] = await Promise.all([
+        quote({ data: { plan: "pro", code } }),
+        quote({ data: { plan: "ultimate", code } }),
+      ]);
+      if (!pro.ok) {
+        setApplied(null);
+        toast.error(pro.error ?? "Invalid discount code.");
+        return;
+      }
+      setApplied({
+        percent: pro.percent ?? 0,
+        prices: { pro: pro.finalPrice ?? PLAN_PRICE_USD.pro, ultimate: ultimate.finalPrice ?? PLAN_PRICE_USD.ultimate },
+      });
+      toast.success(`Code applied — ${pro.percent}% off`);
+    } catch {
+      toast.error("Could not check that code.");
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const buyPlan = async (target: "pro" | "ultimate") => {
     setPaying(target);
     try {
-      const res = await startPayment({ data: { purpose: "plan", plan: target } });
+      const res = await startPayment({
+        data: { purpose: "plan", plan: target, ...(applied && discount.trim() ? { code: discount.trim() } : {}) },
+      });
       if (res.ok) {
         setCheckout(res);
       } else {
@@ -177,6 +215,44 @@ function Page() {
           </section>
         )}
 
+        <section className="panel space-y-3 p-5">
+          <div className="flex items-center gap-2">
+            <Tag className="size-4 text-primary" aria-hidden="true" />
+            <h2 className="text-sm font-semibold">Discount code</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Have a promo code? Apply it before paying and the plan price updates below.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <div className="min-w-52 flex-1 space-y-1.5">
+              <Label htmlFor="plan-discount" className="sr-only">
+                Discount code
+              </Label>
+              <Input
+                id="plan-discount"
+                value={discount}
+                placeholder="SAVE20-XXXX-XXXX"
+                onChange={(e) => {
+                  setDiscount(e.target.value.toUpperCase());
+                  setApplied(null);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && void checkDiscount()}
+              />
+            </div>
+            <Button
+              variant="outline"
+              className="gap-1.5"
+              disabled={checking || !discount.trim()}
+              onClick={() => void checkDiscount()}
+            >
+              {checking ? <Loader2 className="size-4 animate-spin" /> : <Tag className="size-4" />} Apply
+            </Button>
+          </div>
+          {applied && (
+            <p className="text-sm text-success">{applied.percent}% off applied to the plan prices below.</p>
+          )}
+        </section>
+
         <section className="grid gap-4 md:grid-cols-3">
           {(Object.keys(PLAN_LIMITS) as PlanId[]).map((id) => (
             <div key={id} className={`panel p-5 ${id === plan ? "border-primary ring-1 ring-primary" : ""}`}>
@@ -195,7 +271,9 @@ function Page() {
                   onClick={() => void buyPlan(id as "pro" | "ultimate")}
                 >
                   {paying === id ? <Loader2 className="size-4 animate-spin" /> : <Bitcoin className="size-4" />}
-                  {id === plan ? "Extend" : "Buy"} — ${PLAN_PRICE_USD[id as "pro" | "ultimate"]} / 30 days
+                  {id === plan ? "Extend" : "Buy"} — $
+                  {applied ? applied.prices[id as "pro" | "ultimate"] : PLAN_PRICE_USD[id as "pro" | "ultimate"]} / 30
+                  days
                 </Button>
               )}
             </div>
