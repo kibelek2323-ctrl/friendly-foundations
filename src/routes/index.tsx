@@ -234,7 +234,7 @@ function Landing() {
               ].map(([t, d], i) => (
                 <motion.li
                   key={t}
-                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3"
+                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_28px_-12px_var(--primary)]"
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
