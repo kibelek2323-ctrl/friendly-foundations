@@ -126,3 +126,38 @@ export const listCryptoPayments = createServerFn({ method: "GET" })
       createdAt: r.created_at,
     }));
   });
+
+/** Statuses that mean the payment can no longer complete. */
+export const FAILED_STATUSES = ["failed", "expired", "refunded"] as const;
+/** Statuses that mean credits/plan have been (or are about to be) granted. */
+export const SUCCESS_STATUSES = ["confirmed", "finished"] as const;
+
+export interface CryptoPaymentStatus {
+  status: string;
+  credited: boolean;
+  payCurrency: string | null;
+  amount: number;
+}
+
+/**
+ * Status of one of the signed-in user's own payments. Read-only: crediting happens
+ * exclusively in the verified IPN webhook, never from the browser.
+ */
+export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ orderId: z.string().min(8).max(128) }).parse(data))
+  .handler(async ({ data, context }): Promise<CryptoPaymentStatus | null> => {
+    const { data: row } = await context.supabase
+      .from("crypto_payments")
+      .select("status, credited_at, pay_currency, amount")
+      .eq("order_id", data.orderId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!row) return null;
+    return {
+      status: row.status,
+      credited: row.credited_at != null,
+      payCurrency: row.pay_currency,
+      amount: row.amount,
+    };
+  });
