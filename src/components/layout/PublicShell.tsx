@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
-import { Link, useSearch } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeft, Zap } from "lucide-react";
 import { AccountNav } from "@/components/auth/AccountNav";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
 export function PublicShell({ children }: { children: ReactNode }) {
-  const search = useSearch({ strict: false });
-  const fromCountdown = search?.from === "countdown";
+  const location = useLocation();
+  const fromCountdown = new URLSearchParams(location.search).get("from") === "countdown";
 
   if (fromCountdown) {
     return (
