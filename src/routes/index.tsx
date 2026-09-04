@@ -148,27 +148,34 @@ function Landing() {
         </section>
 
         <section className="border-y border-border bg-surface/50 py-16">
-          <div className="mx-auto max-w-6xl px-4">
+          <Reveal className="mx-auto max-w-6xl px-4">
             <h2 className="text-2xl font-semibold tracking-tight">Everything your bot needs</h2>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               A complete builder: from the first embed to a multi-step moderation workflow.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {FEATURE_CARDS.map((f) => (
-                <article key={f.title} className="panel p-5">
+              {FEATURE_CARDS.map((f, i) => (
+                <motion.article
+                  key={f.title}
+                  className="panel p-5"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
+                >
                   <span className="flex size-9 items-center justify-center rounded-lg bg-elevated text-primary">
                     <f.icon className="size-4" aria-hidden="true" />
                   </span>
                   <h3 className="mt-3 text-sm font-semibold">{f.title}</h3>
                   <p className="mt-1.5 text-sm text-muted-foreground">{f.body}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="grid gap-10 md:grid-cols-2 md:items-center">
+          <Reveal className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
                 <Store className="size-3 text-primary" aria-hidden="true" /> Bottly Marketplace
@@ -195,17 +202,24 @@ function Landing() {
                 ["Screenshots & markdown", "Sellers showcase their bot with an image gallery and rich description."],
                 ["USD balance", "Top up with a balance code and buy in one click."],
                 ["Earn from your builds", "Publish once, keep selling to the community."],
-              ].map(([t, d]) => (
-                <li key={t} className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3">
+              ].map(([t, d], i) => (
+                <motion.li
+                  key={t}
+                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3"
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: i * 0.07 }}
+                >
                   <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                   <span>
                     <span className="font-medium text-foreground">{t}</span>
                     <span className="block text-muted-foreground">{d}</span>
                   </span>
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </section>
 
         <section className="border-y border-border bg-surface/50 py-16">
