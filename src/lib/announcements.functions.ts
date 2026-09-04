@@ -5,7 +5,7 @@ import { requireAppAuth } from "@/lib/app-auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 export type AnnouncementKind = "popup" | "bar";
-export type AnnouncementVariant = "info" | "success" | "warning" | "promo";
+export type AnnouncementVariant = "info" | "success" | "warning" | "promo" | "error";
 
 export interface Announcement {
   id: string;
@@ -15,6 +15,8 @@ export interface Announcement {
   ctaLabel: string | null;
   ctaUrl: string | null;
   variant: AnnouncementVariant;
+  icon: string;
+  dismissible: boolean;
   active: boolean;
   startsAt: string | null;
   endsAt: string | null;
@@ -29,13 +31,15 @@ type Row = {
   cta_label: string | null;
   cta_url: string | null;
   variant: string;
+  icon: string | null;
+  dismissible: boolean | null;
   active: boolean;
   starts_at: string | null;
   ends_at: string | null;
   created_at: string;
 };
 
-const SELECT = "id, kind, title, body, cta_label, cta_url, variant, active, starts_at, ends_at, created_at";
+const SELECT = "id, kind, title, body, cta_label, cta_url, variant, icon, dismissible, active, starts_at, ends_at, created_at";
 
 function toAnnouncement(r: Row): Announcement {
   return {
@@ -46,6 +50,8 @@ function toAnnouncement(r: Row): Announcement {
     ctaLabel: r.cta_label,
     ctaUrl: r.cta_url,
     variant: r.variant as AnnouncementVariant,
+    icon: r.icon ?? "megaphone",
+    dismissible: r.dismissible ?? true,
     active: r.active,
     startsAt: r.starts_at,
     endsAt: r.ends_at,
@@ -101,7 +107,9 @@ const upsertSchema = z.object({
   body: z.string().max(2000).default(""),
   ctaLabel: z.string().max(60).nullable().default(null),
   ctaUrl: z.string().max(500).nullable().default(null),
-  variant: z.enum(["info", "success", "warning", "promo"]).default("info"),
+  variant: z.enum(["info", "success", "warning", "promo", "error"]).default("info"),
+  icon: z.string().max(40).default("megaphone"),
+  dismissible: z.boolean().default(true),
   active: z.boolean().default(true),
 });
 
@@ -118,6 +126,8 @@ export const saveAnnouncement = createServerFn({ method: "POST" })
       cta_label: data.ctaLabel || null,
       cta_url: data.ctaUrl || null,
       variant: data.variant,
+      icon: data.icon,
+      dismissible: data.dismissible,
       active: data.active,
     };
     const query = data.id

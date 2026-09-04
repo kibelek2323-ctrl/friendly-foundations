@@ -8,6 +8,7 @@ import { usd } from "@/lib/money";
 import {
   BookOpen,
   Bot as BotIcon,
+  ChevronDown,
   CreditCard,
   LayoutDashboard,
   LogOut,
@@ -36,7 +37,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useBotStore } from "@/stores/useBotStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -109,64 +110,90 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <div className="flex items-center gap-2 px-4 py-4">
-        <Link to="/" className="flex items-center gap-2" onClick={onNavigate}>
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Zap className="size-4" aria-hidden="true" />
-          </span>
-          <span className="text-[15px] font-semibold tracking-tight text-foreground">Bottly</span>
-        </Link>
+      <div className="flex items-center gap-2 px-3 py-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left transition-colors hover:bg-sidebar-accent/60"
+              aria-label="Open main navigation"
+            >
+              <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Zap className="size-4" aria-hidden="true" />
+              </span>
+              <span className="text-[15px] font-semibold tracking-tight text-foreground">Bottly</span>
+              <ChevronDown className="ml-auto size-4 text-muted-foreground" aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-52">
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard" onClick={onNavigate}><LayoutDashboard /> Dashboard</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/bots" onClick={onNavigate}><BotIcon /> My Bots</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/marketplace" onClick={onNavigate}><Store /> Marketplace</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/marketplace/favorites" onClick={onNavigate}><Heart /> Saved bots</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/" onClick={onNavigate}><Sparkles /> Homepage</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-4" aria-label="Main">
-        <div className="space-y-0.5">
-          <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" onNavigate={onNavigate} />
-          <NavItem to="/bots" icon={BotIcon} label="My Bots" onNavigate={onNavigate} />
-          <NavItem to="/marketplace" icon={Store} label="Marketplace" onNavigate={onNavigate} />
-          <NavItem to="/marketplace/favorites" icon={Heart} label="Saved bots" onNavigate={onNavigate} />
-          <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
-        </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="space-y-6" aria-label="Main">
+          {bot && (
+            <div>
+              <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {bot.name}
+              </p>
+              <div className="space-y-0.5">
+                <NavItem to={`/bots/${bot.id}`} icon={Sparkles} label="Overview" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/commands`} icon={Terminal} label="Commands" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/presence`} icon={BadgeCheck} label="Presence" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/components`} icon={Puzzle} label="Components" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/automations`} icon={Workflow} label="Automations" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/events`} icon={Zap} label="Events" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/logs`} icon={ScrollText} label="Logs" onNavigate={onNavigate} />
+                <NavItem to={`/bots/${bot.id}/settings`} icon={Settings} label="Settings" onNavigate={onNavigate} />
+              </div>
+              <div className="mt-2 flex items-center justify-between rounded-md bg-sidebar-accent/50 px-2.5 py-2">
+                <span className="truncate text-xs text-muted-foreground">@{bot.username}</span>
+                <StatusDot status={bot.status} />
+              </div>
+            </div>
+          )}
 
-        {bot && (
-          <div>
-            <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {bot.name}
-            </p>
-            <div className="space-y-0.5">
-              <NavItem to={`/bots/${bot.id}`} icon={Sparkles} label="Overview" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/commands`} icon={Terminal} label="Commands" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/presence`} icon={BadgeCheck} label="Presence" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/components`} icon={Puzzle} label="Components" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/automations`} icon={Workflow} label="Automations" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/events`} icon={Zap} label="Events" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/logs`} icon={ScrollText} label="Logs" onNavigate={onNavigate} />
-              <NavItem to={`/bots/${bot.id}/settings`} icon={Settings} label="Settings" onNavigate={onNavigate} />
-            </div>
-            <div className="mt-2 flex items-center justify-between rounded-md bg-sidebar-accent/50 px-2.5 py-2">
-              <span className="truncate text-xs text-muted-foreground">@{bot.username}</span>
-              <StatusDot status={bot.status} />
-            </div>
+          <div className="space-y-0.5">
+            <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
+
+            <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
+            <NavItem to="/referrals" icon={Gift} iconClassName="text-success" label="Invite friends" onNavigate={onNavigate} />
+            <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
+            {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
+            {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
+            <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
+            <NavItem to="/templates" icon={Sparkles} label="Templates" onNavigate={onNavigate} />
+            <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
           </div>
-        )}
-      </nav>
+        </nav>
+      </div>
 
-      <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
-        <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
-        <NavItem to="/referrals" icon={Gift} iconClassName="text-success" label="Invite friends" onNavigate={onNavigate} />
-        <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
-        {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
-        {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
-        <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
-        <NavItem to="/templates" icon={Sparkles} label="Templates" onNavigate={onNavigate} />
-        <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
-        <Separator className="my-2" />
+      <div className="border-t border-sidebar-border px-3 py-3">
         <div className="flex items-center gap-2.5 rounded-md px-2.5 py-2">
+
           <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="size-full object-cover" />

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Megaphone, Sparkles, AlertTriangle, Info, Tag } from "lucide-react";
+import { X } from "lucide-react";
+import { announcementIcon } from "@/lib/announcement-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -44,13 +45,7 @@ const VARIANT_BAR: Record<Announcement["variant"], string> = {
   success: "bg-success text-background",
   warning: "bg-warning text-background",
   promo: "bg-foreground text-background",
-};
-
-const VARIANT_ICON: Record<Announcement["variant"], typeof Info> = {
-  info: Info,
-  success: Sparkles,
-  warning: AlertTriangle,
-  promo: Tag,
+  error: "bg-destructive text-destructive-foreground",
 };
 
 const VARIANT_ICON_STYLE: Record<Announcement["variant"], string> = {
@@ -58,6 +53,7 @@ const VARIANT_ICON_STYLE: Record<Announcement["variant"], string> = {
   success: "bg-success/15 text-success",
   warning: "bg-warning/15 text-warning",
   promo: "bg-foreground/10 text-foreground",
+  error: "bg-destructive/15 text-destructive",
 };
 
 const VARIANT_ACCENT: Record<Announcement["variant"], string> = {
@@ -65,6 +61,7 @@ const VARIANT_ACCENT: Record<Announcement["variant"], string> = {
   success: "from-success/25",
   warning: "from-warning/25",
   promo: "from-foreground/15",
+  error: "from-destructive/25",
 };
 
 /** Renders the admin-managed announcement bar and entry popup. */
@@ -114,14 +111,15 @@ export function SiteAnnouncements() {
     setHidden((h) => [...h, a.id]);
   };
 
-  const PopupIcon = popup ? VARIANT_ICON[popup.variant] : Info;
+  const PopupIcon = announcementIcon(popup?.icon);
+  const BarIcon = announcementIcon(bar?.icon);
 
   return (
     <>
       {bar && (
         <div className={cn("relative px-4 py-2 text-center text-sm", VARIANT_BAR[bar.variant])}>
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2">
-            <Megaphone className="size-4 shrink-0" aria-hidden="true" />
+            <BarIcon className="size-4 shrink-0" aria-hidden="true" />
             <span className="font-medium">{bar.title}</span>
             {bar.body && <span className="opacity-90">{bar.body}</span>}
             {bar.ctaLabel && bar.ctaUrl && (
@@ -130,6 +128,7 @@ export function SiteAnnouncements() {
               </a>
             )}
           </div>
+          {bar.dismissible && (
           <button
             type="button"
             aria-label="Dismiss announcement"
@@ -138,6 +137,7 @@ export function SiteAnnouncements() {
           >
             <X className="size-4" />
           </button>
+          )}
         </div>
       )}
 
@@ -145,6 +145,7 @@ export function SiteAnnouncements() {
         <Dialog
           open={popupOpen}
           onOpenChange={(o) => {
+            if (!popup.dismissible) return;
             setPopupOpen(o);
             if (!o && !user) close(popup);
           }}
@@ -153,6 +154,7 @@ export function SiteAnnouncements() {
             className={cn(
               "overflow-hidden rounded-3xl border-border/60 p-0 shadow-2xl sm:max-w-md",
               "[&>button]:rounded-full [&>button]:bg-background/60 [&>button]:p-1 [&>button]:opacity-80 hover:[&>button]:opacity-100",
+              !popup.dismissible && "[&>button]:hidden",
             )}
           >
             <div className={cn("bg-gradient-to-b to-transparent px-6 pt-8 pb-5", VARIANT_ACCENT[popup.variant])}>
@@ -170,9 +172,11 @@ export function SiteAnnouncements() {
               </DialogDescription>
             </div>
             <div className="flex items-center justify-end gap-2 px-6 pb-5">
-              <Button variant="ghost" onClick={() => setPopupOpen(false)}>
-                Later
-              </Button>
+              {popup.dismissible && (
+                <Button variant="ghost" onClick={() => setPopupOpen(false)}>
+                  Later
+                </Button>
+              )}
               {popup.ctaLabel && popup.ctaUrl ? (
                 <Button asChild className="rounded-full px-5">
                   <a href={popup.ctaUrl}>{popup.ctaLabel}</a>
