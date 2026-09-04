@@ -43,6 +43,7 @@ import {
   Timer,
   Workflow,
   Zap,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -102,6 +103,7 @@ const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
   { to: "/admin/pages", icon: FileText, label: "Status & FAQ" },
   { to: "/admin/blog", icon: Newspaper, label: "Blog & changelog" },
   { to: "/admin/countdown", icon: Timer, label: "Countdown" },
+  { to: "/admin/maintenance", icon: Wrench, label: "Maintenance" },
 ];
 
 /** Collapsible admin group with its own nested menu. */

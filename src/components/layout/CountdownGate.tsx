@@ -2,15 +2,24 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BookOpen, Users, Zap } from "lucide-react";
+import { BookOpen, Users, Wrench, Zap } from "lucide-react";
 import { amIAdmin } from "@/lib/admin-codes.functions";
-import { getCountdownSettings, DEFAULT_COUNTDOWN, DEFAULT_LAUNCH_AT } from "@/lib/countdown.functions";
+import {
+  getSiteGate,
+  DEFAULT_COUNTDOWN,
+  DEFAULT_MAINTENANCE,
+  DEFAULT_LAUNCH_AT,
+  type MaintenanceSettings,
+} from "@/lib/countdown.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export const LAUNCH_AT = DEFAULT_LAUNCH_AT;
 
 /** Routes that stay reachable while the countdown is up. */
 const OPEN_PATHS = ["/xadmx", "/docs", "/about"];
+
+/** Remembers that the site was fully open, so returning visitors never flash a gate screen. */
+const OPEN_CACHE_KEY = "bottly-site-open";
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
@@ -44,16 +53,22 @@ function Unit({ value, label }: { value: string; label: string }) {
   );
 }
 
+function Wordmark() {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <Zap className="size-5" aria-hidden="true" />
+      </span>
+      <span className="text-lg font-semibold tracking-tight">Bottly</span>
+    </div>
+  );
+}
+
 function CountdownScreen({ target }: { target: number }) {
   const { days, hours, minutes, seconds } = useCountdown(target);
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-center">
-      <div className="flex items-center gap-2">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Zap className="size-5" aria-hidden="true" />
-        </span>
-        <span className="text-lg font-semibold tracking-tight">Bottly</span>
-      </div>
+      <Wordmark />
 
       <h1 className="mt-8 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
         Build Discord bots <span className="text-primary">visually</span>.
@@ -91,16 +106,69 @@ function CountdownScreen({ target }: { target: number }) {
   );
 }
 
+function MaintenanceScreen({ settings }: { settings: MaintenanceSettings }) {
+  const back = settings.endsAt ? new Date(settings.endsAt) : null;
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-center">
+      <Wordmark />
+
+      <span className="mt-8 flex size-14 items-center justify-center rounded-2xl bg-elevated text-primary">
+        <Wrench className="size-7" aria-hidden="true" />
+      </span>
+      <h1 className="mt-6 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+        We are under <span className="text-primary">maintenance</span>
+      </h1>
+      <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">{settings.status}</p>
+
+      <div className="panel mt-8 rounded-xl px-6 py-4 text-sm">
+        <span className="text-muted-foreground">Expected back: </span>
+        <span suppressHydrationWarning className="font-medium">
+          {back ? back.toLocaleString() : "Not known yet"}
+        </span>
+      </div>
+
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <Link
+          to="/docs"
+          search={{ from: "maintenance" }}
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-muted"
+        >
+          <BookOpen className="size-4" aria-hidden="true" /> Our Docs
+        </Link>
+        <Link
+          to="/about"
+          search={{ from: "maintenance" }}
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-muted"
+        >
+          <Users className="size-4" aria-hidden="true" /> About us
+        </Link>
+      </div>
+
+      <p className="mt-10 text-xs text-muted-foreground">© {new Date().getFullYear()} Bottly</p>
+    </div>
+  );
+}
+
 export function CountdownGate({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
   const checkAdmin = useServerFn(amIAdmin);
-  const loadSettings = useServerFn(getCountdownSettings);
+  const loadGate = useServerFn(getSiteGate);
 
-  const { data: settings } = useQuery({
-    queryKey: ["countdown-settings"],
-    queryFn: () => loadSettings(),
+  // Remembered "site is open" verdict: skips any gate flash on later visits.
+  const [cachedOpen, setCachedOpen] = useState(false);
+  useEffect(() => {
+    try {
+      setCachedOpen(window.localStorage.getItem(OPEN_CACHE_KEY) === "1");
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+
+  const { data: gate } = useQuery({
+    queryKey: ["site-gate"],
+    queryFn: () => loadGate(),
     staleTime: 60 * 1000,
   });
 
@@ -111,14 +179,36 @@ export function CountdownGate({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  const effective = settings ?? DEFAULT_COUNTDOWN;
-  const launched = !effective.enabled || Date.now() >= effective.launchAt;
+  const countdown = gate?.countdown ?? DEFAULT_COUNTDOWN;
+  const maintenance = gate?.maintenance ?? DEFAULT_MAINTENANCE;
+  const countdownUp = countdown.enabled && Date.now() < countdown.launchAt;
+  const gated = countdownUp || maintenance.enabled;
+
+  // Persist the open/closed verdict as soon as the real settings arrive.
+  useEffect(() => {
+    if (!gate) return;
+    try {
+      const stillGated = (gate.countdown.enabled && Date.now() < gate.countdown.launchAt) || gate.maintenance.enabled;
+      if (stillGated) {
+        window.localStorage.removeItem(OPEN_CACHE_KEY);
+        setCachedOpen(false);
+      } else {
+        window.localStorage.setItem(OPEN_CACHE_KEY, "1");
+        setCachedOpen(true);
+      }
+    } catch {
+      /* storage unavailable */
+    }
+  }, [gate]);
+
   const isOpenRoute = OPEN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const adminBypass = !!user && initialized && !isLoading && isAdmin === true;
 
-  if (launched || isOpenRoute) return <>{children}</>;
-  // Never block on the admin check: show the countdown instantly and swap in
-  // the app only once the admin role is confirmed.
-  if (user && initialized && !isLoading && isAdmin === true) return <>{children}</>;
+  if (!gated || isOpenRoute || adminBypass) return <>{children}</>;
+  // Before the settings load: trust the remembered "open" verdict, otherwise hold the gate.
+  if (!gate && cachedOpen) return <>{children}</>;
+  if (!gate) return <div className="min-h-screen bg-background" />;
 
-  return <CountdownScreen target={effective.launchAt} />;
+  if (maintenance.enabled) return <MaintenanceScreen settings={maintenance} />;
+  return <CountdownScreen target={countdown.launchAt} />;
 }

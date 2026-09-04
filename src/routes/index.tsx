@@ -240,7 +240,7 @@ function Landing() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.35, delay: i * 0.07 }}
                 >
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-bottom scale-y-0 bg-primary transition-transform duration-200 group-hover:scale-y-100" />
                   <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                   <span>
                     <span className="font-medium text-foreground">{t}</span>
@@ -259,7 +259,7 @@ function Landing() {
               <h2 className="mt-2 text-2xl font-semibold">Build, connect and run everything in one workspace</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Every tool shares the same bot data, so a command response can reuse your designs, components and automation variables without rebuilding them in separate apps.</p>
             </div>
-            <ol className="mt-9 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
+            <ol className="mt-9 grid gap-px overflow-hidden rounded-lg bg-border md:grid-cols-3">
               {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
                 <motion.li
                   key={step}
@@ -269,7 +269,7 @@ function Landing() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
                 >
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-bottom scale-y-0 bg-primary transition-transform duration-200 group-hover:scale-y-100" />
                   <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {step}</span><Icon className="size-5 text-primary" /></div>
                   <h3 className="mt-7 font-semibold">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
