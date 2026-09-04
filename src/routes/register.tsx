@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AuthLayout } from "@/components/layout/AuthLayout";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { DiscordButton } from "@/components/auth/DiscordButton";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { PENDING_REFERRAL_KEY } from "@/lib/referral-storage";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -30,6 +31,17 @@ function Page() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const [refCode, setRefCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("ref");
+    if (code) {
+      localStorage.setItem(PENDING_REFERRAL_KEY, code);
+      setRefCode(code);
+    } else {
+      setRefCode(localStorage.getItem(PENDING_REFERRAL_KEY));
+    }
+  }, []);
 
   return (
     <AuthLayout
@@ -70,7 +82,7 @@ function Page() {
             return;
           }
           toast.success("Account created");
-          void navigate({ to: "/bots/new" });
+          void navigate({ to: "/onboarding" });
         }}
       >
         <div className="space-y-1.5">
@@ -91,6 +103,11 @@ function Page() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+        {refCode && (
+          <p className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted-foreground">
+            Referral code <span className="font-mono text-foreground">{refCode}</span> will be applied to your account.
+          </p>
+        )}
         {error && <p className="text-xs text-destructive">{error}</p>}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Creating account…" : "Create account"}
