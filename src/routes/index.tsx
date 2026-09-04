@@ -1,10 +1,19 @@
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { motion, useMotionValue, useMotionTemplate } from "motion/react";
-import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
+import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteAnnouncements } from "@/components/layout/SiteAnnouncements";
 import { PublicShell } from "@/components/layout/PublicShell";
+import { announcementIcon } from "@/lib/announcement-icons";
+import { getHomepageContent, DEFAULT_HOMEPAGE } from "@/lib/site-content.functions";
+
+const homepageQuery = queryOptions({
+  queryKey: ["homepage-content"],
+  queryFn: () => getHomepageContent(),
+  staleTime: 5 * 60 * 1000,
+});
 
 /** Fades a section in as it scrolls into view. */
 function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
