@@ -28,10 +28,21 @@ export interface CryptoPaymentRow {
  * Creates a NOWPayments hosted invoice for a balance top-up or a 30-day plan.
  * The balance/plan is only granted once the IPN webhook confirms the payment.
  */
+export interface CreatedCryptoPayment {
+  ok: boolean;
+  error?: string;
+  /** Hosted checkout link (fallback / "open in new tab"). */
+  url?: string;
+  /** Embeddable NOWPayments widget URL for an iframe inside our own payment box. */
+  widgetUrl?: string;
+  orderId?: string;
+  amount?: number;
+}
+
 export const createCryptoPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
-  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; url?: string }> => {
+  .handler(async ({ data, context }): Promise<CreatedCryptoPayment> => {
     const apiKey = process.env["NOWPAYMENTS_API_KEY"];
     if (!apiKey) return { ok: false, error: "Crypto payments are not configured yet." };
 
