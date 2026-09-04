@@ -143,12 +143,14 @@ function MaintenanceScreen({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-center">
-      <div
+      <button
+        type="button"
+        onClick={() => hasPassword && setOpen(true)}
         aria-label={hasPassword ? "Admin access" : undefined}
         className="flex size-14 cursor-default items-center justify-center rounded-2xl bg-elevated text-primary"
       >
         <Wrench className="size-7" aria-hidden="true" />
-      </div>
+      </button>
       <h1 className="mt-6 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
         We are under <span className="text-primary">maintenance</span>
       </h1>
