@@ -76,6 +76,7 @@ function InteractiveGrid() {
 }
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(homepageQuery),
   head: () => ({
     meta: [
       { title: "Bottly — Build Discord bots without code" },
