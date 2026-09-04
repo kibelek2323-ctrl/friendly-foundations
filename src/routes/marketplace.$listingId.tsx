@@ -90,7 +90,7 @@ export const Route = createFileRoute("/marketplace/$listingId")({
                 url,
                 offers: {
                   "@type": "Offer",
-                  price: (seo.price / 100).toFixed(2),
+                  price: seo.price.toFixed(2),
                   priceCurrency: "USD",
                   availability: "https://schema.org/InStock",
                   url,
