@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { BarChart3, Banknote, Eye, Heart, Loader2, ShoppingBag, Store } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
+import { myAccountRank } from "@/lib/roles.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ function Page() {
   const fetchPayouts = useServerFn(myPayouts);
   const submitPayout = useServerFn(requestPayout);
 
+  const rank = useQuery({ queryKey: ["account-rank"], queryFn: () => myAccountRank() });
   const stats = useQuery({ queryKey: ["creator-stats"], queryFn: () => fetchStats() });
   const payouts = useQuery({ queryKey: ["my-payouts"], queryFn: () => fetchPayouts() });
 
@@ -84,6 +86,13 @@ function Page() {
 
   return (
     <AppShell title="Earnings">
+      {rank.data && !rank.data.developer && (
+        <div className="mx-auto mt-4 max-w-3xl rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
+          This area is for <strong>Developer</strong> accounts. Ask the Bottly team to unlock publishing and earnings on
+          your account.
+        </div>
+      )}
+
       <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
         <div>
           <h1 className="text-xl font-semibold">Creator earnings</h1>

@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowLeft, Eye, EyeOff, Loader2, Trash2, Upload, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
+import { myAccountRank } from "@/lib/roles.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,8 +152,17 @@ function Page() {
   };
 
 
+  const rank = useQuery({ queryKey: ["account-rank"], queryFn: () => myAccountRank() });
+
   return (
     <AppShell title="Publish a bot">
+      {rank.data && !rank.data.developer && (
+        <div className="mx-auto mt-4 max-w-3xl rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
+          This area is for <strong>Developer</strong> accounts. Ask the Bottly team to unlock publishing and earnings on
+          your account.
+        </div>
+      )}
+
       <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
         <Button asChild variant="ghost" size="sm" className="gap-1.5">
           <Link to="/marketplace">
