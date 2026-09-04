@@ -65,8 +65,8 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin.from("app_settings").select("key, value").in("key", ["countdown", "maintenance"]);
   const rows = new Map((data ?? []).map((r) => [r.key, (r.value ?? {}) as Record<string, unknown>]));
-  const c = rows.get("countdown") ?? {};
-  const m = rows.get("maintenance") ?? {};
+  const c = (rows.get("countdown") ?? {}) as Partial<CountdownSettings>;
+  const m = (rows.get("maintenance") ?? {}) as Partial<MaintenanceSettings>;
   return {
     countdown: {
       enabled: typeof c.enabled === "boolean" ? c.enabled : DEFAULT_COUNTDOWN.enabled,
