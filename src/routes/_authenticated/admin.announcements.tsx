@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { ANNOUNCEMENT_ICON_KEYS, announcementIcon } from "@/lib/announcement-icons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { amIAdmin } from "@/lib/admin-codes.functions";
 import {
@@ -61,6 +63,8 @@ function Page() {
   const [body, setBody] = useState("");
   const [ctaLabel, setCtaLabel] = useState("");
   const [ctaUrl, setCtaUrl] = useState("");
+  const [icon, setIcon] = useState("megaphone");
+  const [dismissible, setDismissible] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const reset = () => {
@@ -71,6 +75,8 @@ function Page() {
     setBody("");
     setCtaLabel("");
     setCtaUrl("");
+    setIcon("megaphone");
+    setDismissible(true);
   };
 
   const submit = async () => {
@@ -89,6 +95,8 @@ function Page() {
           ctaLabel: ctaLabel.trim() || null,
           ctaUrl: ctaUrl.trim() || null,
           variant,
+          icon,
+          dismissible,
           active: true,
         },
       });
@@ -158,8 +166,36 @@ function Page() {
                 <SelectItem value="success">Success</SelectItem>
                 <SelectItem value="warning">Warning</SelectItem>
                 <SelectItem value="promo">Promo</SelectItem>
+                <SelectItem value="error">Error (red)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="a-icon">Icon</Label>
+            <Select value={icon} onValueChange={setIcon}>
+              <SelectTrigger id="a-icon">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ANNOUNCEMENT_ICON_KEYS.map((key) => {
+                  const Icon = announcementIcon(key);
+                  return (
+                    <SelectItem key={key} value={key}>
+                      <span className="flex items-center gap-2 capitalize">
+                        <Icon className="size-4" aria-hidden="true" /> {key}
+                      </span>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+            <div>
+              <Label htmlFor="a-dismiss">Visitors can dismiss</Label>
+              <p className="text-xs text-muted-foreground">Turn off to make the bar permanent (no close button).</p>
+            </div>
+            <Switch id="a-dismiss" checked={dismissible} onCheckedChange={setDismissible} />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="a-title">Title</Label>
@@ -214,6 +250,8 @@ function Page() {
                     setBody(a.body);
                     setCtaLabel(a.ctaLabel ?? "");
                     setCtaUrl(a.ctaUrl ?? "");
+                    setIcon(a.icon);
+                    setDismissible(a.dismissible);
                   }}
                 >
                   Edit
