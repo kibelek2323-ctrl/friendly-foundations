@@ -42,7 +42,6 @@ const csrfMiddleware = createCsrfMiddleware({
   },
 });
 
-
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachVerifiedAuth],
   requestMiddleware: [errorMiddleware, csrfMiddleware],

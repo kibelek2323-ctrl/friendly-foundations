@@ -60,6 +60,8 @@ import { Route as AuthenticatedBotsBotIdPresenceRouteImport } from './routes/_au
 import { Route as AuthenticatedBotsBotIdSettingsRouteImport } from './routes/_authenticated/bots.$botId.settings'
 import { Route as AuthenticatedMarketplaceEditListingIdRouteImport } from './routes/_authenticated/marketplace.edit.$listingId'
 import { Route as ApiInternalRuntimeEventsRouteImport } from './routes/api.internal.runtime.events'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as ApiInternalBotsBotIdTokenRouteImport } from './routes/api.internal.bots.$botId.token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -335,6 +337,16 @@ const ApiInternalRuntimeEventsRoute =
     path: '/api/internal/runtime/events',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInternalBotsBotIdTokenRoute =
   ApiInternalBotsBotIdTokenRouteImport.update({
     id: '/api/internal/bots/$botId/token',
@@ -392,6 +404,8 @@ export interface FileRoutesByFullPath {
   '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
   '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/bots/$botId/': typeof AuthenticatedBotsBotIdIndexRoute
   '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
 }
@@ -445,6 +459,8 @@ export interface FileRoutesByTo {
   '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
   '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/bots/$botId': typeof AuthenticatedBotsBotIdIndexRoute
   '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
 }
@@ -500,6 +516,8 @@ export interface FileRoutesById {
   '/_authenticated/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
   '/_authenticated/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/_authenticated/bots/$botId/': typeof AuthenticatedBotsBotIdIndexRoute
   '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
 }
@@ -555,6 +573,8 @@ export interface FileRouteTypes {
     | '/bots/$botId/settings'
     | '/marketplace/edit/$listingId'
     | '/api/internal/runtime/events'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/bots/$botId/'
     | '/api/internal/bots/$botId/token'
   fileRoutesByTo: FileRoutesByTo
@@ -608,6 +628,8 @@ export interface FileRouteTypes {
     | '/bots/$botId/settings'
     | '/marketplace/edit/$listingId'
     | '/api/internal/runtime/events'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/bots/$botId'
     | '/api/internal/bots/$botId/token'
   id:
@@ -662,6 +684,8 @@ export interface FileRouteTypes {
     | '/_authenticated/bots/$botId/settings'
     | '/_authenticated/marketplace/edit/$listingId'
     | '/api/internal/runtime/events'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/_authenticated/bots/$botId/'
     | '/api/internal/bots/$botId/token'
   fileRoutesById: FileRoutesById
@@ -687,6 +711,8 @@ export interface RootRouteChildren {
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   ApiInternalBotsBotIdTokenRoute: typeof ApiInternalBotsBotIdTokenRoute
 }
 
@@ -1049,6 +1075,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalRuntimeEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/internal/bots/$botId/token': {
       id: '/api/internal/bots/$botId/token'
       path: '/api/internal/bots/$botId/token'
@@ -1163,6 +1203,8 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   ApiInternalBotsBotIdTokenRoute: ApiInternalBotsBotIdTokenRoute,
 }
 export const routeTree = rootRouteImport
