@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   Copy,
   Check,
+  ExternalLink,
   Loader2,
   ShieldCheck,
   X,
@@ -17,6 +18,7 @@ import { usd } from "@/lib/money";
 import {
   type CreatedCryptoPayment,
   type CryptoAddress,
+  type CryptoPaymentStatus,
   createCryptoAddress,
   getCryptoPaymentStatus,
   listCryptoCoins,
@@ -93,6 +95,34 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
   );
 }
 
+function ConfirmationBar({
+  confirmations,
+  required,
+  detected,
+}: {
+  confirmations: number;
+  required: number;
+  detected: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex flex-1 gap-1" aria-hidden="true">
+        {Array.from({ length: required }).map((_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-colors ${
+              i < confirmations ? "bg-primary" : "bg-border"
+            }`}
+          />
+        ))}
+      </div>
+      <span className="shrink-0 tabular-nums text-muted-foreground">
+        {detected ? `${confirmations}/${required} confs` : "No payment detected yet"}
+      </span>
+    </div>
+  );
+}
+
 /**
  * Bottly-branded crypto checkout. NOWPayments stays the provider behind the
  * scenes, but every pixel here is ours: coin picker, QR code, deposit address
@@ -112,6 +142,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
   const [qr, setQr] = useState<string | null>(null);
 
   const [status, setStatus] = useState<string>("waiting");
+  const [live, setLive] = useState<CryptoPaymentStatus | null>(null);
   const [credited, setCredited] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const refreshed = useRef(false);
@@ -168,6 +199,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
         const res = await fetchStatus({ data: { orderId: payment.orderId! } });
         if (!active || !res) return;
         setStatus(res.status);
+        setLive(res);
         setCredited(res.credited);
         setError(null);
         if (res.credited && !refreshed.current) {
@@ -179,7 +211,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
       }
     };
     void tick();
-    const id = window.setInterval(() => void tick(), 6000);
+    const id = window.setInterval(() => void tick(), 5000);
     return () => {
       active = false;
       window.clearInterval(id);
@@ -308,13 +340,40 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
             different amount or network can delay or lose the payment.
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-elevated px-3 py-2 text-xs">
-            <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden="true" />
-            <span className="font-medium">{STATUS_LABEL[status] ?? "Waiting for your transfer"}</span>
-            {address.expiresAt && (
-              <span className="ml-auto text-muted-foreground">
-                Expires in <Countdown expiresAt={address.expiresAt} />
-              </span>
+          <div className="space-y-2 rounded-xl border border-border bg-elevated px-3 py-2.5 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden="true" />
+              <span className="font-medium">{STATUS_LABEL[status] ?? "Waiting for your transfer"}</span>
+              {address.expiresAt && (
+                <span className="ml-auto text-muted-foreground">
+                  Expires in <Countdown expiresAt={address.expiresAt} />
+                </span>
+              )}
+            </div>
+            <ConfirmationBar
+              confirmations={live?.confirmations ?? 0}
+              required={live?.requiredConfirmations ?? 2}
+              detected={(live?.confirmations ?? 0) > 0 || (live?.actuallyPaid ?? 0) > 0}
+            />
+            {(live?.actuallyPaid ?? 0) > 0 && (
+              <p className="text-muted-foreground">
+                Received{" "}
+                <span className="font-medium text-foreground">
+                  {live?.actuallyPaid} {address.payCurrency}
+                </span>{" "}
+                of {address.payAmount} {address.payCurrency}
+              </p>
+            )}
+            {live?.explorerUrl && (
+              <a
+                href={live.explorerUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                View your payment on the blockchain
+                <ExternalLink className="size-3" aria-hidden="true" />
+              </a>
             )}
           </div>
         </div>
