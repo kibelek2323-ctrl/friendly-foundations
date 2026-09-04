@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Check, KeyRound, Loader2, Sparkles } from "lucide-react";
+import { Bitcoin, Check, KeyRound, Loader2, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { redeemPlanCode } from "@/lib/plan.functions";
+import { PLAN_PRICE_USD, createCryptoPayment } from "@/lib/crypto-payments.functions";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABEL, PLAN_LIMITS, limitLabel } from "@/data/plan-limits";
 import type { PlanId } from "@/types/bot";
@@ -48,6 +49,24 @@ function Page() {
   const redeem = useServerFn(redeemPlanCode);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [paying, setPaying] = useState<string | null>(null);
+  const startPayment = useServerFn(createCryptoPayment);
+
+  const buyPlan = async (target: "pro" | "ultimate") => {
+    setPaying(target);
+    try {
+      const res = await startPayment({ data: { purpose: "plan", plan: target } });
+      if (res.ok && res.url) {
+        window.location.href = res.url;
+      } else {
+        toast.error(res.error ?? "Could not start the payment.");
+      }
+    } catch {
+      toast.error("Could not start the payment.");
+    } finally {
+      setPaying(null);
+    }
+  };
 
 
   const submit = async () => {
