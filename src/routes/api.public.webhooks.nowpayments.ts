@@ -50,8 +50,8 @@ export const Route = createFileRoute("/api/public/webhooks/nowpayments")({
         if (status === "finished" || status === "confirmed") {
           const { error } = await supabaseAdmin.rpc("credit_crypto_payment", {
             _order_id: orderId,
-            _payment_id: paymentId,
-            _pay_currency: payCurrency,
+            _payment_id: paymentId ?? "",
+            _pay_currency: payCurrency ?? "",
           });
           if (error) {
             console.error("credit_crypto_payment failed", error);
