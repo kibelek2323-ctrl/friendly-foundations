@@ -42,10 +42,9 @@ export const Route = createFileRoute("/sitemap.xml")({
             if (error || !data) break;
             for (const post of data) {
               if (post.kind !== "blog") continue;
-              entries.push({
-                path: `/blog/${encodeURIComponent(post.slug)}`,
-                lastmod: post.published_at ?? undefined,
-              });
+              const entry: SitemapEntry = { path: `/blog/${encodeURIComponent(post.slug)}` };
+              if (post.published_at) entry.lastmod = post.published_at;
+              entries.push(entry);
             }
             if (data.length < pageSize) break;
           }
