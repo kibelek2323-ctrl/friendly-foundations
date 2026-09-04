@@ -19,6 +19,9 @@ import {
   KeyRound,
   Flag,
   Users,
+  Gift,
+  Heart,
+  Banknote,
   ChartLine,
   Plus,
   Puzzle,
@@ -120,6 +123,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" onNavigate={onNavigate} />
           <NavItem to="/bots" icon={BotIcon} label="My Bots" onNavigate={onNavigate} />
           <NavItem to="/marketplace" icon={Store} label="Marketplace" onNavigate={onNavigate} />
+          <NavItem to="/marketplace/favorites" icon={Heart} label="Saved bots" onNavigate={onNavigate} />
+          <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
         </div>
 
         {bot && (
@@ -147,11 +152,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
 
       <div className="space-y-0.5 border-t border-sidebar-border px-3 py-3">
         <NavItem to="/balance" icon={DollarSign} iconClassName="text-success" label="Balance" onNavigate={onNavigate} />
+        <NavItem to="/referrals" icon={Gift} iconClassName="text-success" label="Invite friends" onNavigate={onNavigate} />
         <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
         {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
+        {isAdmin && <NavItem to="/admin/payouts" icon={Banknote} label="Payouts" onNavigate={onNavigate} />}
+        {isAdmin && <NavItem to="/admin/referrals" icon={Gift} label="Referrals" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
         <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />

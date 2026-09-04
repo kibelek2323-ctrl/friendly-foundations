@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, BadgeCheck, ChevronLeft, ChevronRight, Loader2, ShoppingCart, Store, Tag } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ChevronLeft, ChevronRight, Heart, History, Loader2, Pencil, ShoppingCart, Store, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -24,10 +24,14 @@ import { ReportDialog } from "@/components/marketplace/ReportDialog";
 import { StarRating } from "@/components/marketplace/StarRating";
 import {
   buyListing,
+  bumpListingView,
   getListing,
   getMyBalance,
+  getMyFavoriteIds,
+  listListingVersions,
   listReviews,
   quoteDiscount,
+  toggleFavorite,
   upsertReview,
 } from "@/lib/marketplace.functions";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -119,6 +123,10 @@ function Page() {
   const fetchReviews = useServerFn(listReviews);
   const saveReview = useServerFn(upsertReview);
   const checkDiscount = useServerFn(quoteDiscount);
+  const fetchFavorites = useServerFn(getMyFavoriteIds);
+  const toggleFav = useServerFn(toggleFavorite);
+  const fetchVersions = useServerFn(listListingVersions);
+  const countView = useServerFn(bumpListingView);
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [confirm, setConfirm] = useState(false);
@@ -143,6 +151,34 @@ function Page() {
     queryKey: ["listing-reviews", listingId],
     queryFn: () => fetchReviews({ data: { listingId } }),
   });
+  const { data: versions } = useQuery({
+    queryKey: ["listing-versions", listingId],
+    queryFn: () => fetchVersions({ data: { listingId } }),
+  });
+  const { data: favoriteIds, refetch: refetchFavorites } = useQuery({
+    queryKey: ["my-favorites"],
+    queryFn: () => fetchFavorites(),
+    enabled: !!user,
+  });
+  const favorited = (favoriteIds ?? []).includes(listingId);
+
+  useEffect(() => {
+    void countView({ data: { listingId } }).catch(() => undefined);
+  }, [countView, listingId]);
+
+  const onToggleFavorite = async () => {
+    if (!user) {
+      toast.error("Log in to save bots.");
+      return;
+    }
+    try {
+      const res = await toggleFav({ data: { listingId } });
+      toast.success(res.favorited ? "Saved to your favourites." : "Removed from favourites.");
+      void refetchFavorites();
+    } catch {
+      toast.error("Could not update your favourites.");
+    }
+  };
 
   const owned = balance?.purchasedListingIds.includes(listingId) ?? false;
   const isSeller = !!user && listing?.sellerId === user.id;
@@ -312,6 +348,20 @@ function Page() {
                 </Button>
               )}
 
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 gap-1.5" onClick={() => void onToggleFavorite()}>
+                  <Heart className={`size-4 ${favorited ? "fill-current text-destructive" : ""}`} aria-hidden="true" />
+                  {favorited ? "Saved" : "Save"}
+                </Button>
+                {isSeller && (
+                  <Button asChild variant="outline" className="flex-1 gap-1.5">
+                    <Link to="/marketplace/edit/$listingId" params={{ listingId }}>
+                      <Pencil className="size-4" aria-hidden="true" /> Edit
+                    </Link>
+                  </Button>
+                )}
+              </div>
+
               {user && (
                 <p className="text-xs text-muted-foreground">
                   Your balance: {usd(balance?.balance ?? 0)}
@@ -359,6 +409,30 @@ function Page() {
               <DiscordMarkdown text={listing.description || "_No description provided._"} flavor="plain" className="text-sm leading-relaxed" />
             </section>
             <div className="hidden lg:block" aria-hidden="true" />
+
+            {(versions ?? []).length > 0 && (
+              <>
+                <section className="panel space-y-3 p-5">
+                  <h2 className="flex items-center gap-2 text-sm font-semibold">
+                    <History className="size-4 text-muted-foreground" aria-hidden="true" /> Update history
+                  </h2>
+                  <ul className="space-y-2">
+                    {(versions ?? []).map((v) => (
+                      <li key={v.version} className="rounded-lg border border-border p-3">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">v{v.version}</Badge>
+                          <span className="ml-auto text-xs text-muted-foreground">
+                            {new Date(v.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {v.notes && <p className="mt-1.5 text-sm text-muted-foreground">{v.notes}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+                <div className="hidden lg:block" aria-hidden="true" />
+              </>
+            )}
 
             <section className="panel space-y-4 p-5">
               <div className="flex items-center gap-2">

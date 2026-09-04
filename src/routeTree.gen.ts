@@ -26,6 +26,8 @@ import { Route as AuthenticatedBalanceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBuilderRouteImport } from './routes/_authenticated/builder'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedPayoutsRouteImport } from './routes/_authenticated/payouts'
+import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
@@ -34,12 +36,15 @@ import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
 import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
+import { Route as AuthenticatedAdminPayoutsRouteImport } from './routes/_authenticated/admin.payouts'
+import { Route as AuthenticatedAdminReferralsRouteImport } from './routes/_authenticated/admin.referrals'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminStatsRouteImport } from './routes/_authenticated/admin.stats'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedBotsIndexRouteImport } from './routes/_authenticated/bots.index'
 import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticated/bots.new'
 import { Route as AuthenticatedBuilderFlowIdRouteImport } from './routes/_authenticated/builder.$flowId'
+import { Route as AuthenticatedMarketplaceFavoritesRouteImport } from './routes/_authenticated/marketplace.favorites'
 import { Route as AuthenticatedMarketplacePublishRouteImport } from './routes/_authenticated/marketplace.publish'
 import { Route as AuthDiscordCallbackRouteImport } from './routes/auth.discord.callback'
 import { Route as AuthenticatedAdminUserUserIdRouteImport } from './routes/_authenticated/admin.user.$userId'
@@ -51,6 +56,7 @@ import { Route as AuthenticatedBotsBotIdEventsRouteImport } from './routes/_auth
 import { Route as AuthenticatedBotsBotIdLogsRouteImport } from './routes/_authenticated/bots.$botId.logs'
 import { Route as AuthenticatedBotsBotIdPresenceRouteImport } from './routes/_authenticated/bots.$botId.presence'
 import { Route as AuthenticatedBotsBotIdSettingsRouteImport } from './routes/_authenticated/bots.$botId.settings'
+import { Route as AuthenticatedMarketplaceEditListingIdRouteImport } from './routes/_authenticated/marketplace.edit.$listingId'
 import { Route as ApiInternalRuntimeEventsRouteImport } from './routes/api.internal.runtime.events'
 import { Route as ApiInternalBotsBotIdTokenRouteImport } from './routes/api.internal.bots.$botId.token'
 
@@ -139,6 +145,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPayoutsRoute = AuthenticatedPayoutsRouteImport.update({
+  id: '/payouts',
+  path: '/payouts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -180,6 +196,18 @@ const AuthenticatedAdminCodesRoute = AuthenticatedAdminCodesRouteImport.update({
   path: '/admin/codes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminPayoutsRoute =
+  AuthenticatedAdminPayoutsRouteImport.update({
+    id: '/admin/payouts',
+    path: '/admin/payouts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminReferralsRoute =
+  AuthenticatedAdminReferralsRouteImport.update({
+    id: '/admin/referrals',
+    path: '/admin/referrals',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminReportsRoute =
   AuthenticatedAdminReportsRouteImport.update({
     id: '/admin/reports',
@@ -211,6 +239,12 @@ const AuthenticatedBuilderFlowIdRoute =
     id: '/$flowId',
     path: '/$flowId',
     getParentRoute: () => AuthenticatedBuilderRoute,
+  } as any)
+const AuthenticatedMarketplaceFavoritesRoute =
+  AuthenticatedMarketplaceFavoritesRouteImport.update({
+    id: '/marketplace/favorites',
+    path: '/marketplace/favorites',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMarketplacePublishRoute =
   AuthenticatedMarketplacePublishRouteImport.update({
@@ -277,6 +311,12 @@ const AuthenticatedBotsBotIdSettingsRoute =
     path: '/bots/$botId/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMarketplaceEditListingIdRoute =
+  AuthenticatedMarketplaceEditListingIdRouteImport.update({
+    id: '/marketplace/edit/$listingId',
+    path: '/marketplace/edit/$listingId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiInternalRuntimeEventsRoute =
   ApiInternalRuntimeEventsRouteImport.update({
     id: '/api/internal/runtime/events',
@@ -307,6 +347,8 @@ export interface FileRoutesByFullPath {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/payouts': typeof AuthenticatedPayoutsRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -315,11 +357,14 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
+  '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/stats': typeof AuthenticatedAdminStatsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
+  '/marketplace/favorites': typeof AuthenticatedMarketplaceFavoritesRoute
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots/': typeof AuthenticatedBotsIndexRoute
@@ -331,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
   '/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
   '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
+  '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
   '/bots/$botId/': typeof AuthenticatedBotsBotIdIndexRoute
   '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
@@ -352,6 +398,8 @@ export interface FileRoutesByTo {
   '/billing': typeof AuthenticatedBillingRoute
   '/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/payouts': typeof AuthenticatedPayoutsRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -360,11 +408,14 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
+  '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/stats': typeof AuthenticatedAdminStatsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/bots/new': typeof AuthenticatedBotsNewRoute
   '/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
+  '/marketplace/favorites': typeof AuthenticatedMarketplaceFavoritesRoute
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots': typeof AuthenticatedBotsIndexRoute
@@ -376,6 +427,7 @@ export interface FileRoutesByTo {
   '/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
   '/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
   '/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
+  '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
   '/bots/$botId': typeof AuthenticatedBotsBotIdIndexRoute
   '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
@@ -399,6 +451,8 @@ export interface FileRoutesById {
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/builder': typeof AuthenticatedBuilderRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/payouts': typeof AuthenticatedPayoutsRoute
+  '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -407,11 +461,14 @@ export interface FileRoutesById {
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/_authenticated/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
+  '/_authenticated/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/stats': typeof AuthenticatedAdminStatsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/bots/new': typeof AuthenticatedBotsNewRoute
   '/_authenticated/builder/$flowId': typeof AuthenticatedBuilderFlowIdRoute
+  '/_authenticated/marketplace/favorites': typeof AuthenticatedMarketplaceFavoritesRoute
   '/_authenticated/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/_authenticated/bots/': typeof AuthenticatedBotsIndexRoute
@@ -423,6 +480,7 @@ export interface FileRoutesById {
   '/_authenticated/bots/$botId/logs': typeof AuthenticatedBotsBotIdLogsRoute
   '/_authenticated/bots/$botId/presence': typeof AuthenticatedBotsBotIdPresenceRoute
   '/_authenticated/bots/$botId/settings': typeof AuthenticatedBotsBotIdSettingsRoute
+  '/_authenticated/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
   '/_authenticated/bots/$botId/': typeof AuthenticatedBotsBotIdIndexRoute
   '/api/internal/bots/$botId/token': typeof ApiInternalBotsBotIdTokenRoute
@@ -446,6 +504,8 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/payouts'
+    | '/referrals'
     | '/blog/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
@@ -454,11 +514,14 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/blog'
     | '/admin/codes'
+    | '/admin/payouts'
+    | '/admin/referrals'
     | '/admin/reports'
     | '/admin/stats'
     | '/admin/users'
     | '/bots/new'
     | '/builder/$flowId'
+    | '/marketplace/favorites'
     | '/marketplace/publish'
     | '/auth/discord/callback'
     | '/bots/'
@@ -470,6 +533,7 @@ export interface FileRouteTypes {
     | '/bots/$botId/logs'
     | '/bots/$botId/presence'
     | '/bots/$botId/settings'
+    | '/marketplace/edit/$listingId'
     | '/api/internal/runtime/events'
     | '/bots/$botId/'
     | '/api/internal/bots/$botId/token'
@@ -491,6 +555,8 @@ export interface FileRouteTypes {
     | '/billing'
     | '/builder'
     | '/dashboard'
+    | '/payouts'
+    | '/referrals'
     | '/blog/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
@@ -499,11 +565,14 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/blog'
     | '/admin/codes'
+    | '/admin/payouts'
+    | '/admin/referrals'
     | '/admin/reports'
     | '/admin/stats'
     | '/admin/users'
     | '/bots/new'
     | '/builder/$flowId'
+    | '/marketplace/favorites'
     | '/marketplace/publish'
     | '/auth/discord/callback'
     | '/bots'
@@ -515,6 +584,7 @@ export interface FileRouteTypes {
     | '/bots/$botId/logs'
     | '/bots/$botId/presence'
     | '/bots/$botId/settings'
+    | '/marketplace/edit/$listingId'
     | '/api/internal/runtime/events'
     | '/bots/$botId'
     | '/api/internal/bots/$botId/token'
@@ -537,6 +607,8 @@ export interface FileRouteTypes {
     | '/_authenticated/billing'
     | '/_authenticated/builder'
     | '/_authenticated/dashboard'
+    | '/_authenticated/payouts'
+    | '/_authenticated/referrals'
     | '/blog/$slug'
     | '/marketplace/$listingId'
     | '/u/$username'
@@ -545,11 +617,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/blog'
     | '/_authenticated/admin/codes'
+    | '/_authenticated/admin/payouts'
+    | '/_authenticated/admin/referrals'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/stats'
     | '/_authenticated/admin/users'
     | '/_authenticated/bots/new'
     | '/_authenticated/builder/$flowId'
+    | '/_authenticated/marketplace/favorites'
     | '/_authenticated/marketplace/publish'
     | '/auth/discord/callback'
     | '/_authenticated/bots/'
@@ -561,6 +636,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bots/$botId/logs'
     | '/_authenticated/bots/$botId/presence'
     | '/_authenticated/bots/$botId/settings'
+    | '/_authenticated/marketplace/edit/$listingId'
     | '/api/internal/runtime/events'
     | '/_authenticated/bots/$botId/'
     | '/api/internal/bots/$botId/token'
@@ -710,6 +786,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/payouts': {
+      id: '/_authenticated/payouts'
+      path: '/payouts'
+      fullPath: '/payouts'
+      preLoaderRoute: typeof AuthenticatedPayoutsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/referrals': {
+      id: '/_authenticated/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AuthenticatedReferralsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -766,6 +856,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCodesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/payouts': {
+      id: '/_authenticated/admin/payouts'
+      path: '/admin/payouts'
+      fullPath: '/admin/payouts'
+      preLoaderRoute: typeof AuthenticatedAdminPayoutsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/referrals': {
+      id: '/_authenticated/admin/referrals'
+      path: '/admin/referrals'
+      fullPath: '/admin/referrals'
+      preLoaderRoute: typeof AuthenticatedAdminReferralsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/reports': {
       id: '/_authenticated/admin/reports'
       path: '/admin/reports'
@@ -807,6 +911,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/builder/$flowId'
       preLoaderRoute: typeof AuthenticatedBuilderFlowIdRouteImport
       parentRoute: typeof AuthenticatedBuilderRoute
+    }
+    '/_authenticated/marketplace/favorites': {
+      id: '/_authenticated/marketplace/favorites'
+      path: '/marketplace/favorites'
+      fullPath: '/marketplace/favorites'
+      preLoaderRoute: typeof AuthenticatedMarketplaceFavoritesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/marketplace/publish': {
       id: '/_authenticated/marketplace/publish'
@@ -885,6 +996,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBotsBotIdSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/marketplace/edit/$listingId': {
+      id: '/_authenticated/marketplace/edit/$listingId'
+      path: '/marketplace/edit/$listingId'
+      fullPath: '/marketplace/edit/$listingId'
+      preLoaderRoute: typeof AuthenticatedMarketplaceEditListingIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/internal/runtime/events': {
       id: '/api/internal/runtime/events'
       path: '/api/internal/runtime/events'
@@ -919,13 +1037,18 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBuilderRoute: typeof AuthenticatedBuilderRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPayoutsRoute: typeof AuthenticatedPayoutsRoute
+  AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
+  AuthenticatedAdminPayoutsRoute: typeof AuthenticatedAdminPayoutsRoute
+  AuthenticatedAdminReferralsRoute: typeof AuthenticatedAdminReferralsRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminStatsRoute: typeof AuthenticatedAdminStatsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBotsNewRoute: typeof AuthenticatedBotsNewRoute
+  AuthenticatedMarketplaceFavoritesRoute: typeof AuthenticatedMarketplaceFavoritesRoute
   AuthenticatedMarketplacePublishRoute: typeof AuthenticatedMarketplacePublishRoute
   AuthenticatedBotsIndexRoute: typeof AuthenticatedBotsIndexRoute
   AuthenticatedAdminUserUserIdRoute: typeof AuthenticatedAdminUserUserIdRoute
@@ -936,6 +1059,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBotsBotIdLogsRoute: typeof AuthenticatedBotsBotIdLogsRoute
   AuthenticatedBotsBotIdPresenceRoute: typeof AuthenticatedBotsBotIdPresenceRoute
   AuthenticatedBotsBotIdSettingsRoute: typeof AuthenticatedBotsBotIdSettingsRoute
+  AuthenticatedMarketplaceEditListingIdRoute: typeof AuthenticatedMarketplaceEditListingIdRoute
   AuthenticatedBotsBotIdIndexRoute: typeof AuthenticatedBotsBotIdIndexRoute
 }
 
@@ -945,13 +1069,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBuilderRoute: AuthenticatedBuilderRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPayoutsRoute: AuthenticatedPayoutsRoute,
+  AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
+  AuthenticatedAdminPayoutsRoute: AuthenticatedAdminPayoutsRoute,
+  AuthenticatedAdminReferralsRoute: AuthenticatedAdminReferralsRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminStatsRoute: AuthenticatedAdminStatsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBotsNewRoute: AuthenticatedBotsNewRoute,
+  AuthenticatedMarketplaceFavoritesRoute:
+    AuthenticatedMarketplaceFavoritesRoute,
   AuthenticatedMarketplacePublishRoute: AuthenticatedMarketplacePublishRoute,
   AuthenticatedBotsIndexRoute: AuthenticatedBotsIndexRoute,
   AuthenticatedAdminUserUserIdRoute: AuthenticatedAdminUserUserIdRoute,
@@ -963,6 +1093,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBotsBotIdLogsRoute: AuthenticatedBotsBotIdLogsRoute,
   AuthenticatedBotsBotIdPresenceRoute: AuthenticatedBotsBotIdPresenceRoute,
   AuthenticatedBotsBotIdSettingsRoute: AuthenticatedBotsBotIdSettingsRoute,
+  AuthenticatedMarketplaceEditListingIdRoute:
+    AuthenticatedMarketplaceEditListingIdRoute,
   AuthenticatedBotsBotIdIndexRoute: AuthenticatedBotsBotIdIndexRoute,
 }
 
