@@ -163,6 +163,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
         {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
         {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
         <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
+        <NavItem to="/templates" icon={Sparkles} label="Templates" onNavigate={onNavigate} />
         <NavItem to="/pricing" icon={Sparkles} label="Pricing" onNavigate={onNavigate} />
         <Separator className="my-2" />
         <div className="flex items-center gap-2.5 rounded-md px-2.5 py-2">
