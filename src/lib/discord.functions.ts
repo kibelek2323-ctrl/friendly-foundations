@@ -121,6 +121,28 @@ export const exchangeDiscordCode = createServerFn({ method: "POST" })
 
     if (error) throw error;
 
+    // Sync the Discord avatar to the user's profile picture.
+    // Set it when the profile has no avatar yet, or when the current one
+    // already came from Discord (so re-connects refresh it) — never
+    // overwrite a custom avatar the user uploaded.
+    const avatarUrl = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : null;
+    if (avatarUrl) {
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", statePayload.u)
+        .maybeSingle();
+      const current = profile?.avatar_url ?? null;
+      if (!current || current.includes("cdn.discordapp.com")) {
+        await supabaseAdmin
+          .from("profiles")
+          .update({ avatar_url: avatarUrl })
+          .eq("id", statePayload.u);
+      }
+    }
+
     return { ok: true, username: user.username };
   });
 
