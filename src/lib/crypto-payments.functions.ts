@@ -63,6 +63,8 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
           price_currency: "usd",
           order_id: orderId,
           order_description: description,
+          is_fixed_rate: true,
+          is_fee_paid_by_user: true,
           ipn_callback_url: `${origin}/api/public/webhooks/nowpayments`,
           success_url: `${origin}${data.purpose === "topup" ? "/balance" : "/billing"}?payment=success`,
           cancel_url: `${origin}${data.purpose === "topup" ? "/balance" : "/billing"}?payment=cancelled`,

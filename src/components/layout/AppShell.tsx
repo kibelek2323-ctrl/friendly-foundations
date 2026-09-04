@@ -111,22 +111,22 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <div className="flex items-center gap-2 px-3 py-3">
+      <div className="flex items-center gap-2 px-2 py-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left transition-colors hover:bg-sidebar-accent/60"
+              className="flex w-full items-center gap-2 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/30 py-2 pl-2 pr-2.5 text-left transition-colors hover:bg-sidebar-accent/70"
               aria-label="Open main navigation"
             >
-              <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Zap className="size-4" aria-hidden="true" />
               </span>
               <span className="text-[15px] font-semibold tracking-tight text-foreground">Bottly</span>
-              <ChevronDown className="ml-auto size-4 text-muted-foreground" aria-hidden="true" />
+              <ChevronDown className="ml-auto size-5 shrink-0 stroke-[2.5] text-foreground/80" aria-hidden="true" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuContent align="start" sideOffset={6} className="w-[15rem]">
             <DropdownMenuItem asChild>
               <Link to="/dashboard" onClick={onNavigate}><LayoutDashboard /> Dashboard</Link>
             </DropdownMenuItem>
