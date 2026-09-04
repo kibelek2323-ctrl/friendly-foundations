@@ -11,7 +11,11 @@ export const TOPUP_PRESETS = [5, 10, 25, 50, 100] as const;
 
 const inputSchema = z.union([
   z.object({ purpose: z.literal("topup"), amount: z.number().int().min(MIN_TOPUP_USD).max(MAX_TOPUP_USD) }),
-  z.object({ purpose: z.literal("plan"), plan: z.enum(["pro", "ultimate"]) }),
+  z.object({
+    purpose: z.literal("plan"),
+    plan: z.enum(["pro", "ultimate"]),
+    code: z.string().max(64).optional(),
+  }),
 ]);
 
 export interface CryptoPaymentRow {
@@ -46,14 +50,22 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
     const apiKey = process.env["NOWPAYMENTS_API_KEY"];
     if (!apiKey) return { ok: false, error: "Crypto payments are not configured yet." };
 
-    const amount = data.purpose === "topup" ? data.amount : PLAN_PRICE_USD[data.plan];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let amount = data.purpose === "topup" ? data.amount : PLAN_PRICE_USD[data.plan];
+    let appliedCodeId: string | null = null;
+    if (data.purpose === "plan" && data.code && data.code.trim()) {
+      const quote = await quotePlan(data.code, PLAN_PRICE_USD[data.plan]);
+      if (!quote.ok) return { ok: false, error: quote.error };
+      amount = quote.finalPrice!;
+      appliedCodeId = quote.id!;
+    }
     const orderId = `bottly_${data.purpose}_${crypto.randomUUID()}`;
     // PUBLIC_SITE_URL may be unset or malformed (e.g. missing scheme); NOWPayments
     // rejects anything that isn't a valid absolute URI, so fall back robustly.
     const rawOrigin = (process.env["PUBLIC_SITE_URL"] ?? "").trim().replace(/\/+$/, "");
     const origin = /^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(rawOrigin) ? rawOrigin : "https://bottly.xyz";
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error: insertError } = await supabaseAdmin.from("crypto_payments").insert({
       user_id: context.userId,
       purpose: data.purpose,
@@ -97,6 +109,18 @@ export const createCryptoPayment = createServerFn({ method: "POST" })
 
       const invoiceId = invoice.id != null ? String(invoice.id) : null;
       await supabaseAdmin.from("crypto_payments").update({ invoice_id: invoiceId }).eq("order_id", orderId);
+
+      if (appliedCodeId) {
+        const { data: codeRow } = await supabaseAdmin
+          .from("discount_codes")
+          .select("used_count")
+          .eq("id", appliedCodeId)
+          .maybeSingle();
+        await supabaseAdmin
+          .from("discount_codes")
+          .update({ used_count: (codeRow?.used_count ?? 0) + 1 })
+          .eq("id", appliedCodeId);
+      }
 
       const result: CreatedCryptoPayment = { ok: true, url: invoice.invoice_url, orderId, amount };
       if (invoiceId) result.widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${invoiceId}`;
@@ -164,3 +188,43 @@ export const getCryptoPaymentStatus = createServerFn({ method: "POST" })
       amount: row.amount,
     };
   });
+
+
+/* ------------------------------------------------------------------ */
+/* Plan discount codes                                                 */
+/* ------------------------------------------------------------------ */
+
+interface PlanQuote {
+  ok: boolean;
+  error?: string;
+  id?: string;
+  percent?: number;
+  price?: number;
+  finalPrice?: number;
+}
+
+/** Validates a marketplace-wide (listing-less) percentage code against a plan price. */
+async function quotePlan(rawCode: string, price: number): Promise<PlanQuote> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const code = rawCode.trim().toUpperCase();
+  const { data: row } = await supabaseAdmin
+    .from("discount_codes")
+    .select("id, code, percent, listing_id, max_uses, used_count, expires_at, active")
+    .ilike("code", code)
+    .maybeSingle();
+  if (!row) return { ok: false, error: "Invalid discount code." };
+  if (!row.active) return { ok: false, error: "This code is no longer active." };
+  if (row.expires_at && new Date(row.expires_at) < new Date()) return { ok: false, error: "This code has expired." };
+  if (row.used_count >= row.max_uses) return { ok: false, error: "This code has been fully used." };
+  if (row.listing_id) return { ok: false, error: "This code only works on a marketplace bot." };
+  const finalPrice = Math.max(1, price - Math.floor((price * row.percent) / 100));
+  return { ok: true, id: row.id, percent: row.percent, price, finalPrice };
+}
+
+/** Preview of a discount code applied to a plan price, for the billing page. */
+export const quotePlanDiscount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ plan: z.enum(["pro", "ultimate"]), code: z.string().min(2).max(64) }).parse(data),
+  )
+  .handler(async ({ data }): Promise<PlanQuote> => quotePlan(data.code, PLAN_PRICE_USD[data.plan]));
