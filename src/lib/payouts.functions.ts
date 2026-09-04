@@ -15,7 +15,10 @@ export interface PayoutRequest {
   userName?: string;
 }
 
-export const PAYOUT_METHODS = ["paypal", "crypto", "bank"] as const;
+export const PAYOUT_METHODS = ["crypto"] as const;
+
+/** Coins we can send a creator payout to. */
+export const PAYOUT_COINS = ["BTC", "ETH", "USDT (TRC20)", "USDT (ERC20)", "USDC", "LTC", "SOL", "TON"] as const;
 
 export const myPayouts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -46,8 +49,8 @@ export const requestPayout = createServerFn({ method: "POST" })
     z
       .object({
         amount: z.number().int().min(1000).max(1_000_000),
-        method: z.enum(PAYOUT_METHODS),
-        destination: z.string().min(3).max(200),
+        coin: z.enum(PAYOUT_COINS),
+        destination: z.string().min(10).max(200),
       })
       .parse(data),
   )
@@ -56,7 +59,7 @@ export const requestPayout = createServerFn({ method: "POST" })
     const { data: result, error } = await supabaseAdmin.rpc("request_payout", {
       _user_id: context.userId,
       _amount: data.amount,
-      _method: data.method,
+      _method: data.coin,
       _destination: data.destination,
     });
     if (error) return { ok: false, error: "Could not submit the payout request." };

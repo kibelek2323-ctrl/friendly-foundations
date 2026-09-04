@@ -14,7 +14,10 @@ import {
   LogOut,
   Megaphone,
   Newspaper,
-  DollarSign,
+  ShieldCheck,
+  Landmark,
+  FileText,
+  ChevronRight,
   Menu,
   BadgeCheck,
   KeyRound,
@@ -84,6 +87,54 @@ function NavItem({
       <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden="true" />
       <span className="truncate">{label}</span>
     </Link>
+  );
+}
+
+const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
+  { to: "/admin/stats", icon: ChartLine, label: "Platform stats" },
+  { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/reports", icon: Flag, label: "Moderation" },
+  { to: "/admin/codes", icon: KeyRound, label: "Codes" },
+  { to: "/admin/payouts", icon: Landmark, label: "Payouts" },
+  { to: "/admin/referrals", icon: Share2, label: "Referrals" },
+  { to: "/admin/announcements", icon: Megaphone, label: "Announcements" },
+  { to: "/admin/homepage", icon: Home, label: "Homepage" },
+  { to: "/admin/pages", icon: FileText, label: "Status & FAQ" },
+  { to: "/admin/blog", icon: Newspaper, label: "Blog & changelog" },
+  { to: "/admin/countdown", icon: Timer, label: "Countdown" },
+];
+
+/** Collapsible admin group with its own nested menu. */
+function AdminNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const inAdmin = pathname.startsWith("/admin");
+  const [open, setOpen] = useState(inAdmin);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+          inAdmin
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+        )}
+      >
+        <ShieldCheck className="size-4 shrink-0" aria-hidden="true" />
+        <span className="truncate">Admin</span>
+        <ChevronRight className={cn("ml-auto size-4 shrink-0 transition-transform", open && "rotate-90")} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-sidebar-border pl-2">
+          {ADMIN_LINKS.map((l) => (
+            <NavItem key={l.to} to={l.to} icon={l.icon} label={l.label} onNavigate={onNavigate} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -179,19 +230,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           <div className="space-y-0.5">
             <NavItem to="/payouts" icon={Banknote} label="Earnings" onNavigate={onNavigate} />
 
-            <NavItem to="/balance" icon={DollarSign} label="Balance" onNavigate={onNavigate} />
+            <NavItem to="/balance" icon={Wallet} label="Balance" onNavigate={onNavigate} />
             <NavItem to="/referrals" icon={Gift} label="Invite friends" onNavigate={onNavigate} />
             <NavItem to="/billing" icon={CreditCard} label="Plan & billing" onNavigate={onNavigate} />
-            {isAdmin && <NavItem to="/admin/codes" icon={KeyRound} label="Admin codes" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/homepage" icon={Home} label="Homepage" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/reports" icon={Flag} label="Moderation" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/users" icon={Users} label="Users" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/payouts" icon={Wallet} label="Payouts" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/referrals" icon={Share2} label="Referrals" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/countdown" icon={Timer} label="Countdown" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/blog" icon={Newspaper} label="Blog & changelog" onNavigate={onNavigate} />}
-            {isAdmin && <NavItem to="/admin/stats" icon={ChartLine} label="Platform stats" onNavigate={onNavigate} />}
+            {isAdmin && <AdminNav onNavigate={onNavigate} />}
             <NavItem to="/docs" icon={BookOpen} label="Docs" onNavigate={onNavigate} />
             <NavItem to="/templates" icon={LayoutTemplate} label="Templates" onNavigate={onNavigate} />
             <NavItem to="/pricing" icon={Tag} label="Pricing" onNavigate={onNavigate} />

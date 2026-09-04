@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BookOpen, ChevronDown, CircleHelp,
-  Newspaper, DollarSign, Gauge, LayoutDashboard, LogOut, ScrollText, Store, UserRound } from "lucide-react";
+  Newspaper, Wallet, Gauge, LayoutDashboard, LogOut, ScrollText, Store, UserRound } from "lucide-react";
 import { getMyBalance } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function AccountNav() {
         to="/balance"
         className="flex items-center rounded-full border border-success/30 bg-success/10 py-1 pl-2 pr-3 text-sm font-semibold text-success transition-colors hover:border-success/60"
       >
-        <DollarSign className="mr-1 size-3.5" aria-hidden="true" />
+        <Wallet className="mr-1 size-3.5" aria-hidden="true" />
         {usd(balance?.balance ?? 0)}
       </Link>
       <DropdownMenu>
@@ -71,7 +71,7 @@ export function AccountNav() {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild><Link to="/dashboard"><LayoutDashboard /> Open dashboard</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to="/marketplace"><Store /> Marketplace</Link></DropdownMenuItem>
-          <DropdownMenuItem asChild><Link to="/balance"><DollarSign className="text-success" /> Balance</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild><Link to="/balance"><Wallet /> Balance</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to="/account-settings"><UserRound /> Account settings</Link></DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild><Link to="/blog"><Newspaper /> Blog</Link></DropdownMenuItem>

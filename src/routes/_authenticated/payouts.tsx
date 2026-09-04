@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getCreatorStats } from "@/lib/marketplace.functions";
-import { myPayouts, requestPayout, PAYOUT_METHODS } from "@/lib/payouts.functions";
+import { myPayouts, requestPayout, PAYOUT_COINS } from "@/lib/payouts.functions";
 import { usd } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/payouts")({
@@ -27,8 +27,6 @@ export const Route = createFileRoute("/_authenticated/payouts")({
   }),
   component: Page,
 });
-
-const METHOD_LABELS: Record<string, string> = { paypal: "PayPal", crypto: "Crypto wallet", bank: "Bank transfer" };
 
 function Stat({ icon: Icon, label, value }: { icon: typeof Eye; label: string; value: string }) {
   return (
@@ -53,19 +51,19 @@ function Page() {
   const payouts = useQuery({ queryKey: ["my-payouts"], queryFn: () => fetchPayouts() });
 
   const [amount, setAmount] = useState(10);
-  const [method, setMethod] = useState<(typeof PAYOUT_METHODS)[number]>("paypal");
+  const [coin, setCoin] = useState<(typeof PAYOUT_COINS)[number]>("USDT (TRC20)");
   const [destination, setDestination] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
-    if (destination.trim().length < 3) {
-      toast.error("Add where we should send the money.");
+    if (destination.trim().length < 10) {
+      toast.error("Add the wallet address we should send the payout to.");
       return;
     }
     setBusy(true);
     try {
       const res = await submitPayout({
-        data: { amount: Math.round(amount * 100), method, destination: destination.trim() },
+        data: { amount: Math.round(amount * 100), coin, destination: destination.trim() },
       });
       if (!res.ok) {
         toast.error(res.error ?? "Could not submit the payout request.");
@@ -104,7 +102,7 @@ function Page() {
         <section className="panel space-y-4 p-5">
           <div>
             <h2 className="text-sm font-semibold">Request a payout</h2>
-            <p className="text-xs text-muted-foreground">Minimum $10. The amount is held from your balance until we process it.</p>
+            <p className="text-xs text-muted-foreground">Crypto only. Minimum $10 — the amount is held from your balance until we send it.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
@@ -112,27 +110,27 @@ function Page() {
               <Input id="p-amount" type="number" min={10} value={amount} onChange={(e) => setAmount(Number(e.target.value) || 0)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-method">Method</Label>
-              <Select value={method} onValueChange={(v) => setMethod(v as typeof method)}>
-                <SelectTrigger id="p-method">
+              <Label htmlFor="p-coin">Coin</Label>
+              <Select value={coin} onValueChange={(v) => setCoin(v as typeof coin)}>
+                <SelectTrigger id="p-coin">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PAYOUT_METHODS.map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {METHOD_LABELS[m]}
+                  {PAYOUT_COINS.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-dest">Send to</Label>
+              <Label htmlFor="p-dest">Wallet address</Label>
               <Input
                 id="p-dest"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="Your wallet address"
               />
             </div>
           </div>
@@ -155,7 +153,7 @@ function Page() {
                 <div className="mr-auto min-w-0">
                   <p className="font-medium">{usd(p.amount)}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {METHOD_LABELS[p.method] ?? p.method} · {p.destination} · {new Date(p.createdAt).toLocaleDateString()}
+                    {p.method} · {p.destination} · {new Date(p.createdAt).toLocaleDateString()}
                   </p>
                   {p.note && <p className="text-xs text-muted-foreground">{p.note}</p>}
                 </div>

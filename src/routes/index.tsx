@@ -149,7 +149,7 @@ function Hero() {
             asChild
             size="lg"
             variant="outline"
-            className="border-primary/60 text-primary transition-all hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_24px_-6px_var(--primary)]"
+            className="border-primary/60 bg-background text-primary transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
             <Link to="/marketplace">Browse the marketplace</Link>
           </Button>
@@ -234,7 +234,7 @@ function Landing() {
               ].map(([t, d], i) => (
                 <motion.li
                   key={t}
-                  className="flex items-start gap-2.5 rounded-lg bg-elevated/60 p-3 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_28px_-12px_var(--primary)]"
+                  className="flex items-start gap-2.5 rounded-lg border-b-2 border-transparent bg-elevated/60 p-3 transition-all duration-200 hover:-translate-y-1 hover:border-primary"
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -262,7 +262,7 @@ function Landing() {
               {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
                 <motion.li
                   key={step}
-                  className="bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_14px_36px_-12px_var(--primary)]"
+                  className="border-b-2 border-transparent bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:border-primary"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
