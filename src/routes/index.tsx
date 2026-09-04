@@ -116,43 +116,9 @@ function Landing() {
     <>
       <SiteAnnouncements />
       <PublicShell>
-        <section className="relative px-4 py-20 text-center lg:py-28">
-          <InteractiveGrid />
-          <motion.div className="relative z-10 mx-auto max-w-4xl" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <span className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
-              <Zap className="size-3 text-primary" aria-hidden="true" /> No code. No hosting headaches.
-            </span>
-            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-              Build Discord bots <span className="text-primary">visually</span>.
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-              Bottly turns embeds, slash commands, buttons and automations into a drag-and-drop workspace with a
-              pixel-accurate Discord preview beside every change.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg" className="gap-1.5">
-                <Link to="/bots/new">
-                  Create your bot <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/marketplace">Browse the marketplace</Link>
-              </Button>
-            </div>
-            <dl className="mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4">
-              {[
-                ["120k+", "bots built"],
-                ["18M", "members reached"],
-                ["99.9%", "uptime"],
-              ].map(([v, l]) => (
-                <div key={l}>
-                  <dt className="text-2xl font-semibold">{v}</dt>
-                  <dd className="text-xs text-muted-foreground">{l}</dd>
-                </div>
-              ))}
-            </dl>
-          </motion.div>
-        </section>
+        <Suspense fallback={<HeroFallback />}>
+          <Hero />
+        </Suspense>
 
         <section className="border-y border-border bg-surface/50 py-16">
           <Reveal className="mx-auto max-w-6xl px-4">
