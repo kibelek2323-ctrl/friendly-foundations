@@ -5,6 +5,7 @@ import { BadgeCheck, Loader2, Store, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { StarRating } from "@/components/marketplace/StarRating";
+import { ProfileBadges } from "@/components/profile/ProfileBadges";
 import { getCreatorProfile } from "@/lib/creators.functions";
 import { listMarketplace } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
