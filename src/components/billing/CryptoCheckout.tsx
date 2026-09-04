@@ -51,8 +51,13 @@ const URI_SCHEME: Record<string, string> = {
  * Builds a wallet deep-link that already carries the amount, so scanning the QR
  * pre-fills it. Falls back to the bare address for coins we have no scheme for.
  */
-function buildPaymentUri(currency: string, addressValue: string, amount: number, extraId?: string | null): string {
-  const base = currency.toLowerCase().split(/[_-]/)[0] ?? "";
+function buildPaymentUri(
+  currency: string | undefined,
+  addressValue: string,
+  amount: number | undefined,
+  extraId?: string | null,
+): string {
+  const base = (currency ?? "").toLowerCase().split(/[_-]/)[0] ?? "";
   const scheme = URI_SCHEME[base];
   if (!scheme) return addressValue;
   const params = new URLSearchParams({ amount: String(amount) });
