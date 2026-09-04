@@ -135,6 +135,51 @@ function Page() {
             )}
 
             <div className="space-y-1.5">
+              <Label>Profile photo</Label>
+              <div className="flex items-center gap-4">
+                <Avatar className="size-16 border border-border">
+                  {data?.avatarUrl ? <AvatarImage src={data.avatarUrl} alt="Your profile photo" /> : null}
+                  <AvatarFallback className="text-lg">
+                    {(displayName || "U").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                    className="hidden"
+                    onChange={(e) => void pickAvatar(e.target.files?.[0])}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    disabled={avatarBusy}
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    {avatarBusy ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" aria-hidden="true" />}
+                    {data?.avatarUrl ? "Change photo" : "Upload photo"}
+                  </Button>
+                  {data?.avatarUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 text-destructive hover:text-destructive"
+                      disabled={avatarBusy}
+                      onClick={() => void clearAvatar()}
+                    >
+                      <Trash2 className="size-4" aria-hidden="true" /> Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">PNG, JPG, WebP, GIF or AVIF — up to 2 MB.</p>
+            </div>
+
+            <div className="space-y-1.5">
               <Label htmlFor="p-name">Display name</Label>
               <Input id="p-name" maxLength={48} value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
             </div>
