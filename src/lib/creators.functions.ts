@@ -134,3 +134,51 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+/** Signed avatar URLs are stored on the profile; 10-year expiry keeps them stable. */
+const AVATAR_URL_TTL = 60 * 60 * 24 * 365 * 10;
+
+export const uploadMyAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Invalid upload.");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<{ avatarUrl: string }> => {
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Choose an image to upload.");
+    if (file.size > 2_000_000) throw new Error("The image is larger than 2 MB.");
+    if (!/^image\/(png|jpe?g|webp|gif|avif)$/.test(file.type)) throw new Error("Unsupported image format.");
+
+    const ext = (file.name.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+    const path = `${context.userId}/avatar.${ext}`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage.from("avatars").upload(path, await file.arrayBuffer(), {
+      contentType: file.type,
+      upsert: true,
+    });
+    if (error) throw new Error(`Storage upload failed: ${error.message}`);
+
+    const { data: signed, error: signedError } = await supabaseAdmin.storage
+      .from("avatars")
+      .createSignedUrl(path, AVATAR_URL_TTL);
+    if (signedError || !signed?.signedUrl) throw new Error(signedError?.message ?? "Could not sign the avatar.");
+
+    const { error: updateError } = await context.supabase
+      .from("profiles")
+      .update({ avatar_url: signed.signedUrl })
+      .eq("id", context.userId);
+    if (updateError) throw new Error("Could not save the avatar to your profile.");
+    return { avatarUrl: signed.signedUrl };
+  });
+
+export const removeMyAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ ok: boolean }> => {
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ avatar_url: null })
+      .eq("id", context.userId);
+    if (error) throw new Error("Could not remove the avatar.");
+    return { ok: true };
+  });
