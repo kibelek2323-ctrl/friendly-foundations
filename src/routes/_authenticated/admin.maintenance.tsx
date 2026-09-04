@@ -148,6 +148,41 @@ function Page() {
                 Save maintenance
               </Button>
             </section>
+
+            <section className="panel space-y-4 p-5">
+              <div>
+                <p className="flex items-center gap-2 font-medium">
+                  <Lock className="size-4 text-primary" aria-hidden="true" /> Admin password
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {data?.maintenancePassword
+                    ? "A password is set — anyone who types it gets past the maintenance screen."
+                    : "No password set. Add one to let trusted people through the maintenance screen."}
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="maint-password">New password</Label>
+                <Input
+                  id="maint-password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Leave empty to remove the password"
+                  className="max-w-xs"
+                />
+              </div>
+              <Button
+                variant="outline"
+                className="gap-1.5"
+                disabled={pwBusy}
+                onClick={() => void savePasswordNow()}
+              >
+                {pwBusy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" aria-hidden="true" />}{" "}
+                Save password
+              </Button>
+            </section>
+
           </>
         )}
       </div>
