@@ -186,7 +186,7 @@ function Landing() {
               {FEATURE_CARDS.map((f, i) => (
                 <motion.article
                   key={f.title}
-                  className="panel p-5"
+                  className="panel p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_14px_36px_-12px_var(--primary)]"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -262,7 +262,7 @@ function Landing() {
               {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
                 <motion.li
                   key={step}
-                  className="bg-background p-6"
+                  className="bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_14px_36px_-12px_var(--primary)]"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
