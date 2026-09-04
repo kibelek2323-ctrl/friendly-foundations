@@ -32,6 +32,7 @@ import {
   Sparkles,
   Store,
   Terminal,
+  Timer,
   Workflow,
   Zap,
 } from "lucide-react";
