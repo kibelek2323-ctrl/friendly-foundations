@@ -8,6 +8,7 @@ import { usd } from "@/lib/money";
 import {
   BookOpen,
   Bot as BotIcon,
+  ChevronDown,
   CreditCard,
   LayoutDashboard,
   LogOut,
@@ -36,7 +37,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useBotStore } from "@/stores/useBotStore";
 import { useAuthStore } from "@/stores/useAuthStore";
