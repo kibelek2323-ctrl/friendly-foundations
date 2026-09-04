@@ -64,6 +64,24 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       balance_adjustments: {
         Row: {
           admin_id: string | null
@@ -495,6 +513,42 @@ export type Database = {
           },
         ]
       }
+      email_otp_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          purpose: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          purpose?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          purpose?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       flow_templates: {
         Row: {
           category: string
@@ -561,6 +615,32 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_favorites: {
+        Row: {
+          created_at: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_reviews: {
         Row: {
           comment: string
@@ -599,6 +679,38 @@ export type Database = {
           },
         ]
       }
+      listing_versions: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          notes: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          notes?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          notes?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_versions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_listings: {
         Row: {
           bot_data: Json
@@ -617,6 +729,8 @@ export type Database = {
           tags: string[]
           title: string
           updated_at: string
+          version: number
+          views: number
         }
         Insert: {
           bot_data?: Json
@@ -635,6 +749,8 @@ export type Database = {
           tags?: string[]
           title: string
           updated_at?: string
+          version?: number
+          views?: number
         }
         Update: {
           bot_data?: Json
@@ -653,6 +769,8 @@ export type Database = {
           tags?: string[]
           title?: string
           updated_at?: string
+          version?: number
+          views?: number
         }
         Relationships: []
       }
@@ -690,6 +808,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payout_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          destination: string
+          id: string
+          method: string
+          note: string
+          processed_at: string | null
+          processed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          destination: string
+          id?: string
+          method: string
+          note?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          destination?: string
+          id?: string
+          method?: string
+          note?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       plan_code_redemptions: {
         Row: {
@@ -825,6 +982,60 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          clicks: number
+          code: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number
+          code: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number
+          code?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+          reward_amount: number
+          rewarded_at: string | null
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+          reward_amount?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_amount?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string
@@ -912,6 +1123,27 @@ export type Database = {
           title?: string
           updated_at?: string
           variant?: string
+        }
+        Relationships: []
+      }
+      user_2fa: {
+        Row: {
+          backup_codes: string[]
+          email_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[]
+          email_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[]
+          email_enabled?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1039,7 +1271,12 @@ export type Database = {
         }
         Returns: Json
       }
+      attach_referral: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
+      }
       bump_ai_usage: { Args: { _user_id: string }; Returns: number }
+      bump_listing_view: { Args: { _listing_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1077,6 +1314,28 @@ export type Database = {
       redeem_plan_code: {
         Args: { _code: string; _user_id: string }
         Returns: Json
+      }
+      request_payout: {
+        Args: {
+          _amount: number
+          _destination: string
+          _method: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      resolve_payout: {
+        Args: {
+          _admin_id: string
+          _approve: boolean
+          _note: string
+          _payout_id: string
+        }
+        Returns: Json
+      }
+      settle_referral: {
+        Args: { _spent: number; _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

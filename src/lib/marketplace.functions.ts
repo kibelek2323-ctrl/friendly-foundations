@@ -347,7 +347,14 @@ export const redeemBalanceCode = createServerFn({ method: "POST" })
       _code: data.code,
     });
     if (error) return { ok: false, error: "Could not redeem that code." };
-    return (result as { ok: boolean; error?: string; amount?: number; balance?: number }) ?? { ok: false, error: "Invalid code." };
+    const parsed = (result as { ok: boolean; error?: string; amount?: number; balance?: number }) ?? {
+      ok: false,
+      error: "Invalid code.",
+    };
+    if (parsed.ok) {
+      await supabaseAdmin.rpc("settle_referral", { _user_id: context.userId, _spent: parsed.amount ?? 0 });
+    }
+    return parsed;
   });
 
 /**
@@ -366,7 +373,7 @@ export const buyListing = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: listing } = await supabaseAdmin
       .from("marketplace_listings")
-      .select("id, title, bot_data, flow_data, published")
+      .select("id, title, price, bot_data, flow_data, published")
       .eq("id", data.listingId)
       .maybeSingle();
     if (!listing || !listing.published) return { ok: false, error: "Listing not available." };
@@ -411,8 +418,9 @@ export const buyListing = createServerFn({ method: "POST" })
       ...(data.discountCode ? { _code: data.discountCode } : {}),
     });
     if (error) return { ok: false, error: "Purchase failed. Please try again." };
-    const parsed = (result as { ok: boolean; error?: string; balance?: number }) ?? { ok: false };
+    const parsed = (result as { ok: boolean; error?: string; balance?: number; spent?: number }) ?? { ok: false };
     if (!parsed.ok) return { ok: false, ...(parsed.error ? { error: parsed.error } : {}) };
+    await supabaseAdmin.rpc("settle_referral", { _user_id: context.userId, _spent: parsed.spent ?? listing.price ?? 0 });
     return { ok: true, botId: newBotId, ...(parsed.balance !== undefined ? { balance: parsed.balance } : {}) };
 
   });
@@ -585,5 +593,219 @@ export const quoteDiscount = createServerFn({ method: "POST" })
     return (result as { ok: boolean; error?: string; percent?: number; finalPrice?: number }) ?? {
       ok: false,
       error: "Invalid discount code.",
+    };
+  });
+
+/* ------------------------------------------------------------------ */
+/* Marketplace 2.0: favourites, views, versions, creator stats         */
+/* ------------------------------------------------------------------ */
+
+export const toggleFavorite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: true; favorited: boolean }> => {
+    const { data: existing } = await context.supabase
+      .from("listing_favorites")
+      .select("listing_id")
+      .eq("listing_id", data.listingId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (existing) {
+      await context.supabase
+        .from("listing_favorites")
+        .delete()
+        .eq("listing_id", data.listingId)
+        .eq("user_id", context.userId);
+      return { ok: true, favorited: false };
+    }
+    await context.supabase
+      .from("listing_favorites")
+      .insert({ listing_id: data.listingId, user_id: context.userId });
+    return { ok: true, favorited: true };
+  });
+
+export const getMyFavoriteIds = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<string[]> => {
+    const { data } = await context.supabase
+      .from("listing_favorites")
+      .select("listing_id")
+      .eq("user_id", context.userId);
+    return (data ?? []).map((r) => r.listing_id);
+  });
+
+export const listMyFavorites = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ListingSummary[]> => {
+    const { data: favs } = await context.supabase
+      .from("listing_favorites")
+      .select("listing_id")
+      .eq("user_id", context.userId);
+    const ids = (favs ?? []).map((f) => f.listing_id);
+    if (ids.length === 0) return [];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("marketplace_listings")
+      .select(LIST_COLUMNS)
+      .in("id", ids)
+      .eq("published", true);
+    const decorated = await decorateListings((rows ?? []).map((r) => toSummary(r as ListingRow)));
+    return signListingImages(decorated);
+  });
+
+/** Counts a listing page view (public, best effort). */
+export const bumpListingView = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("bump_listing_view", { _listing_id: data.listingId });
+    return { ok: true };
+  });
+
+export interface ListingVersion {
+  version: number;
+  notes: string;
+  createdAt: string;
+}
+
+export const listListingVersions = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid() }).parse(data))
+  .handler(async ({ data }): Promise<ListingVersion[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("listing_versions")
+      .select("version, notes, created_at")
+      .eq("listing_id", data.listingId)
+      .order("version", { ascending: false })
+      .limit(50);
+    return (rows ?? []).map((r) => ({ version: r.version, notes: r.notes, createdAt: r.created_at }));
+  });
+
+const updateInput = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(3).max(80),
+  summary: z.string().max(160).default(""),
+  description: z.string().max(8000).default(""),
+  images: z.array(z.string().min(1).max(500)).max(6).default([]),
+  tags: z.array(z.string().min(1).max(24)).max(6).default([]),
+  price: z.number().int().min(0).max(1000000),
+  category: z.enum(LISTING_CATEGORIES).default("other"),
+  changelog: z.string().max(1000).default(""),
+});
+
+/** Edits a listing the signed-in creator owns and records a new version entry. */
+export const updateListing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => updateInput.parse(data))
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; version?: number }> => {
+    const { data: current } = await context.supabase
+      .from("marketplace_listings")
+      .select("id, version")
+      .eq("id", data.id)
+      .eq("seller_id", context.userId)
+      .maybeSingle();
+    if (!current) return { ok: false, error: "Listing not found." };
+
+    const nextVersion = (current.version ?? 1) + 1;
+    const { error } = await context.supabase
+      .from("marketplace_listings")
+      .update({
+        title: data.title,
+        summary: data.summary,
+        description: data.description,
+        images: data.images,
+        tags: data.tags,
+        price: data.price,
+        category: data.category,
+        version: nextVersion,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.id)
+      .eq("seller_id", context.userId);
+    if (error) return { ok: false, error: "Could not save the changes." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("listing_versions")
+      .insert({ listing_id: data.id, version: nextVersion, notes: data.changelog });
+    return { ok: true, version: nextVersion };
+  });
+
+export interface ListingEditData {
+  id: string;
+  title: string;
+  summary: string;
+  description: string;
+  images: string[];
+  imagePaths: string[];
+  tags: string[];
+  price: number;
+  category: string;
+  version: number;
+}
+
+export const getListingForEdit = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }): Promise<ListingEditData | null> => {
+    const { data: row } = await context.supabase
+      .from("marketplace_listings")
+      .select("id, title, summary, description, images, tags, price, category, version")
+      .eq("id", data.id)
+      .eq("seller_id", context.userId)
+      .maybeSingle();
+    if (!row) return null;
+    const paths = row.images ?? [];
+    const [signed] = await signListingImages([
+      { ...toSummary({ ...row, seller_id: context.userId, sales_count: 0, created_at: "" } as ListingRow) },
+    ]);
+    return {
+      id: row.id,
+      title: row.title,
+      summary: row.summary,
+      description: row.description ?? "",
+      images: signed?.images ?? paths,
+      imagePaths: paths,
+      tags: row.tags ?? [],
+      price: row.price,
+      category: row.category ?? "other",
+      version: row.version ?? 1,
+    };
+  });
+
+export interface CreatorStats {
+  listingCount: number;
+  totalViews: number;
+  totalSales: number;
+  revenue: number;
+  favorites: number;
+  pendingPayout: number;
+}
+
+export const getCreatorStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<CreatorStats> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: listings } = await supabaseAdmin
+      .from("marketplace_listings")
+      .select("id, views, sales_count")
+      .eq("seller_id", context.userId);
+    const ids = (listings ?? []).map((l) => l.id);
+    const [{ data: sales }, { count: favorites }, { data: pending }] = await Promise.all([
+      ids.length
+        ? supabaseAdmin.from("marketplace_purchases").select("price").in("listing_id", ids)
+        : Promise.resolve({ data: [] as { price: number }[] }),
+      ids.length
+        ? supabaseAdmin.from("listing_favorites").select("listing_id", { count: "exact", head: true }).in("listing_id", ids)
+        : Promise.resolve({ count: 0 }),
+      supabaseAdmin.from("payout_requests").select("amount").eq("user_id", context.userId).eq("status", "pending"),
+    ]);
+    return {
+      listingCount: (listings ?? []).length,
+      totalViews: (listings ?? []).reduce((s, l) => s + (l.views ?? 0), 0),
+      totalSales: (listings ?? []).reduce((s, l) => s + (l.sales_count ?? 0), 0),
+      revenue: ((sales ?? []) as { price: number }[]).reduce((s, p) => s + (p.price ?? 0), 0),
+      favorites: favorites ?? 0,
+      pendingPayout: (pending ?? []).reduce((s, p) => s + (p.amount ?? 0), 0),
     };
   });
