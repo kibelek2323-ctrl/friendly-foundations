@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, BadgeCheck, ChevronLeft, ChevronRight, Heart, History, Loader2, Pencil, ShoppingCart, Store, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BadgeIcons } from "@/components/profile/ProfileBadges";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -351,7 +352,7 @@ function Page() {
                     ) : (
                       <span className="text-foreground">{listing.seller.displayName}</span>
                     )}
-                    {listing.seller.verified && <BadgeCheck className="size-4 text-primary" aria-label="Verified creator" />}
+                    <BadgeIcons badges={listing.seller.badges ?? []} className="ml-0.5" />
                   </p>
                 )}
               </div>

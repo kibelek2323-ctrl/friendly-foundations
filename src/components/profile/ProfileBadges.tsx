@@ -61,3 +61,29 @@ export function ProfileBadges({ badges, className }: { badges: string[]; classNa
     </ul>
   );
 }
+
+/** Compact icon-only badge row — the label appears on hover. */
+export function BadgeIcons({ badges, className }: { badges: string[]; className?: string }) {
+  const defs = badges.map(badgeDef).filter((d): d is BadgeDef => !!d);
+  if (defs.length === 0) return null;
+  return (
+    <span className={cn("inline-flex items-center gap-1", className)}>
+      {defs.map((d) => {
+        const Icon = ICONS[d.icon];
+        return (
+          <span
+            key={d.key}
+            title={d.label}
+            aria-label={d.label}
+            className={cn(
+              "inline-flex size-5 items-center justify-center rounded-full border transition-transform hover:-translate-y-0.5",
+              TONES[d.tone],
+            )}
+          >
+            <Icon className="size-3" aria-hidden="true" />
+          </span>
+        );
+      })}
+    </span>
+  );
+}
