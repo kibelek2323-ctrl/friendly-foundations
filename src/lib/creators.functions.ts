@@ -15,6 +15,7 @@ export interface CreatorProfile {
   listingCount: number;
   rating: number;
   reviewCount: number;
+  badges: string[];
 }
 
 const HANDLE = z.object({ handle: z.string().min(1).max(64) });
