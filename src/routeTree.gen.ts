@@ -42,6 +42,7 @@ import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
 import { Route as AuthenticatedAdminCountdownRouteImport } from './routes/_authenticated/admin.countdown'
 import { Route as AuthenticatedAdminHomepageRouteImport } from './routes/_authenticated/admin.homepage'
+import { Route as AuthenticatedAdminMaintenanceRouteImport } from './routes/_authenticated/admin.maintenance'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminPayoutsRouteImport } from './routes/_authenticated/admin.payouts'
 import { Route as AuthenticatedAdminReferralsRouteImport } from './routes/_authenticated/admin.referrals'
@@ -238,6 +239,12 @@ const AuthenticatedAdminHomepageRoute =
     path: '/admin/homepage',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminMaintenanceRoute =
+  AuthenticatedAdminMaintenanceRouteImport.update({
+    id: '/admin/maintenance',
+    path: '/admin/maintenance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPagesRoute = AuthenticatedAdminPagesRouteImport.update({
   id: '/admin/pages',
   path: '/admin/pages',
@@ -426,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
   '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
@@ -487,6 +495,7 @@ export interface FileRoutesByTo {
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
   '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
@@ -550,6 +559,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/_authenticated/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/_authenticated/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/_authenticated/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/_authenticated/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
   '/_authenticated/admin/referrals': typeof AuthenticatedAdminReferralsRoute
@@ -613,6 +623,7 @@ export interface FileRouteTypes {
     | '/admin/codes'
     | '/admin/countdown'
     | '/admin/homepage'
+    | '/admin/maintenance'
     | '/admin/pages'
     | '/admin/payouts'
     | '/admin/referrals'
@@ -674,6 +685,7 @@ export interface FileRouteTypes {
     | '/admin/codes'
     | '/admin/countdown'
     | '/admin/homepage'
+    | '/admin/maintenance'
     | '/admin/pages'
     | '/admin/payouts'
     | '/admin/referrals'
@@ -736,6 +748,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/codes'
     | '/_authenticated/admin/countdown'
     | '/_authenticated/admin/homepage'
+    | '/_authenticated/admin/maintenance'
     | '/_authenticated/admin/pages'
     | '/_authenticated/admin/payouts'
     | '/_authenticated/admin/referrals'
@@ -1027,6 +1040,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHomepageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/maintenance': {
+      id: '/_authenticated/admin/maintenance'
+      path: '/admin/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AuthenticatedAdminMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/pages': {
       id: '/_authenticated/admin/pages'
       path: '/admin/pages'
@@ -1244,6 +1264,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
   AuthenticatedAdminCountdownRoute: typeof AuthenticatedAdminCountdownRoute
   AuthenticatedAdminHomepageRoute: typeof AuthenticatedAdminHomepageRoute
+  AuthenticatedAdminMaintenanceRoute: typeof AuthenticatedAdminMaintenanceRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
   AuthenticatedAdminPayoutsRoute: typeof AuthenticatedAdminPayoutsRoute
   AuthenticatedAdminReferralsRoute: typeof AuthenticatedAdminReferralsRoute
@@ -1280,6 +1301,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
   AuthenticatedAdminCountdownRoute: AuthenticatedAdminCountdownRoute,
   AuthenticatedAdminHomepageRoute: AuthenticatedAdminHomepageRoute,
+  AuthenticatedAdminMaintenanceRoute: AuthenticatedAdminMaintenanceRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
   AuthenticatedAdminPayoutsRoute: AuthenticatedAdminPayoutsRoute,
   AuthenticatedAdminReferralsRoute: AuthenticatedAdminReferralsRoute,
@@ -1339,13 +1361,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

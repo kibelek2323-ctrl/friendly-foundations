@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react";
+import {
+  Wrench, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -102,6 +103,7 @@ const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
   { to: "/admin/pages", icon: FileText, label: "Status & FAQ" },
   { to: "/admin/blog", icon: Newspaper, label: "Blog & changelog" },
   { to: "/admin/countdown", icon: Timer, label: "Countdown" },
+  { to: "/admin/maintenance", icon: Wrench, label: "Maintenance" },
 ];
 
 /** Collapsible admin group with its own nested menu. */
