@@ -47,6 +47,7 @@ import {
   Wrench,
   FolderTree,
   SlidersHorizontal,
+  UserRoundCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
