@@ -41,9 +41,16 @@ const csrfMiddleware = createCsrfMiddleware({
     }
   },
 });
-
+// Managed email/webhook routes under /lovable/* authenticate themselves
+// (API key or signed webhook) and must bypass CSRF and any other guards.
+const lovableBypassMiddleware = createMiddleware().server(async ({ next, request }) => {
+  if (new URL(request.url).pathname.startsWith("/lovable/")) {
+    return next();
+  }
+  return next();
+});
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachVerifiedAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [lovableBypassMiddleware, errorMiddleware, csrfMiddleware],
 }));
