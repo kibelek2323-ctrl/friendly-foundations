@@ -50,7 +50,7 @@ export function SiteFooter() {
     <footer className="mt-16 border-t border-border bg-elevated/30">
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-          <div>
+          <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2">
               <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Zap className="size-4" aria-hidden="true" />
@@ -77,21 +77,27 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {COLUMNS.map((column) => (
-            <div key={column.heading}>
-              <p className="text-xs font-medium uppercase tracking-wide text-foreground">{column.heading}</p>
-              <ul className="mt-3 space-y-2 text-sm">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link to={link.to} className="text-muted-foreground transition-colors hover:text-foreground">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="grid grid-cols-3 gap-6 md:contents">
+            {COLUMNS.map((column) => (
+              <div key={column.heading} className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide text-foreground">{column.heading}</p>
+                <ul className="mt-3 space-y-2 text-sm">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        to={link.to}
+                        className="block truncate text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
+
 
         <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-6 text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} Bottly. All rights reserved.</span>
