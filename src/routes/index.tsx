@@ -52,19 +52,19 @@ function Landing() {
     <>
       <SiteAnnouncements />
       <PublicShell>
-        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-2 lg:py-24">
+        <section className="mx-auto max-w-4xl px-4 py-20 text-center lg:py-28">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
+            <span className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1 text-xs text-muted-foreground">
               <Zap className="size-3 text-primary" aria-hidden="true" /> No code. No hosting headaches.
             </span>
-            <h1 className="mt-5 text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
               Build Discord bots <span className="text-primary">visually</span>.
             </h1>
-            <p className="mt-4 max-w-lg text-base text-muted-foreground">
+            <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
               Bottly turns embeds, slash commands, buttons and automations into a drag-and-drop workspace with a
               pixel-accurate Discord preview beside every change.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" className="gap-1.5">
                 <Link to="/bots/new">
                   Create your bot <ArrowRight className="size-4" />
@@ -74,7 +74,7 @@ function Landing() {
                 <Link to="/marketplace">Browse the marketplace</Link>
               </Button>
             </div>
-            <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
+            <dl className="mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4">
               {[
                 ["120k+", "bots built"],
                 ["18M", "members reached"],
@@ -86,10 +86,6 @@ function Landing() {
                 </div>
               ))}
             </dl>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.45, delay: 0.1 }}>
-            <DiscordMessagePreview design={demoDesign} components={demoComponents} channelName="welcome" />
           </motion.div>
         </section>
 
