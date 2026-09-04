@@ -48,9 +48,26 @@ const values = [
 ];
 
 const team = [
-  { name: "Mihajlo", role: "Founder & product", body: "Runs the roadmap, design system and the marketplace economy." },
-  { name: "Core engineering", role: "Builder & runtime", body: "Flow engine, Discord gateway runtime, logs and reliability." },
-  { name: "Community & support", role: "Docs & moderation", body: "Documentation, creator reviews, reports and announcements." },
+  {
+    name: "matu",
+    role: "Founder",
+    body: "Started Bottly and runs the product, design and the marketplace economy — experienced across the whole stack.",
+  },
+  {
+    name: "david0z",
+    role: "Developer",
+    body: "3 years of Node.js experience. Works on the flow engine, Discord runtime and backend reliability.",
+  },
+  {
+    name: "Antoni D",
+    role: "Developer",
+    body: "2 years of Node.js experience. Builds the bot builder features, integrations and the marketplace.",
+  },
+  {
+    name: "Ecarnuf",
+    role: "Admin",
+    body: "Staff and moderation — reviews listings, handles reports and keeps the community safe.",
+  },
 ];
 
 function Page() {
