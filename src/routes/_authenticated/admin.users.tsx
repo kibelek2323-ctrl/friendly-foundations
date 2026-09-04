@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { BadgeCheck, Loader2, ShieldAlert, Users } from "lucide-react";
+import { BadgeCheck, FlaskConical, Loader2, ShieldAlert, Users } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -129,6 +129,11 @@ function Page() {
                 <Badge variant="outline" className="ml-auto text-success">
                   {usd(u.balance)}
                 </Badge>
+                <Button asChild variant="outline" size="icon" title={`Manage ${u.displayName}`}>
+                  <Link to="/admin/user/$userId" params={{ userId: u.id }} aria-label={`Manage ${u.displayName}`}>
+                    <FlaskConical className="size-4" aria-hidden="true" />
+                  </Link>
+                </Button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">

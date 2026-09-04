@@ -5,6 +5,7 @@ import { BadgeCheck, Loader2, Store, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { StarRating } from "@/components/marketplace/StarRating";
+import { ProfileBadges } from "@/components/profile/ProfileBadges";
 import { getCreatorProfile } from "@/lib/creators.functions";
 import { listMarketplace } from "@/lib/marketplace.functions";
 import { usd } from "@/lib/money";
@@ -71,6 +72,7 @@ function Page() {
                   {profile.verified && <BadgeCheck className="size-5 text-primary" aria-label="Verified creator" />}
                 </h1>
                 {profile.username && <p className="text-sm text-muted-foreground">@{profile.username}</p>}
+                <ProfileBadges badges={profile.badges} className="mt-2" />
                 {profile.bio && <p className="mt-2 max-w-xl text-sm text-muted-foreground">{profile.bio}</p>}
               </div>
               <dl className="grid grid-cols-3 gap-4 text-center">

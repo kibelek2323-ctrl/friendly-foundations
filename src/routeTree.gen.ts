@@ -42,6 +42,7 @@ import { Route as AuthenticatedBotsNewRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBuilderFlowIdRouteImport } from './routes/_authenticated/builder.$flowId'
 import { Route as AuthenticatedMarketplacePublishRouteImport } from './routes/_authenticated/marketplace.publish'
 import { Route as AuthDiscordCallbackRouteImport } from './routes/auth.discord.callback'
+import { Route as AuthenticatedAdminUserUserIdRouteImport } from './routes/_authenticated/admin.user.$userId'
 import { Route as AuthenticatedBotsBotIdIndexRouteImport } from './routes/_authenticated/bots.$botId.index'
 import { Route as AuthenticatedBotsBotIdAutomationsRouteImport } from './routes/_authenticated/bots.$botId.automations'
 import { Route as AuthenticatedBotsBotIdCommandsRouteImport } from './routes/_authenticated/bots.$botId.commands'
@@ -222,6 +223,12 @@ const AuthDiscordCallbackRoute = AuthDiscordCallbackRouteImport.update({
   path: '/auth/discord/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminUserUserIdRoute =
+  AuthenticatedAdminUserUserIdRouteImport.update({
+    id: '/admin/user/$userId',
+    path: '/admin/user/$userId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBotsBotIdIndexRoute =
   AuthenticatedBotsBotIdIndexRouteImport.update({
     id: '/bots/$botId/',
@@ -316,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots/': typeof AuthenticatedBotsIndexRoute
+  '/admin/user/$userId': typeof AuthenticatedAdminUserUserIdRoute
   '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
   '/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
   '/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
@@ -360,6 +368,7 @@ export interface FileRoutesByTo {
   '/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/bots': typeof AuthenticatedBotsIndexRoute
+  '/admin/user/$userId': typeof AuthenticatedAdminUserUserIdRoute
   '/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
   '/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
   '/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
@@ -406,6 +415,7 @@ export interface FileRoutesById {
   '/_authenticated/marketplace/publish': typeof AuthenticatedMarketplacePublishRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/_authenticated/bots/': typeof AuthenticatedBotsIndexRoute
+  '/_authenticated/admin/user/$userId': typeof AuthenticatedAdminUserUserIdRoute
   '/_authenticated/bots/$botId/automations': typeof AuthenticatedBotsBotIdAutomationsRoute
   '/_authenticated/bots/$botId/commands': typeof AuthenticatedBotsBotIdCommandsRoute
   '/_authenticated/bots/$botId/components': typeof AuthenticatedBotsBotIdComponentsRoute
@@ -452,6 +462,7 @@ export interface FileRouteTypes {
     | '/marketplace/publish'
     | '/auth/discord/callback'
     | '/bots/'
+    | '/admin/user/$userId'
     | '/bots/$botId/automations'
     | '/bots/$botId/commands'
     | '/bots/$botId/components'
@@ -496,6 +507,7 @@ export interface FileRouteTypes {
     | '/marketplace/publish'
     | '/auth/discord/callback'
     | '/bots'
+    | '/admin/user/$userId'
     | '/bots/$botId/automations'
     | '/bots/$botId/commands'
     | '/bots/$botId/components'
@@ -541,6 +553,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace/publish'
     | '/auth/discord/callback'
     | '/_authenticated/bots/'
+    | '/_authenticated/admin/user/$userId'
     | '/_authenticated/bots/$botId/automations'
     | '/_authenticated/bots/$botId/commands'
     | '/_authenticated/bots/$botId/components'
@@ -809,6 +822,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthDiscordCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/user/$userId': {
+      id: '/_authenticated/admin/user/$userId'
+      path: '/admin/user/$userId'
+      fullPath: '/admin/user/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUserUserIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/bots/$botId/': {
       id: '/_authenticated/bots/$botId/'
       path: '/bots/$botId'
@@ -908,6 +928,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBotsNewRoute: typeof AuthenticatedBotsNewRoute
   AuthenticatedMarketplacePublishRoute: typeof AuthenticatedMarketplacePublishRoute
   AuthenticatedBotsIndexRoute: typeof AuthenticatedBotsIndexRoute
+  AuthenticatedAdminUserUserIdRoute: typeof AuthenticatedAdminUserUserIdRoute
   AuthenticatedBotsBotIdAutomationsRoute: typeof AuthenticatedBotsBotIdAutomationsRoute
   AuthenticatedBotsBotIdCommandsRoute: typeof AuthenticatedBotsBotIdCommandsRoute
   AuthenticatedBotsBotIdComponentsRoute: typeof AuthenticatedBotsBotIdComponentsRoute
@@ -933,6 +954,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBotsNewRoute: AuthenticatedBotsNewRoute,
   AuthenticatedMarketplacePublishRoute: AuthenticatedMarketplacePublishRoute,
   AuthenticatedBotsIndexRoute: AuthenticatedBotsIndexRoute,
+  AuthenticatedAdminUserUserIdRoute: AuthenticatedAdminUserUserIdRoute,
   AuthenticatedBotsBotIdAutomationsRoute:
     AuthenticatedBotsBotIdAutomationsRoute,
   AuthenticatedBotsBotIdCommandsRoute: AuthenticatedBotsBotIdCommandsRoute,
