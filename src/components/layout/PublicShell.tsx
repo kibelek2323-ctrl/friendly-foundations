@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeft, Zap } from "lucide-react";
 import { AccountNav } from "@/components/auth/AccountNav";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
 export function PublicShell({ children }: { children: ReactNode }) {
@@ -48,18 +49,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main>{children}</main>
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} Bottly</span>
-          <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link>
-          <Link to="/about" className="hover:text-foreground">About us</Link>
-          <Link to="/faq" className="hover:text-foreground">FAQ</Link>
-          <Link to="/status" className="hover:text-foreground">Status</Link>
-          <Link to="/terms" className="hover:text-foreground">Terms</Link>
-          <Link to="/changelog" className="hover:text-foreground">Changelog</Link>
-          <Link to="/docs" className="ml-auto hover:text-foreground">Docs</Link>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

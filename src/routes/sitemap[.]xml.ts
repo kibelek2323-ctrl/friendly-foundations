@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { DOC_PAGES } from "@/data/docs";
 import type {} from "@tanstack/react-start";
 
 const BASE_URL = "https://bottly.xyz";
@@ -27,6 +28,10 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/status", changefreq: "weekly", priority: "0.4" },
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
         ];
+
+        for (const page of DOC_PAGES) {
+          entries.push({ path: `/docs/${page.slug}`, changefreq: "monthly", priority: "0.6" });
+        }
 
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -27,6 +27,44 @@ import {
 const FAILED = new Set(["failed", "expired", "refunded"]);
 const DONE = new Set(["confirmed", "finished"]);
 
+/** Wallet URI schemes keyed by the pay currency (network suffixes stripped). */
+const URI_SCHEME: Record<string, string> = {
+  btc: "bitcoin",
+  bch: "bitcoincash",
+  ltc: "litecoin",
+  doge: "dogecoin",
+  dash: "dash",
+  xmr: "monero",
+  zec: "zcash",
+  eth: "ethereum",
+  bnb: "binancecoin",
+  matic: "polygon",
+  sol: "solana",
+  trx: "tron",
+  xrp: "ripple",
+  ada: "cardano",
+  xlm: "web+stellar",
+  ton: "ton",
+};
+
+/**
+ * Builds a wallet deep-link that already carries the amount, so scanning the QR
+ * pre-fills it. Falls back to the bare address for coins we have no scheme for.
+ */
+function buildPaymentUri(
+  currency: string | undefined,
+  addressValue: string,
+  amount: number | undefined,
+  extraId?: string | null,
+): string {
+  const base = (currency ?? "").toLowerCase().split(/[_-]/)[0] ?? "";
+  const scheme = URI_SCHEME[base];
+  if (!scheme || amount == null) return addressValue;
+  const params = new URLSearchParams({ amount: String(amount) });
+  if (extraId) params.set(base === "xrp" || base === "xlm" ? "dt" : "memo", extraId);
+  return `${scheme}:${addressValue}?${params.toString()}`;
+}
+
 const STATUS_LABEL: Record<string, string> = {
   waiting: "Waiting for your transfer",
   confirming: "Transfer seen — waiting for confirmations",
@@ -140,6 +178,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
   const [address, setAddress] = useState<CryptoAddress | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
+  const [qrMode, setQrMode] = useState<"address" | "amount">("amount");
 
   const [status, setStatus] = useState<string>("waiting");
   const [live, setLive] = useState<CryptoPaymentStatus | null>(null);
@@ -170,14 +209,24 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
     }
   };
 
+  const qrValue = useMemo(
+    () =>
+      address?.payAddress
+        ? qrMode === "amount"
+          ? buildPaymentUri(address.payCurrency, address.payAddress, address.payAmount, address.payinExtraId)
+          : address.payAddress
+        : null,
+    [address?.payAddress, address?.payAmount, address?.payCurrency, address?.payinExtraId, qrMode],
+  );
+
   // QR code for the deposit address (rendered with Bottly's palette).
   useEffect(() => {
-    if (!address?.payAddress) {
+    if (!qrValue) {
       setQr(null);
       return;
     }
     let active = true;
-    void QRCode.toDataURL(address.payAddress, {
+    void QRCode.toDataURL(qrValue, {
       margin: 1,
       width: 320,
       errorCorrectionLevel: "M",
@@ -188,7 +237,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
     return () => {
       active = false;
     };
-  }, [address?.payAddress]);
+  }, [qrValue]);
 
   // Poll our own backend for the authoritative status.
   useEffect(() => {
@@ -311,14 +360,51 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
         /* ---- Step 2: pay ---- */
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-start">
-            <div className="mx-auto rounded-2xl border border-border bg-white p-3">
-              {qr ? (
-                <img src={qr} alt="Deposit address QR code" className="size-40 rounded-lg sm:size-44" />
-              ) : (
-                <div className="flex size-40 items-center justify-center sm:size-44">
-                  <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
-                </div>
-              )}
+            <div className="mx-auto space-y-2">
+              <div className="rounded-2xl border border-border bg-white p-3">
+                {qr ? (
+                  <img
+                    src={qr}
+                    alt={qrMode === "amount" ? "Payment QR code including the amount" : "Deposit address QR code"}
+                    className="size-40 rounded-lg sm:size-44"
+                  />
+                ) : (
+                  <div className="flex size-40 items-center justify-center sm:size-44">
+                    <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+              <div
+                role="group"
+                aria-label="QR code contents"
+                className="flex rounded-lg border border-border bg-elevated p-0.5 text-xs"
+              >
+                {(
+                  [
+                    ["amount", "With amount"],
+                    ["address", "Address only"],
+                  ] as const
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={qrMode === mode}
+                    onClick={() => setQrMode(mode)}
+                    className={`flex-1 rounded-md px-2 py-1.5 font-medium transition-colors ${
+                      qrMode === mode
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="max-w-44 text-center text-[11px] leading-snug text-muted-foreground">
+                {qrMode === "amount"
+                  ? "Most wallets fill in the amount automatically."
+                  : "Scan and type the amount yourself."}
+              </p>
             </div>
             <div className="space-y-3">
               <CopyField
