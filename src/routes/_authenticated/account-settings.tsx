@@ -30,12 +30,17 @@ export const Route = createFileRoute("/_authenticated/account-settings")({
 function Page() {
   const fetchProfile = useServerFn(getMyProfile);
   const save = useServerFn(updateMyProfile);
+  const uploadAvatar = useServerFn(uploadMyAvatar);
+  const deleteAvatar = useServerFn(removeMyAvatar);
+  const queryClient = useQueryClient();
   const { data, isLoading, refetch } = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [busy, setBusy] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -43,6 +48,42 @@ function Page() {
     setUsername(data.username ?? "");
     setBio(data.bio);
   }, [data]);
+
+  const pickAvatar = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > 2_000_000) {
+      toast.error("The image is larger than 2 MB.");
+      return;
+    }
+    setAvatarBusy(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      await uploadAvatar({ data: form });
+      toast.success("Profile photo updated.");
+      await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+      void refetch();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the photo.");
+    } finally {
+      setAvatarBusy(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  };
+
+  const clearAvatar = async () => {
+    setAvatarBusy(true);
+    try {
+      await deleteAvatar({ data: {} });
+      toast.success("Profile photo removed.");
+      await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+      void refetch();
+    } catch {
+      toast.error("Could not remove the photo.");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const submit = async () => {
     if (displayName.trim().length < 2) {
