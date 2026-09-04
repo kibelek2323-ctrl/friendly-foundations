@@ -27,6 +27,39 @@ import {
 const FAILED = new Set(["failed", "expired", "refunded"]);
 const DONE = new Set(["confirmed", "finished"]);
 
+/** Wallet URI schemes keyed by the pay currency (network suffixes stripped). */
+const URI_SCHEME: Record<string, string> = {
+  btc: "bitcoin",
+  bch: "bitcoincash",
+  ltc: "litecoin",
+  doge: "dogecoin",
+  dash: "dash",
+  xmr: "monero",
+  zec: "zcash",
+  eth: "ethereum",
+  bnb: "binancecoin",
+  matic: "polygon",
+  sol: "solana",
+  trx: "tron",
+  xrp: "ripple",
+  ada: "cardano",
+  xlm: "web+stellar",
+  ton: "ton",
+};
+
+/**
+ * Builds a wallet deep-link that already carries the amount, so scanning the QR
+ * pre-fills it. Falls back to the bare address for coins we have no scheme for.
+ */
+function buildPaymentUri(currency: string, addressValue: string, amount: number, extraId?: string | null): string {
+  const base = currency.toLowerCase().split(/[_-]/)[0] ?? "";
+  const scheme = URI_SCHEME[base];
+  if (!scheme) return addressValue;
+  const params = new URLSearchParams({ amount: String(amount) });
+  if (extraId) params.set(base === "xrp" || base === "xlm" ? "dt" : "memo", extraId);
+  return `${scheme}:${addressValue}?${params.toString()}`;
+}
+
 const STATUS_LABEL: Record<string, string> = {
   waiting: "Waiting for your transfer",
   confirming: "Transfer seen — waiting for confirmations",
@@ -199,7 +232,7 @@ export function CryptoCheckout({ payment, onClose, refreshKeys = [] }: Props) {
     return () => {
       active = false;
     };
-  }, [address?.payAddress]);
+  }, [qrValue]);
 
   // Poll our own backend for the authoritative status.
   useEffect(() => {
