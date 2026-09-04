@@ -33,6 +33,30 @@ function Page() {
 
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const saveMyCode = useServerFn(setMyReferralCode);
+  const [custom, setCustom] = useState("");
+  const [savingCode, setSavingCode] = useState(false);
+
+  useEffect(() => {
+    if (data?.code) setCustom(data.code);
+  }, [data?.code]);
+
+  const saveCode = async () => {
+    setSavingCode(true);
+    try {
+      const res = await saveMyCode({ data: { code: custom } });
+      if (!res.ok) {
+        toast.error(res.error ?? "Could not save that code.");
+        return;
+      }
+      toast.success("Referral code updated.");
+      void refetch();
+    } catch {
+      toast.error("Could not save that code.");
+    } finally {
+      setSavingCode(false);
+    }
+  };
 
   const link = data ? `https://bottly.xyz/register?ref=${data.code}` : "";
 
