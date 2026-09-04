@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useMotionTemplate } from "motion/react";
 import { ArrowRight, Check, CloudCog, Palette, Play, Puzzle, Store, Terminal, Workflow, Zap } from "lucide-react";
@@ -21,46 +21,43 @@ function Reveal({ children, className, delay = 0 }: { children: React.ReactNode;
   );
 }
 
-/** Mouse-reactive dot grid behind the hero. */
+/** Mouse-reactive mesh grid behind the hero (tracks the cursor even over text). */
 function InteractiveGrid() {
   const ref = useRef<HTMLDivElement>(null);
-  const mx = useMotionValue(-400);
-  const my = useMotionValue(-400);
-  const mask = useMotionTemplate`radial-gradient(320px circle at ${mx}px ${my}px, black 0%, transparent 100%)`;
+  const mx = useMotionValue(-9999);
+  const my = useMotionValue(-9999);
+  const mask = useMotionTemplate`radial-gradient(340px circle at ${mx}px ${my}px, black 0%, transparent 100%)`;
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const host = ref.current?.parentElement;
+      const rect = host?.getBoundingClientRect();
+      if (!rect) return;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const inside = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
+      mx.set(inside ? x : -9999);
+      my.set(inside ? y : -9999);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [mx, my]);
+
+  const faint =
+    "linear-gradient(color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px)";
+  const bright =
+    "linear-gradient(color-mix(in oklab, var(--primary) 55%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--primary) 55%, transparent) 1px, transparent 1px)";
 
   return (
-    <div
-      ref={ref}
-      className="pointer-events-none absolute inset-0"
-      onPointerMove={(e) => {
-        const rect = ref.current?.getBoundingClientRect();
-        if (!rect) return;
-        mx.set(e.clientX - rect.left);
-        my.set(e.clientY - rect.top);
-      }}
-      onPointerLeave={() => {
-        mx.set(-400);
-        my.set(-400);
-      }}
-      style={{ pointerEvents: "auto" }}
-      aria-hidden="true"
-    >
-      {/* base faint grid */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px)",
-          backgroundSize: "26px 26px",
-        }}
-      />
-      {/* highlighted grid following the cursor */}
+    <div ref={ref} className="pointer-events-none absolute inset-0" aria-hidden="true">
+      {/* base faint mesh */}
+      <div className="absolute inset-0" style={{ backgroundImage: faint, backgroundSize: "44px 44px" }} />
+      {/* highlighted mesh following the cursor */}
       <motion.div
         className="absolute inset-0"
         style={{
-          backgroundImage:
-            "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent) 1.5px, transparent 1.5px)",
-          backgroundSize: "26px 26px",
+          backgroundImage: bright,
+          backgroundSize: "44px 44px",
           WebkitMaskImage: mask,
           maskImage: mask,
         }}
