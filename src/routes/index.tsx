@@ -234,12 +234,13 @@ function Landing() {
               ].map(([t, d], i) => (
                 <motion.li
                   key={t}
-                  className="flex items-start gap-2.5 rounded-lg border-b-2 border-transparent bg-elevated/60 p-3 transition-all duration-200 hover:-translate-y-1 hover:border-primary"
+                  className="group relative flex items-start gap-2.5 overflow-hidden rounded-lg bg-elevated/60 p-3 transition-all duration-200 hover:-translate-y-1"
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.35, delay: i * 0.07 }}
                 >
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                   <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                   <span>
                     <span className="font-medium text-foreground">{t}</span>
@@ -262,12 +263,13 @@ function Landing() {
               {BUILD_STEPS.map(({ icon: Icon, step, title, body }, i) => (
                 <motion.li
                   key={step}
-                  className="border-b-2 border-transparent bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:border-primary"
+                  className="group relative bg-background p-6 transition-all duration-200 hover:-translate-y-1"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
                 >
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                   <div className="flex items-center justify-between"><span className="text-xs font-semibold text-muted-foreground">STEP {step}</span><Icon className="size-5 text-primary" /></div>
                   <h3 className="mt-7 font-semibold">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
