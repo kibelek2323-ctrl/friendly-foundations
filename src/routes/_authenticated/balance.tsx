@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowDownLeft, ArrowUpRight, Bitcoin, DollarSign, Loader2, Plus } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Bitcoin, DollarSign, ExternalLink, Loader2, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,8 +25,19 @@ import {
   MIN_TOPUP_USD,
   TOPUP_PRESETS,
   createCryptoPayment,
+  listCryptoPayments,
 } from "@/lib/crypto-payments.functions";
 import { CryptoCheckout } from "@/components/billing/CryptoCheckout";
+
+const CRYPTO_FAILED = new Set(["failed", "expired", "refunded"]);
+const CRYPTO_LABEL: Record<string, string> = {
+  waiting: "Waiting for transfer",
+  confirming: "Confirming",
+  sending: "Processing",
+  partially_paid: "Partially paid",
+  confirmed: "Confirmed",
+  finished: "Completed",
+};
 
 export const Route = createFileRoute("/_authenticated/balance")({
   head: () => ({
@@ -46,6 +57,12 @@ function Page() {
   const fetchHistory = useServerFn(getBalanceHistory);
   const redeem = useServerFn(redeemBalanceCode);
   const history = useQuery({ queryKey: ["balance-history"], queryFn: () => fetchHistory() });
+  const fetchCryptoPayments = useServerFn(listCryptoPayments);
+  const cryptoPayments = useQuery({
+    queryKey: ["crypto-payments"],
+    queryFn: () => fetchCryptoPayments(),
+    refetchInterval: 20_000,
+  });
 
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
@@ -74,6 +91,7 @@ function Page() {
   const closeCheckout = () => {
     setCheckout(null);
     void history.refetch();
+    void cryptoPayments.refetch();
   };
 
   const submit = async () => {
@@ -132,7 +150,7 @@ function Page() {
                 <CryptoCheckout
                   payment={checkout}
                   onClose={closeCheckout}
-                  refreshKeys={[["balance-history"], ["my-balance"]]}
+                  refreshKeys={[["balance-history"], ["my-balance"], ["crypto-payments"]]}
                 />
               ) : (
               <>
@@ -200,6 +218,59 @@ function Page() {
               )}
             </DialogContent>
           </Dialog>
+        </section>
+
+        <section className="panel p-5">
+          <h2 className="text-sm font-semibold">Crypto payments</h2>
+          <p className="text-xs text-muted-foreground">Top-ups and plan payments made with crypto.</p>
+          {cryptoPayments.isLoading ? (
+            <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
+          ) : (cryptoPayments.data ?? []).length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">No crypto payments yet.</p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border">
+              {(cryptoPayments.data ?? []).map((p) => {
+                const expired = !p.credited && p.expiresAt != null && new Date(p.expiresAt) < new Date();
+                const state = p.credited
+                  ? { label: "Completed", cls: "border-success/40 bg-success/10 text-success" }
+                  : expired || CRYPTO_FAILED.has(p.status)
+                    ? { label: expired ? "Expired" : p.status, cls: "border-destructive/40 bg-destructive/10 text-destructive" }
+                    : { label: CRYPTO_LABEL[p.status] ?? p.status, cls: "border-primary/40 bg-primary/10 text-primary" };
+                return (
+                  <li key={p.id} className="flex flex-wrap items-center gap-3 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {p.purpose === "plan" ? `${p.plan === "ultimate" ? "Ultimate" : "Pro"} plan — 30 days` : "Balance top-up"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(p.createdAt).toLocaleString()}
+                        {p.payAmount != null && p.payCurrency
+                          ? ` · ${p.payAmount} ${p.payCurrency.toUpperCase()}`
+                          : ""}
+                        {!p.credited && p.expiresAt
+                          ? ` · ${expired ? "window closed" : `valid until ${new Date(p.expiresAt).toLocaleTimeString()}`}`
+                          : ""}
+                      </p>
+                      {p.explorerUrl && (
+                        <a
+                          href={p.explorerUrl}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                        >
+                          View your payment <ExternalLink className="size-3" aria-hidden="true" />
+                        </a>
+                      )}
+                    </div>
+                    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${state.cls}`}>
+                      {state.label}
+                    </span>
+                    <span className="text-sm font-semibold">{usd(p.amount)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
 
         <section className="panel p-5">

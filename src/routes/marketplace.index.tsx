@@ -2,10 +2,11 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BadgeCheck, Loader2, Search, Store, Upload, Wallet } from "lucide-react";
+import { Loader2, Search, Store, Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { BadgeIcons } from "@/components/profile/ProfileBadges";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -219,7 +220,7 @@ function Page() {
                   </div>
                   <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
                     {l.seller?.displayName ?? "Bottly creator"}
-                    {l.seller?.verified && <BadgeCheck className="size-3.5 text-primary" aria-label="Verified creator" />}
+                    <BadgeIcons badges={l.seller?.badges ?? []} />
                     <span className="ml-auto">{l.salesCount} purchases</span>
                   </p>
                 </div>

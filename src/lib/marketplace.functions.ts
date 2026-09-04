@@ -20,6 +20,8 @@ export interface ListingSeller {
   username: string | null;
   avatarUrl: string | null;
   verified: boolean;
+  /** Badge keys shown as small icons next to the name. */
+  badges: string[];
 }
 
 export interface ListingSummary {
@@ -104,10 +106,18 @@ async function decorateListings<T extends ListingSummary>(items: T[]): Promise<T
   const sellerIds = Array.from(new Set(items.map((i) => i.sellerId)));
   const listingIds = items.map((i) => i.id);
 
-  const [{ data: profiles }, { data: reviews }] = await Promise.all([
+  const [{ data: profiles }, { data: reviews }, { data: badgeRows }] = await Promise.all([
     supabaseAdmin.from("profiles").select("id, display_name, username, avatar_url, verified").in("id", sellerIds),
     supabaseAdmin.from("listing_reviews").select("listing_id, rating").in("listing_id", listingIds),
+    supabaseAdmin.from("profile_badges").select("user_id, badge").in("user_id", sellerIds),
   ]);
+
+  const badgeMap = new Map<string, string[]>();
+  for (const b of badgeRows ?? []) {
+    const list = badgeMap.get(b.user_id) ?? [];
+    if (!list.includes(b.badge)) list.push(b.badge);
+    badgeMap.set(b.user_id, list);
+  }
 
   const sellerMap = new Map<string, ListingSeller>(
     (profiles ?? []).map((p) => [
@@ -118,6 +128,9 @@ async function decorateListings<T extends ListingSummary>(items: T[]): Promise<T
         username: p.username ?? null,
         avatarUrl: p.avatar_url ?? null,
         verified: p.verified ?? false,
+        badges: (p.verified ? ["verified"] : []).concat(
+          (badgeMap.get(p.id) ?? []).filter((b) => b !== "verified"),
+        ),
       },
     ]),
   );

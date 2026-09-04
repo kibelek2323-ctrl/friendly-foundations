@@ -381,9 +381,12 @@ export type Database = {
           amount: number
           created_at: string
           credited_at: string | null
+          expires_at: string | null
           id: string
           invoice_id: string | null
           order_id: string
+          pay_address: string | null
+          pay_amount: number | null
           pay_currency: string | null
           payment_id: string | null
           plan: Database["public"]["Enums"]["plan_tier"] | null
@@ -396,9 +399,12 @@ export type Database = {
           amount: number
           created_at?: string
           credited_at?: string | null
+          expires_at?: string | null
           id?: string
           invoice_id?: string | null
           order_id: string
+          pay_address?: string | null
+          pay_amount?: number | null
           pay_currency?: string | null
           payment_id?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"] | null
@@ -411,9 +417,12 @@ export type Database = {
           amount?: number
           created_at?: string
           credited_at?: string | null
+          expires_at?: string | null
           id?: string
           invoice_id?: string | null
           order_id?: string
+          pay_address?: string | null
+          pay_amount?: number | null
           pay_currency?: string | null
           payment_id?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"] | null
