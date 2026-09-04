@@ -96,6 +96,24 @@ export const loginWithDiscord = createServerFn({ method: "POST" })
       });
     }
 
+    // Sync the Discord avatar onto the public profile. Only fill an empty
+    // avatar or refresh one that already came from Discord — never overwrite
+    // a custom uploaded picture.
+    if (avatarUrl) {
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", existing.id)
+        .maybeSingle();
+      const current = profile?.avatar_url ?? null;
+      if (!current || current.includes("cdn.discordapp.com")) {
+        await supabaseAdmin
+          .from("profiles")
+          .update({ avatar_url: avatarUrl })
+          .eq("id", existing.id);
+      }
+    }
+
     const { data: link, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
       email,
