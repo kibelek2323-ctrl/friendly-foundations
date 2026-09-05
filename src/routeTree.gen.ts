@@ -46,6 +46,7 @@ import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin.codes'
 import { Route as AuthenticatedAdminCountdownRouteImport } from './routes/_authenticated/admin.countdown'
 import { Route as AuthenticatedAdminHomepageRouteImport } from './routes/_authenticated/admin.homepage'
+import { Route as AuthenticatedAdminHostingRouteImport } from './routes/_authenticated/admin.hosting'
 import { Route as AuthenticatedAdminMaintenanceRouteImport } from './routes/_authenticated/admin.maintenance'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminPayoutsRouteImport } from './routes/_authenticated/admin.payouts'
@@ -266,6 +267,12 @@ const AuthenticatedAdminHomepageRoute =
   AuthenticatedAdminHomepageRouteImport.update({
     id: '/admin/homepage',
     path: '/admin/homepage',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminHostingRoute =
+  AuthenticatedAdminHostingRouteImport.update({
+    id: '/admin/hosting',
+    path: '/admin/hosting',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminMaintenanceRoute =
@@ -489,6 +496,7 @@ export interface FileRoutesByFullPath {
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/admin/hosting': typeof AuthenticatedAdminHostingRoute
   '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
@@ -559,6 +567,7 @@ export interface FileRoutesByTo {
   '/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/admin/hosting': typeof AuthenticatedAdminHostingRoute
   '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
@@ -631,6 +640,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
   '/_authenticated/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/_authenticated/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/_authenticated/admin/hosting': typeof AuthenticatedAdminHostingRoute
   '/_authenticated/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/_authenticated/admin/payouts': typeof AuthenticatedAdminPayoutsRoute
@@ -703,6 +713,7 @@ export interface FileRouteTypes {
     | '/admin/codes'
     | '/admin/countdown'
     | '/admin/homepage'
+    | '/admin/hosting'
     | '/admin/maintenance'
     | '/admin/pages'
     | '/admin/payouts'
@@ -773,6 +784,7 @@ export interface FileRouteTypes {
     | '/admin/codes'
     | '/admin/countdown'
     | '/admin/homepage'
+    | '/admin/hosting'
     | '/admin/maintenance'
     | '/admin/pages'
     | '/admin/payouts'
@@ -844,6 +856,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/codes'
     | '/_authenticated/admin/countdown'
     | '/_authenticated/admin/homepage'
+    | '/_authenticated/admin/hosting'
     | '/_authenticated/admin/maintenance'
     | '/_authenticated/admin/pages'
     | '/_authenticated/admin/payouts'
@@ -1172,6 +1185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHomepageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/hosting': {
+      id: '/_authenticated/admin/hosting'
+      path: '/admin/hosting'
+      fullPath: '/admin/hosting'
+      preLoaderRoute: typeof AuthenticatedAdminHostingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/maintenance': {
       id: '/_authenticated/admin/maintenance'
       path: '/admin/maintenance'
@@ -1426,6 +1446,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
   AuthenticatedAdminCountdownRoute: typeof AuthenticatedAdminCountdownRoute
   AuthenticatedAdminHomepageRoute: typeof AuthenticatedAdminHomepageRoute
+  AuthenticatedAdminHostingRoute: typeof AuthenticatedAdminHostingRoute
   AuthenticatedAdminMaintenanceRoute: typeof AuthenticatedAdminMaintenanceRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
   AuthenticatedAdminPayoutsRoute: typeof AuthenticatedAdminPayoutsRoute
@@ -1467,6 +1488,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
   AuthenticatedAdminCountdownRoute: AuthenticatedAdminCountdownRoute,
   AuthenticatedAdminHomepageRoute: AuthenticatedAdminHomepageRoute,
+  AuthenticatedAdminHostingRoute: AuthenticatedAdminHostingRoute,
   AuthenticatedAdminMaintenanceRoute: AuthenticatedAdminMaintenanceRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
   AuthenticatedAdminPayoutsRoute: AuthenticatedAdminPayoutsRoute,

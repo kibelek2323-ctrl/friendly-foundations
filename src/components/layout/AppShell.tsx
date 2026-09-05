@@ -110,6 +110,7 @@ const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
   { to: "/admin/blog", icon: Newspaper, label: "Blog & changelog" },
   { to: "/admin/countdown", icon: Timer, label: "Countdown" },
   { to: "/admin/maintenance", icon: Wrench, label: "Maintenance" },
+  { to: "/admin/hosting", icon: Server, label: "Hosting" },
 ];
 
 /** Collapsible admin group with its own nested menu. */

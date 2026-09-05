@@ -145,7 +145,7 @@ function Page() {
 
   if (checking) {
     return (
-      <AppShell>
+      <AppShell title="Hosting">
         <div className="flex justify-center py-24">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
@@ -155,7 +155,7 @@ function Page() {
 
   if (!isAdmin) {
     return (
-      <AppShell>
+      <AppShell title="Hosting">
         <div className="flex flex-col items-center gap-3 py-24 text-center">
           <ShieldAlert className="h-8 w-8 text-muted-foreground" />
           <p className="text-muted-foreground">Admins only.</p>
@@ -167,7 +167,7 @@ function Page() {
   const list = nodes.data ?? [];
 
   return (
-    <AppShell>
+    <AppShell title="Hosting">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
