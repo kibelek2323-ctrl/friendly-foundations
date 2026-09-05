@@ -7,9 +7,11 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
 export function PublicShell({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const fromCountdown = new URLSearchParams(location.search).get("from") === "countdown";
+  const from = new URLSearchParams(location.search).get("from");
+  const fromCountdown = from === "countdown";
+  const fromMaintenance = from === "maintenance";
 
-  if (fromCountdown) {
+  if (fromCountdown || fromMaintenance) {
     return (
       <div className="relative min-h-screen bg-background">
         <Link
@@ -17,7 +19,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
           className="fixed left-4 top-4 z-50 inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-4 py-2 text-sm font-medium backdrop-blur transition hover:bg-muted"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Back to countdown
+          {fromMaintenance ? "Back" : "Back to countdown"}
         </Link>
         <main>{children}</main>
       </div>
