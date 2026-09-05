@@ -289,10 +289,24 @@ export function CountdownGate({ children }: { children: ReactNode }) {
   const isOpenRoute = OPEN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const adminBypass = !!user && initialized && !isLoading && isAdmin === true;
 
-  if (!gated || isOpenRoute || adminBypass || unlocked) return <>{children}</>;
+  // While leaving a gate screen, the router briefly keeps rendering the old
+  // (gated) route under the new location — show a blank screen instead so the
+  // homepage never flashes before an open page like /docs loads.
+  const gateWasShown = useRef(false);
+  const leavingGate = gateWasShown.current && routeLoading;
+
+  if (!gated || isOpenRoute || adminBypass || unlocked) {
+    if (leavingGate) return <div className="min-h-screen bg-background" />;
+    gateWasShown.current = false;
+    return <>{children}</>;
+  }
   // Before the settings load: trust the remembered "open" verdict, otherwise hold the gate.
-  if (!gate && cachedOpen) return <>{children}</>;
+  if (!gate && cachedOpen) {
+    gateWasShown.current = false;
+    return <>{children}</>;
+  }
   if (!gate) return <div className="min-h-screen bg-background" />;
+  gateWasShown.current = true;
 
   if (maintenance.enabled)
     return (
