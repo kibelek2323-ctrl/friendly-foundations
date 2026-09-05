@@ -887,6 +887,72 @@ export type Database = {
         }
         Relationships: []
       }
+      hosting_nodes: {
+        Row: {
+          bot_count: number
+          connected_at: string | null
+          cpu_usage: number | null
+          created_at: string
+          created_by: string | null
+          docker_version: string | null
+          hostname: string | null
+          id: string
+          last_heartbeat: string | null
+          memory_usage: number | null
+          name: string
+          node_token_hash: string | null
+          paired_at: string | null
+          pairing_code_hash: string | null
+          pairing_expires_at: string | null
+          platform: string | null
+          status: string
+          total_memory: number | null
+          updated_at: string
+        }
+        Insert: {
+          bot_count?: number
+          connected_at?: string | null
+          cpu_usage?: number | null
+          created_at?: string
+          created_by?: string | null
+          docker_version?: string | null
+          hostname?: string | null
+          id?: string
+          last_heartbeat?: string | null
+          memory_usage?: number | null
+          name: string
+          node_token_hash?: string | null
+          paired_at?: string | null
+          pairing_code_hash?: string | null
+          pairing_expires_at?: string | null
+          platform?: string | null
+          status?: string
+          total_memory?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bot_count?: number
+          connected_at?: string | null
+          cpu_usage?: number | null
+          created_at?: string
+          created_by?: string | null
+          docker_version?: string | null
+          hostname?: string | null
+          id?: string
+          last_heartbeat?: string | null
+          memory_usage?: number | null
+          name?: string
+          node_token_hash?: string | null
+          paired_at?: string | null
+          pairing_code_hash?: string | null
+          pairing_expires_at?: string | null
+          platform?: string | null
+          status?: string
+          total_memory?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listing_favorites: {
         Row: {
           created_at: string
@@ -1597,6 +1663,29 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      heartbeat_hosting_node: {
+        Args: {
+          _bot_count: number
+          _cpu_usage: number
+          _docker_version: string
+          _hostname: string
+          _memory_usage: number
+          _platform: string
+          _token_hash: string
+          _total_memory: number
+        }
+        Returns: Json
+      }
+      pair_hosting_node: {
+        Args: {
+          _code_hash: string
+          _docker_version: string
+          _hostname: string
+          _platform: string
+          _token_hash: string
+        }
+        Returns: Json
       }
       purchase_listing: {
         Args: {
