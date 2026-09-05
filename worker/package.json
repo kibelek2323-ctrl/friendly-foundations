@@ -1,0 +1,14 @@
+{
+  "name": "bottly-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bottly hosting node worker: pairs with the control plane and reports heartbeats.",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "scripts": {
+    "start": "node src/index.mjs start",
+    "pair": "node src/index.mjs pair"
+  }
+}
