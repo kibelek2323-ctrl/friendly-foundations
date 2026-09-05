@@ -48,6 +48,7 @@ import {
   FolderTree,
   SlidersHorizontal,
   UserRoundCheck,
+  Server,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -109,6 +110,7 @@ const ADMIN_LINKS: { to: string; icon: typeof BotIcon; label: string }[] = [
   { to: "/admin/blog", icon: Newspaper, label: "Blog & changelog" },
   { to: "/admin/countdown", icon: Timer, label: "Countdown" },
   { to: "/admin/maintenance", icon: Wrench, label: "Maintenance" },
+  { to: "/admin/hosting", icon: Server, label: "Hosting" },
 ];
 
 /** Collapsible admin group with its own nested menu. */

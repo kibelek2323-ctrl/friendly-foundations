@@ -13,6 +13,9 @@ import {
   type HostingNode,
 } from "./hosting/hosting-manager.server";
 
+// Client-safe re-export: route components must not import *.server modules.
+export type { HostingNode } from "./hosting/hosting-manager.server";
+
 type Ctx = { supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> }; userId: string };
 
 async function assertAdmin(context: Ctx): Promise<void> {
