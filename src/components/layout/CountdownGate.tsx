@@ -233,6 +233,7 @@ function MaintenanceScreen({
 
 export function CountdownGate({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const routeLoading = useRouterState({ select: (s) => s.isLoading });
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
   const checkAdmin = useServerFn(amIAdmin);
