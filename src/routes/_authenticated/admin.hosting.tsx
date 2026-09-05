@@ -40,7 +40,7 @@ import {
   regenerateHostingPairingCode,
   setHostingNodeDisabled,
 } from "@/lib/hosting.functions";
-import type { HostingNode } from "@/lib/hosting/hosting-manager.server";
+import type { HostingNode } from "@/lib/hosting.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/hosting")({
   head: () => ({
