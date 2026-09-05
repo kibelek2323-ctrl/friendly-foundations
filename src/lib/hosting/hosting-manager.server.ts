@@ -167,9 +167,9 @@ export async function deleteNode(id: string): Promise<void> {
 }
 
 export interface PairIdentity {
-  hostname?: string;
-  platform?: string;
-  dockerVersion?: string;
+  hostname?: string | undefined;
+  platform?: string | undefined;
+  dockerVersion?: string | undefined;
 }
 
 export async function pairNode(
@@ -192,19 +192,19 @@ export async function pairNode(
 }
 
 export interface NodeMetrics {
-  hostname?: string;
-  platform?: string;
-  dockerVersion?: string;
-  cpuUsage?: number;
-  memoryUsage?: number;
-  totalMemory?: number;
-  botCount?: number;
+  hostname?: string | undefined;
+  platform?: string | undefined;
+  dockerVersion?: string | undefined;
+  cpuUsage?: number | undefined;
+  memoryUsage?: number | undefined;
+  totalMemory?: number | undefined;
+  botCount?: number | undefined;
 }
 
 export async function heartbeatNode(
   token: string,
   metrics: NodeMetrics,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string | undefined }> {
   const db = await admin();
   const { data, error } = await db.rpc("heartbeat_hosting_node", {
     _token_hash: hashSecret(token),

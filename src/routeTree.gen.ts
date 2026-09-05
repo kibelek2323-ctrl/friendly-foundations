@@ -72,6 +72,8 @@ import { Route as AuthenticatedBotsBotIdSettingsRouteImport } from './routes/_au
 import { Route as AuthenticatedMarketplaceEditListingIdRouteImport } from './routes/_authenticated/marketplace.edit.$listingId'
 import { Route as AuthenticatedProjectsProjectIdCodeRouteImport } from './routes/_authenticated/projects.$projectId.code'
 import { Route as ApiInternalRuntimeEventsRouteImport } from './routes/api.internal.runtime.events'
+import { Route as ApiPublicHostingHeartbeatRouteImport } from './routes/api.public.hosting.heartbeat'
+import { Route as ApiPublicHostingPairRouteImport } from './routes/api.public.hosting.pair'
 import { Route as ApiPublicWebhooksNowpaymentsRouteImport } from './routes/api.public.webhooks.nowpayments'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -416,6 +418,17 @@ const ApiInternalRuntimeEventsRoute =
     path: '/api/internal/runtime/events',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHostingHeartbeatRoute =
+  ApiPublicHostingHeartbeatRouteImport.update({
+    id: '/api/public/hosting/heartbeat',
+    path: '/api/public/hosting/heartbeat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHostingPairRoute = ApiPublicHostingPairRouteImport.update({
+  id: '/api/public/hosting/pair',
+  path: '/api/public/hosting/pair',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksNowpaymentsRoute =
   ApiPublicWebhooksNowpaymentsRouteImport.update({
     id: '/api/public/webhooks/nowpayments',
@@ -501,6 +514,8 @@ export interface FileRoutesByFullPath {
   '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/projects/$projectId/code': typeof AuthenticatedProjectsProjectIdCodeRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/api/public/hosting/heartbeat': typeof ApiPublicHostingHeartbeatRoute
+  '/api/public/hosting/pair': typeof ApiPublicHostingPairRoute
   '/api/public/webhooks/nowpayments': typeof ApiPublicWebhooksNowpaymentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -569,6 +584,8 @@ export interface FileRoutesByTo {
   '/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/projects/$projectId/code': typeof AuthenticatedProjectsProjectIdCodeRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/api/public/hosting/heartbeat': typeof ApiPublicHostingHeartbeatRoute
+  '/api/public/hosting/pair': typeof ApiPublicHostingPairRoute
   '/api/public/webhooks/nowpayments': typeof ApiPublicWebhooksNowpaymentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -639,6 +656,8 @@ export interface FileRoutesById {
   '/_authenticated/marketplace/edit/$listingId': typeof AuthenticatedMarketplaceEditListingIdRoute
   '/_authenticated/projects/$projectId/code': typeof AuthenticatedProjectsProjectIdCodeRoute
   '/api/internal/runtime/events': typeof ApiInternalRuntimeEventsRoute
+  '/api/public/hosting/heartbeat': typeof ApiPublicHostingHeartbeatRoute
+  '/api/public/hosting/pair': typeof ApiPublicHostingPairRoute
   '/api/public/webhooks/nowpayments': typeof ApiPublicWebhooksNowpaymentsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -709,6 +728,8 @@ export interface FileRouteTypes {
     | '/marketplace/edit/$listingId'
     | '/projects/$projectId/code'
     | '/api/internal/runtime/events'
+    | '/api/public/hosting/heartbeat'
+    | '/api/public/hosting/pair'
     | '/api/public/webhooks/nowpayments'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -777,6 +798,8 @@ export interface FileRouteTypes {
     | '/marketplace/edit/$listingId'
     | '/projects/$projectId/code'
     | '/api/internal/runtime/events'
+    | '/api/public/hosting/heartbeat'
+    | '/api/public/hosting/pair'
     | '/api/public/webhooks/nowpayments'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -846,6 +869,8 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace/edit/$listingId'
     | '/_authenticated/projects/$projectId/code'
     | '/api/internal/runtime/events'
+    | '/api/public/hosting/heartbeat'
+    | '/api/public/hosting/pair'
     | '/api/public/webhooks/nowpayments'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -878,6 +903,8 @@ export interface RootRouteChildren {
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   ApiInternalRuntimeEventsRoute: typeof ApiInternalRuntimeEventsRoute
+  ApiPublicHostingHeartbeatRoute: typeof ApiPublicHostingHeartbeatRoute
+  ApiPublicHostingPairRoute: typeof ApiPublicHostingPairRoute
   ApiPublicWebhooksNowpaymentsRoute: typeof ApiPublicWebhooksNowpaymentsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1327,6 +1354,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalRuntimeEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hosting/heartbeat': {
+      id: '/api/public/hosting/heartbeat'
+      path: '/api/public/hosting/heartbeat'
+      fullPath: '/api/public/hosting/heartbeat'
+      preLoaderRoute: typeof ApiPublicHostingHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hosting/pair': {
+      id: '/api/public/hosting/pair'
+      path: '/api/public/hosting/pair'
+      fullPath: '/api/public/hosting/pair'
+      preLoaderRoute: typeof ApiPublicHostingPairRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/nowpayments': {
       id: '/api/public/webhooks/nowpayments'
       path: '/api/public/webhooks/nowpayments'
@@ -1484,6 +1525,8 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   ApiInternalRuntimeEventsRoute: ApiInternalRuntimeEventsRoute,
+  ApiPublicHostingHeartbeatRoute: ApiPublicHostingHeartbeatRoute,
+  ApiPublicHostingPairRoute: ApiPublicHostingPairRoute,
   ApiPublicWebhooksNowpaymentsRoute: ApiPublicWebhooksNowpaymentsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
