@@ -1,4 +1,6 @@
+import { createHash, timingSafeEqual } from "crypto";
 import { createServerFn } from "@tanstack/react-start";
+import { getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -61,9 +63,25 @@ export interface SiteGate {
   maintenance: MaintenanceSettings;
   /** True when an admin bypass password is configured for the maintenance screen. */
   maintenancePassword: boolean;
+  /** True when this visitor holds a valid server-issued unlock cookie. */
+  unlocked: boolean;
 }
 
 const PASSWORD_KEY = "maintenance_password";
+
+/** httpOnly cookie that proves the maintenance password was verified server-side. */
+const UNLOCK_COOKIE = "bottly_maint_unlock";
+const UNLOCK_COOKIE_MAX_AGE = 12 * 60 * 60; // 12 hours
+
+function unlockToken(password: string): string {
+  return createHash("sha256").update(`bottly-unlock:${password}`).digest("hex");
+}
+
+function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ba.length === bb.length && timingSafeEqual(ba, bb);
+}
 
 export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): Promise<SiteGate> => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
