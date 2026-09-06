@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AdminOnly } from "@/components/layout/AdminOnly";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,7 +26,11 @@ export const Route = createFileRoute("/_authenticated/admin/referrals")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Page,
+  component: () => (
+    <AdminOnly title="Referrals">
+      <Page />
+    </AdminOnly>
+  ),
 });
 
 function Page() {
