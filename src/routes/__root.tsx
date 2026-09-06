@@ -34,6 +34,12 @@ import { CountdownGate } from "@/components/layout/CountdownGate";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
+const siteGateQuery = queryOptions({
+  queryKey: ["site-gate"],
+  queryFn: () => getSiteGate(),
+  staleTime: 60 * 1000,
+});
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
