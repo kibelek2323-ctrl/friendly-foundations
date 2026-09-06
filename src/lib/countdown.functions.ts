@@ -75,7 +75,7 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
   const c = (rows.get("countdown") ?? {}) as Partial<CountdownSettings>;
   const m = (rows.get("maintenance") ?? {}) as Partial<MaintenanceSettings>;
   const p = (rows.get(PASSWORD_KEY) ?? {}) as { password?: unknown };
-  const result = {
+  return {
     countdown: {
       enabled: typeof c.enabled === "boolean" ? c.enabled : DEFAULT_COUNTDOWN.enabled,
       launchAt: typeof c.launchAt === "number" ? c.launchAt : DEFAULT_COUNTDOWN.launchAt,
@@ -87,8 +87,6 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
     },
     maintenancePassword: typeof p.password === "string" && p.password.length > 0,
   };
-  console.log("[getSiteGate] result:", JSON.stringify(result));
-  return result;
 });
 
 export const adminSaveMaintenance = createServerFn({ method: "POST" })
