@@ -8,11 +8,7 @@ import { attachVerifiedAuth } from "@/lib/function-auth-middleware";
 // every response leaving the server.
 const securityHeadersMiddleware = createMiddleware().server(async ({ next, request }) => {
   const result = await next();
-  const response = (result as { response?: Response }).response;
-  if (response instanceof Response) {
-    return { ...result, response: applySecurityHeaders(response, request) } as typeof result;
-  }
-  return result;
+  return applySecurityHeaders(result.response, request);
 });
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
@@ -57,5 +53,5 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachVerifiedAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [securityHeadersMiddleware, errorMiddleware, csrfMiddleware],
 }));
