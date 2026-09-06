@@ -1,9 +1,8 @@
 import { useCanGoBack, useRouter } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { DEFAULT_COUNTDOWN, DEFAULT_MAINTENANCE, getSiteGate } from "@/lib/countdown.functions";
+import { siteGateQueryOptions } from "@/lib/site-gate.query";
 
 /**
  * "Back" control that returns to the previous page when there is history,
@@ -14,16 +13,10 @@ import { DEFAULT_COUNTDOWN, DEFAULT_MAINTENANCE, getSiteGate } from "@/lib/count
 export function BackLink({ className, label = "Back" }: { className?: string; label?: string }) {
   const router = useRouter();
   const canGoBack = useCanGoBack();
-  const loadGate = useServerFn(getSiteGate);
+  const { data: gate } = useSuspenseQuery(siteGateQueryOptions);
 
-  const { data: gate } = useQuery({
-    queryKey: ["site-gate"],
-    queryFn: () => loadGate(),
-    staleTime: 60 * 1000,
-  });
-
-  const countdown = gate?.countdown ?? DEFAULT_COUNTDOWN;
-  const maintenance = gate?.maintenance ?? DEFAULT_MAINTENANCE;
+  const countdown = gate.countdown;
+  const maintenance = gate.maintenance;
   const gated = (countdown.enabled && Date.now() < countdown.launchAt) || maintenance.enabled;
 
   if (gated) return null;

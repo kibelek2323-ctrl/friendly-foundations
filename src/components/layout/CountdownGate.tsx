@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BookOpen, Lock, Users, Wrench, Zap } from "lucide-react";
 import { amIAdmin } from "@/lib/admin-codes.functions";
 import {
-  getSiteGate,
   unlockMaintenance,
   DEFAULT_COUNTDOWN,
   DEFAULT_MAINTENANCE,
   DEFAULT_LAUNCH_AT,
   type MaintenanceSettings,
 } from "@/lib/countdown.functions";
+import { siteGateQueryOptions } from "@/lib/site-gate.query";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export const LAUNCH_AT = DEFAULT_LAUNCH_AT;
@@ -233,7 +233,6 @@ export function CountdownGate({ children }: { children: ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
   const checkAdmin = useServerFn(amIAdmin);
-  const loadGate = useServerFn(getSiteGate);
 
   // Remembered "site is open" verdict: skips any gate flash on later visits.
   const [cachedOpen, setCachedOpen] = useState(false);
@@ -248,11 +247,7 @@ export function CountdownGate({ children }: { children: ReactNode }) {
   }, []);
 
 
-  const { data: gate } = useQuery({
-    queryKey: ["site-gate"],
-    queryFn: () => loadGate(),
-    staleTime: 60 * 1000,
-  });
+  const { data: gate } = useSuspenseQuery(siteGateQueryOptions);
 
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ["am-i-admin"],
