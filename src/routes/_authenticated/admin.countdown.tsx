@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AdminOnly } from "@/components/layout/AdminOnly";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -24,7 +25,11 @@ export const Route = createFileRoute("/_authenticated/admin/countdown")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Page,
+  component: () => (
+    <AdminOnly title="Countdown">
+      <Page />
+    </AdminOnly>
+  ),
 });
 
 /** Convert an epoch ms value to the value format of <input type="datetime-local"> (local time). */
