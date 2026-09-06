@@ -93,7 +93,10 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
   const c = (rows.get("countdown") ?? {}) as Partial<CountdownSettings>;
   const m = (rows.get("maintenance") ?? {}) as Partial<MaintenanceSettings>;
   const p = (rows.get(PASSWORD_KEY) ?? {}) as { password?: unknown };
+  const storedPassword = typeof p.password === "string" && p.password.length > 0 ? p.password : null;
+  const cookie = getCookie(UNLOCK_COOKIE);
   return {
+    unlocked: storedPassword !== null && typeof cookie === "string" && safeEqual(cookie, unlockToken(storedPassword)),
     countdown: {
       enabled: typeof c.enabled === "boolean" ? c.enabled : DEFAULT_COUNTDOWN.enabled,
       launchAt: typeof c.launchAt === "number" ? c.launchAt : DEFAULT_COUNTDOWN.launchAt,
@@ -103,7 +106,7 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
       status: typeof m.status === "string" && m.status.trim() ? m.status : DEFAULT_MAINTENANCE.status,
       endsAt: typeof m.endsAt === "number" ? m.endsAt : null,
     },
-    maintenancePassword: typeof p.password === "string" && p.password.length > 0,
+    maintenancePassword: storedPassword !== null,
   };
 });
 
