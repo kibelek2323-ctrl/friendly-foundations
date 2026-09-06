@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BookOpen, Lock, Users, Wrench, Zap } from "lucide-react";
 import { amIAdmin } from "@/lib/admin-codes.functions";
@@ -21,9 +21,6 @@ const OPEN_PATHS = ["/xadmx", "/docs", "/about"];
 
 /** Remembers that the site was fully open, so returning visitors never flash a gate screen. */
 const OPEN_CACHE_KEY = "bottly-site-open";
-
-/** Remembers, for this browser session, that the maintenance password was entered. */
-const UNLOCK_KEY = "bottly-maintenance-unlock";
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
@@ -130,7 +127,7 @@ function MaintenanceScreen({
     setError(false);
     try {
       const res = await unlock({ data: { password } });
-      if (res.ok) onUnlock();
+      if (res.ok) await onUnlock();
       else setError(true);
     } catch {
       setError(true);
@@ -236,11 +233,9 @@ export function CountdownGate({ children }: { children: ReactNode }) {
 
   // Remembered "site is open" verdict: skips any gate flash on later visits.
   const [cachedOpen, setCachedOpen] = useState(false);
-  const [unlocked, setUnlocked] = useState(false);
   useEffect(() => {
     try {
       setCachedOpen(window.localStorage.getItem(OPEN_CACHE_KEY) === "1");
-      setUnlocked(window.sessionStorage.getItem(UNLOCK_KEY) === "1");
     } catch {
       /* storage unavailable */
     }
@@ -256,10 +251,12 @@ export function CountdownGate({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
   });
 
+  const queryClient = useQueryClient();
   const countdown = gate?.countdown ?? DEFAULT_COUNTDOWN;
   const maintenance = gate?.maintenance ?? DEFAULT_MAINTENANCE;
   const countdownUp = countdown.enabled && Date.now() < countdown.launchAt;
-  const gated = countdownUp || maintenance.enabled;
+  const unlocked = gate?.unlocked === true;
+  const gated = countdownUp || (maintenance.enabled && !unlocked);
 
   // Persist the open/closed verdict as soon as the real settings arrive.
   useEffect(() => {
@@ -287,7 +284,7 @@ export function CountdownGate({ children }: { children: ReactNode }) {
   const gateWasShown = useRef(false);
   const leavingGate = gateWasShown.current && routeLoading;
 
-  if (!gated || isOpenRoute || adminBypass || unlocked) {
+  if (!gated || isOpenRoute || adminBypass) {
     if (leavingGate) return <div className="min-h-screen bg-background" />;
     gateWasShown.current = false;
     return <>{children}</>;
@@ -305,13 +302,10 @@ export function CountdownGate({ children }: { children: ReactNode }) {
       <MaintenanceScreen
         settings={maintenance}
         hasPassword={gate.maintenancePassword}
-        onUnlock={() => {
-          try {
-            window.sessionStorage.setItem(UNLOCK_KEY, "1");
-          } catch {
-            /* storage unavailable */
-          }
-          setUnlocked(true);
+        onUnlock={async () => {
+          // The server set the unlock cookie — refetch the gate so every
+          // component sees unlocked: true without trusting client storage.
+          await queryClient.invalidateQueries({ queryKey: siteGateQueryOptions.queryKey });
         }}
       />
     );

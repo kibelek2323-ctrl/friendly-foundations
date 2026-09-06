@@ -1,4 +1,6 @@
+import { createHash, timingSafeEqual } from "crypto";
 import { createServerFn } from "@tanstack/react-start";
+import { getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -61,9 +63,25 @@ export interface SiteGate {
   maintenance: MaintenanceSettings;
   /** True when an admin bypass password is configured for the maintenance screen. */
   maintenancePassword: boolean;
+  /** True when this visitor holds a valid server-issued unlock cookie. */
+  unlocked: boolean;
 }
 
 const PASSWORD_KEY = "maintenance_password";
+
+/** httpOnly cookie that proves the maintenance password was verified server-side. */
+const UNLOCK_COOKIE = "bottly_maint_unlock";
+const UNLOCK_COOKIE_MAX_AGE = 12 * 60 * 60; // 12 hours
+
+function unlockToken(password: string): string {
+  return createHash("sha256").update(`bottly-unlock:${password}`).digest("hex");
+}
+
+function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ba.length === bb.length && timingSafeEqual(ba, bb);
+}
 
 export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): Promise<SiteGate> => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -75,7 +93,10 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
   const c = (rows.get("countdown") ?? {}) as Partial<CountdownSettings>;
   const m = (rows.get("maintenance") ?? {}) as Partial<MaintenanceSettings>;
   const p = (rows.get(PASSWORD_KEY) ?? {}) as { password?: unknown };
+  const storedPassword = typeof p.password === "string" && p.password.length > 0 ? p.password : null;
+  const cookie = getCookie(UNLOCK_COOKIE);
   return {
+    unlocked: storedPassword !== null && typeof cookie === "string" && safeEqual(cookie, unlockToken(storedPassword)),
     countdown: {
       enabled: typeof c.enabled === "boolean" ? c.enabled : DEFAULT_COUNTDOWN.enabled,
       launchAt: typeof c.launchAt === "number" ? c.launchAt : DEFAULT_COUNTDOWN.launchAt,
@@ -85,7 +106,7 @@ export const getSiteGate = createServerFn({ method: "GET" }).handler(async (): P
       status: typeof m.status === "string" && m.status.trim() ? m.status : DEFAULT_MAINTENANCE.status,
       endsAt: typeof m.endsAt === "number" ? m.endsAt : null,
     },
-    maintenancePassword: typeof p.password === "string" && p.password.length > 0,
+    maintenancePassword: storedPassword !== null,
   };
 });
 
@@ -123,7 +144,12 @@ export const adminSaveMaintenancePassword = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Checks a visitor-typed maintenance password. Never returns the stored value. */
+/**
+ * Checks a visitor-typed maintenance password. On success sets an httpOnly
+ * cookie holding a server-side hash of the current password — visitors cannot
+ * forge it, and rotating the password invalidates every issued cookie.
+ * Never returns the stored value.
+ */
 export const unlockMaintenance = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ password: z.string().max(200) }).parse(data))
   .handler(async ({ data }): Promise<{ ok: boolean }> => {
@@ -140,6 +166,14 @@ export const unlockMaintenance = createServerFn({ method: "POST" })
     if (a.length !== b.length) return { ok: false };
     let diff = 0;
     for (let i = 0; i < a.length; i += 1) diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
-    return { ok: diff === 0 };
+    if (diff !== 0) return { ok: false };
+    setCookie(UNLOCK_COOKIE, unlockToken(expected), {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: UNLOCK_COOKIE_MAX_AGE,
+    });
+    return { ok: true };
   });
 
