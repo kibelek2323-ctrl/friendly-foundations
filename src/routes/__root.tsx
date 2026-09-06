@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, queryOptions } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { getSiteGate } from "@/lib/countdown.functions";
 
 /** Thin animated bar at the top of the viewport while a route is loading. */
 function NavigationProgress() {
