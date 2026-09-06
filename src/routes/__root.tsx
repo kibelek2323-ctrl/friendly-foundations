@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, queryOptions } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { getSiteGate } from "@/lib/countdown.functions";
 
 /** Thin animated bar at the top of the viewport while a route is loading. */
 function NavigationProgress() {
@@ -32,6 +33,12 @@ import { CountdownGate } from "@/components/layout/CountdownGate";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+
+const siteGateQuery = queryOptions({
+  queryKey: ["site-gate"],
+  queryFn: () => getSiteGate(),
+  staleTime: 60 * 1000,
+});
 
 function NotFoundComponent() {
   return (
@@ -115,6 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(siteGateQuery),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

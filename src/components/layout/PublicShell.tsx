@@ -1,17 +1,26 @@
 import type { ReactNode } from "react";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Zap } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AccountNav } from "@/components/auth/AccountNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { DEFAULT_COUNTDOWN, DEFAULT_MAINTENANCE, getSiteGate } from "@/lib/countdown.functions";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
 export function PublicShell({ children }: { children: ReactNode }) {
-  const location = useLocation();
-  const from = new URLSearchParams(location.search).get("from");
-  const fromCountdown = from === "countdown";
-  const fromMaintenance = from === "maintenance";
+  const loadGate = useServerFn(getSiteGate);
+  const { data: gate } = useQuery({
+    queryKey: ["site-gate"],
+    queryFn: () => loadGate(),
+    staleTime: 60 * 1000,
+  });
 
-  if (fromCountdown || fromMaintenance) {
+  const countdown = gate?.countdown ?? DEFAULT_COUNTDOWN;
+  const maintenance = gate?.maintenance ?? DEFAULT_MAINTENANCE;
+  const gated = (countdown.enabled && Date.now() < countdown.launchAt) || maintenance.enabled;
+
+  if (gated) {
     return (
       <div className="relative min-h-screen bg-background">
         <Link
@@ -19,7 +28,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
           className="fixed left-4 top-4 z-50 inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-4 py-2 text-sm font-medium backdrop-blur transition hover:bg-muted"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          {fromMaintenance ? "Back" : "Back to countdown"}
+          Back
         </Link>
         <main>{children}</main>
       </div>
