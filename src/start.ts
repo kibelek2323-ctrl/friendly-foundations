@@ -1,7 +1,19 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
+import { applySecurityHeaders } from "./lib/security-headers";
 import { attachVerifiedAuth } from "@/lib/function-auth-middleware";
+
+// Adds CSP, frame-ancestors (clickjacking), Permissions-Policy and friends to
+// every response leaving the server.
+const securityHeadersMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const result = await next();
+  const response = (result as { response?: Response }).response;
+  if (response instanceof Response) {
+    return { ...result, response: applySecurityHeaders(response, request) } as typeof result;
+  }
+  return result;
+});
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -17,6 +29,7 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     });
   }
 });
+
 
 // Start installs this automatically when src/start.ts is absent; defining the
 // file opts out, so re-add it explicitly to keep server functions protected
