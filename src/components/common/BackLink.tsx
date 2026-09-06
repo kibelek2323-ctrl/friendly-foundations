@@ -1,8 +1,7 @@
 import { useCanGoBack, useRouter } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { siteGateQueryOptions } from "@/lib/site-gate.query";
+import { useSiteGated } from "@/hooks/useSiteGated";
 
 /**
  * "Back" control that returns to the previous page when there is history,
@@ -13,11 +12,7 @@ import { siteGateQueryOptions } from "@/lib/site-gate.query";
 export function BackLink({ className, label = "Back" }: { className?: string; label?: string }) {
   const router = useRouter();
   const canGoBack = useCanGoBack();
-  const { data: gate } = useSuspenseQuery(siteGateQueryOptions);
-
-  const countdown = gate.countdown;
-  const maintenance = gate.maintenance;
-  const gated = (countdown.enabled && Date.now() < countdown.launchAt) || maintenance.enabled;
+  const gated = useSiteGated();
 
   if (gated) return null;
 

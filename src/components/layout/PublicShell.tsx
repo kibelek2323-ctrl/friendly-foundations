@@ -1,17 +1,13 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Zap } from "lucide-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { AccountNav } from "@/components/auth/AccountNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { siteGateQueryOptions } from "@/lib/site-gate.query";
+import { useSiteGated } from "@/hooks/useSiteGated";
 
 /** Marketing / public-facing chrome used by pages visitors can browse signed out. */
 export function PublicShell({ children }: { children: ReactNode }) {
-  const { data: gate } = useSuspenseQuery(siteGateQueryOptions);
-  const countdown = gate.countdown;
-  const maintenance = gate.maintenance;
-  const gated = (countdown.enabled && Date.now() < countdown.launchAt) || maintenance.enabled;
+  const gated = useSiteGated();
 
   if (gated) {
     return (
