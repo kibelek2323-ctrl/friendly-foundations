@@ -17,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/admin/countdown")({
       { title: "Countdown — Bottly admin" },
       { name: "description", content: "Turn the launch countdown on or off and change the launch date." },
       { property: "og:title", content: "Countdown — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Turn the launch countdown on or off and change the launch date." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

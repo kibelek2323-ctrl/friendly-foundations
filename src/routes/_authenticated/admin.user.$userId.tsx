@@ -29,6 +29,8 @@ export const Route = createFileRoute("/_authenticated/admin/user/$userId")({
       { title: "Account management — Bottly admin" },
       { name: "description", content: "Manage a single Bottly account: plan, balance, badges, bans and admin role." },
       { property: "og:title", content: "Account management — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Manage a single Bottly account: plan, balance, badges, bans and admin role." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

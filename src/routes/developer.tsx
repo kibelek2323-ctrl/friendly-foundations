@@ -22,6 +22,8 @@ export const Route = createFileRoute("/developer")({
         content: "Tell us about your experience, your AI workflow and your projects to become a Bottly marketplace developer.",
       },
       { property: "og:title", content: "Apply as a developer — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content: "Tell us about your experience, your AI workflow and your projects to become a Bottly marketplace developer.",

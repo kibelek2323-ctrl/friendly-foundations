@@ -21,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/configuration"
       { title: "Bot configuration — Bottly" },
       { name: "description", content: "Personalise the settings of a bot you bought on the Bottly marketplace." },
       { property: "og:title", content: "Bot configuration — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Change the settings the creator made available for your bot." },
     ],
   }),

@@ -45,6 +45,8 @@ export const Route = createFileRoute("/_authenticated/balance")({
       { title: "Balance & top-up — Bottly" },
       { name: "description", content: "Track your Bottly USD balance, transaction history and top up with a code." },
       { property: "og:title", content: "Balance & top-up — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Track your Bottly USD balance, transaction history and top up with a code." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

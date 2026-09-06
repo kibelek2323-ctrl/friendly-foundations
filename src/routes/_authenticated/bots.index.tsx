@@ -34,6 +34,8 @@ export const Route = createFileRoute("/_authenticated/bots/")({
       { title: "My Discord bots — Bottly" },
       { name: "description", content: "Browse, duplicate and manage every Discord bot in your Bottly workspace." },
       { property: "og:title", content: "My Discord bots — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Browse, duplicate and manage every Discord bot in your Bottly workspace." },
     ],
   }),

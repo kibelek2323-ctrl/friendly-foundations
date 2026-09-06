@@ -17,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/admin/payouts")({
       { title: "Payout requests — Bottly admin" },
       { name: "description", content: "Review and settle creator payout requests." },
       { property: "og:title", content: "Payout requests — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Review and settle creator payout requests." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

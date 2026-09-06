@@ -21,6 +21,8 @@ export const Route = createFileRoute("/docs/$slug")({
         { title },
         { name: "description", content: loaderData.summary },
         { property: "og:title", content: title },
+        { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+        { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
         { property: "og:description", content: loaderData.summary },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary" },

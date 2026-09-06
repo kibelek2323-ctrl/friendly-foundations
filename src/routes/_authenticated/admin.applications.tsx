@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/applications")({
       { title: "Developer applications — Bottly admin" },
       { name: "description", content: "Review developer applications and grant marketplace access on Bottly." },
       { property: "og:title", content: "Developer applications — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Review developer applications and grant marketplace access on Bottly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

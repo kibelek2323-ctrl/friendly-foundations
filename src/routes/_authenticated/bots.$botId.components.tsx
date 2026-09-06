@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/components")({
       { title: "Buttons, menus & modals — Bottly" },
       { name: "description", content: "Add interactive Discord components and preview them instantly." },
       { property: "og:title", content: "Buttons, menus & modals — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Add interactive Discord components and preview them instantly." },
     ],
   }),

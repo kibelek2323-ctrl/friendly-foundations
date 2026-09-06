@@ -29,6 +29,8 @@ export const Route = createFileRoute("/_authenticated/admin/pages")({
       { title: "Status & FAQ admin — Bottly" },
       { name: "description", content: "Edit the Bottly status page services and the public FAQ entries." },
       { property: "og:title", content: "Status & FAQ admin — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Edit the Bottly status page services and the public FAQ entries." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

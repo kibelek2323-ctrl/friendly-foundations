@@ -12,6 +12,8 @@ export const Route = createFileRoute("/about")({
           "Who builds Bottly, why we started it and where the visual Discord bot builder and marketplace are heading.",
       },
       { property: "og:title", content: "About Bottly — the team behind the visual Discord bot builder" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content:

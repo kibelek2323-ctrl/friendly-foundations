@@ -12,6 +12,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/events")({
       { title: "Discord event handlers — Bottly" },
       { name: "description", content: "Toggle welcome, farewell, moderation and reaction events for your bot." },
       { property: "og:title", content: "Discord event handlers — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Toggle welcome, farewell, moderation and reaction events for your bot." },
     ],
   }),

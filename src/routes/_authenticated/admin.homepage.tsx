@@ -20,6 +20,8 @@ export const Route = createFileRoute("/_authenticated/admin/homepage")({
       { title: "Homepage content admin — Bottly" },
       { name: "description", content: "Edit the Bottly homepage hero, badge and stats." },
       { property: "og:title", content: "Homepage content admin — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Edit the Bottly homepage hero, badge and stats." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

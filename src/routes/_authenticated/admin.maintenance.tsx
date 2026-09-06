@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/maintenance")({
       { title: "Maintenance — Bottly admin" },
       { name: "description", content: "Turn the maintenance screen on or off and set the expected end time." },
       { property: "og:title", content: "Maintenance — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Turn the maintenance screen on or off and set the expected end time." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

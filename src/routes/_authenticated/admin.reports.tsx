@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/reports")({
       { title: "Moderation queue — Bottly" },
       { name: "description", content: "Review and resolve user reports on Bottly listings and accounts." },
       { property: "og:title", content: "Moderation queue — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Review and resolve user reports on Bottly listings and accounts." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

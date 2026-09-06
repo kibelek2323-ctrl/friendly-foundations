@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/account-settings")({
       { title: "Account settings — Bottly" },
       { name: "description", content: "Update your public Bottly creator name, handle and bio shown on the marketplace." },
       { property: "og:title", content: "Account settings — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Update your public Bottly creator name, handle and bio shown on the marketplace." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

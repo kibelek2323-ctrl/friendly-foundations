@@ -21,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
       { title: "Get started — Bottly" },
       { name: "description", content: "Set up your Bottly profile and start from a ready-made Discord bot template." },
       { property: "og:title", content: "Get started — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Set up your Bottly profile and start from a ready-made Discord bot template." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -34,6 +34,8 @@ export const Route = createFileRoute("/_authenticated/marketplace/publish")({
       { title: "Publish a bot — Bottly marketplace" },
       { name: "description", content: "List one of your Discord bots on the Bottly marketplace and manage your existing listings." },
       { property: "og:title", content: "Publish a bot — Bottly marketplace" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "List one of your Discord bots on the Bottly marketplace and manage your existing listings." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

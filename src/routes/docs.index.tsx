@@ -14,6 +14,8 @@ export const Route = createFileRoute("/docs/")({
           "Complete Bottly documentation: bot wizard, embeds, slash commands, automations, code editor, storage, marketplace, balance, crypto payments and troubleshooting.",
       },
       { property: "og:title", content: "Docs — build, sell and run Discord bots | Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content:

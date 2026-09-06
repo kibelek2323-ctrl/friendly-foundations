@@ -12,6 +12,8 @@ export const Route = createFileRoute("/forgot-password")({
       { title: "Reset your password — Bottly" },
       { name: "description", content: "Request a password reset link for your Bottly account." },
       { property: "og:title", content: "Reset your password — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Request a password reset link for your Bottly account." },
     ],
   }),

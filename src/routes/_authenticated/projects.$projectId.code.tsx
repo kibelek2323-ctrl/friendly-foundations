@@ -40,6 +40,8 @@ export const Route = createFileRoute("/_authenticated/projects/$projectId/code")
       { title: "Code Editor — Bottly" },
       { name: "description", content: "Write, organise and save your Discord bot source files in Bottly Storage." },
       { property: "og:title", content: "Code Editor — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Write and manage the source code of your Bottly bot project." },
     ],
   }),

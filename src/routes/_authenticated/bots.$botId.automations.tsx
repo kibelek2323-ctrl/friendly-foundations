@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/automations")(
       { title: "Visual automation builder — Bottly" },
       { name: "description", content: "Chain triggers, conditions and actions on a drag-and-drop canvas." },
       { property: "og:title", content: "Visual automation builder — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Chain triggers, conditions and actions on a drag-and-drop canvas." },
     ],
   }),

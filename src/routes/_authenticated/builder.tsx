@@ -11,6 +11,8 @@ export const Route = createFileRoute("/_authenticated/builder")({
           "Build Discord bot commands visually: drag nodes onto an infinite canvas, connect logic and preview real Discord embeds live.",
       },
       { property: "og:title", content: "Visual Bot Flow Builder — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content: "Drag, connect and configure Discord bot workflows with live embed previews — no code required.",

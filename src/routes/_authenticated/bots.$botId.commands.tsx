@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/commands")({
       { title: "Slash commands builder — Bottly" },
       { name: "description", content: "Create slash commands with options, permissions and rich responses." },
       { property: "og:title", content: "Slash commands builder — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Create slash commands with options, permissions and rich responses." },
     ],
   }),

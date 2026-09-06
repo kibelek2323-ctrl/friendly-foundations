@@ -21,6 +21,8 @@ export const Route = createFileRoute("/blog/$slug")({
         { title: `${title} — Bottly blog` },
         { name: "description", content: description },
         { property: "og:title", content: `${title} — Bottly blog` },
+        { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+        { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
         { property: "og:description", content: description },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary" },

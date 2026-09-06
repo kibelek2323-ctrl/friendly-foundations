@@ -16,6 +16,8 @@ export const Route = createFileRoute("/pricing")({
           "Free, Pro and Ultimate plans for building and hosting Discord bots with Bottly.",
       },
       { property: "og:title", content: "Pricing — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content:

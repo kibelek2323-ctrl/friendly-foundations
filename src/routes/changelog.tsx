@@ -14,6 +14,8 @@ export const Route = createFileRoute("/changelog")({
       { title: "Changelog — Bottly product updates" },
       { name: "description", content: "Every new feature, improvement and fix shipped to the Bottly Discord bot builder." },
       { property: "og:title", content: "Changelog — Bottly product updates" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Every new feature, improvement and fix shipped to the Bottly Discord bot builder." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

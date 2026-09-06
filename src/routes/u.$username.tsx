@@ -31,6 +31,8 @@ export const Route = createFileRoute("/u/$username")({
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
+        { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+        { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
         { property: "og:description", content: description },
         { property: "og:type", content: "profile" },
         { property: "og:url", content: url },

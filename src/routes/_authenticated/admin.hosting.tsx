@@ -48,6 +48,8 @@ export const Route = createFileRoute("/_authenticated/admin/hosting")({
       { title: "Hosting nodes — Bottly admin" },
       { name: "description", content: "Manage Bottly hosting nodes, pairing and health." },
       { property: "og:title", content: "Hosting nodes — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Manage Bottly hosting nodes, pairing and health." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

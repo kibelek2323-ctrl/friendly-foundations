@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/referrals")({
       { title: "Referrals — Bottly admin" },
       { name: "description", content: "Tune referral bonuses and review who invited whom." },
       { property: "og:title", content: "Referrals — Bottly admin" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Tune referral bonuses and review who invited whom." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

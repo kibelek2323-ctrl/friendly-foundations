@@ -24,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/admin/stats")({
       { title: "Platform stats — Bottly" },
       { name: "description", content: "Signups, bots, marketplace sales and revenue across Bottly." },
       { property: "og:title", content: "Platform stats — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Signups, bots, marketplace sales and revenue across Bottly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
