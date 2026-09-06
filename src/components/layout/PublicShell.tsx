@@ -12,6 +12,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
   const countdown = gate.countdown;
   const maintenance = gate.maintenance;
   const gated = (countdown.enabled && Date.now() < countdown.launchAt) || maintenance.enabled;
+  console.log("[PublicShell] gate:", JSON.stringify(gate), "gated:", gated);
 
   if (gated) {
     return (
