@@ -19,6 +19,8 @@ export const Route = createFileRoute("/templates")({
         content: "Browse free Bottly flow templates for moderation, ticketing, welcome messages, levels and more.",
       },
       { property: "og:title", content: "Discord bot templates — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content: "Browse free Bottly flow templates for moderation, ticketing, welcome messages, levels and more.",

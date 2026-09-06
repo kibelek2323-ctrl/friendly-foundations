@@ -22,6 +22,8 @@ export const Route = createFileRoute("/_authenticated/admin/blog")({
       { title: "Blog admin — Bottly" },
       { name: "description", content: "Write blog articles and changelog entries for the Bottly site." },
       { property: "og:title", content: "Blog admin — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Write blog articles and changelog entries for the Bottly site." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

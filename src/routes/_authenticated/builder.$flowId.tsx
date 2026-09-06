@@ -10,6 +10,8 @@ export const Route = createFileRoute("/_authenticated/builder/$flowId")({
         content: "Edit a saved Discord bot workflow on Bottly's visual canvas with live Discord message previews.",
       },
       { property: "og:title", content: "Edit flow — Bottly Builder" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content: "Open a saved Bottly workflow and keep building nodes, branches and embeds visually.",

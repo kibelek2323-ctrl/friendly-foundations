@@ -73,6 +73,8 @@ export const Route = createFileRoute("/marketplace/$listingId")({
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
+        { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+        { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
         { property: "og:url", content: url },

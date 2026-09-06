@@ -22,6 +22,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { title: "Dashboard — Bottly" },
       { name: "description", content: "Track your Discord bots, servers reached, commands and recent activity." },
       { property: "og:title", content: "Dashboard — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Track your Discord bots, servers reached, commands and recent activity." },
     ],
   }),

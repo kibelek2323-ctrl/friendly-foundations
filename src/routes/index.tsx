@@ -86,6 +86,8 @@ export const Route = createFileRoute("/")({
           "Bottly is a visual Discord bot creator: design embeds, slash commands, buttons and automations with a live preview.",
       },
       { property: "og:title", content: "Bottly — Build Discord bots without code" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content: "Design embeds, slash commands, buttons and automations visually, with a pixel-accurate live preview.",

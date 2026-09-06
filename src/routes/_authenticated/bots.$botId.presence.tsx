@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/presence")({
       { title: "Bot presence & profile — Bottly" },
       { name: "description", content: "Set your bot's name, description, avatar, status and activity with a live Discord profile preview." },
       { property: "og:title", content: "Bot presence & profile — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Set your bot's name, description, avatar, status and activity with a live Discord profile preview." },
     ],
   }),

@@ -19,6 +19,8 @@ export const Route = createFileRoute("/login")({
       { title: "Log in — Bottly" },
       { name: "description", content: "Sign in to your Bottly workspace to manage your Discord bots." },
       { property: "og:title", content: "Log in — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Sign in to your Bottly workspace to manage your Discord bots." },
     ],
   }),

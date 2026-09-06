@@ -16,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/logs")({
       { title: "Bot activity logs — Bottly" },
       { name: "description", content: "Inspect command runs, automation results and errors from your bot." },
       { property: "og:title", content: "Bot activity logs — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Inspect command runs, automation results and errors from your bot." },
     ],
   }),

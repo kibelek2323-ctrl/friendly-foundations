@@ -16,6 +16,8 @@ export const Route = createFileRoute("/register")({
       { title: "Create your account — Bottly" },
       { name: "description", content: "Start building Discord bots visually with a free Bottly account." },
       { property: "og:title", content: "Create your account — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Start building Discord bots visually with a free Bottly account." },
     ],
   }),

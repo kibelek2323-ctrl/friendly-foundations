@@ -34,6 +34,8 @@ export const Route = createFileRoute("/marketplace/")({
       { title: "Bot marketplace — Bottly" },
       { name: "description", content: "Browse Discord bots published by the Bottly community and add them to your workspace." },
       { property: "og:title", content: "Bot marketplace — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Browse Discord bots published by the Bottly community and add them to your workspace." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -10,6 +10,8 @@ export const Route = createFileRoute("/faq")({
     { title: "Discord Bot Builder FAQ — Bottly" },
     { name: "description", content: "Answers about building, running and buying Discord bots with Bottly." },
     { property: "og:title", content: "Discord Bot Builder FAQ — Bottly" },
+    { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+    { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
     { property: "og:description", content: "Answers about building, running and buying Discord bots with Bottly." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },

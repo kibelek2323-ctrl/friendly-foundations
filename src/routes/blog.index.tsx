@@ -12,6 +12,8 @@ export const Route = createFileRoute("/blog/")({
       { title: "Bottly blog — Discord bot building guides" },
       { name: "description", content: "Product updates, tutorials and marketplace stories from the Bottly team." },
       { property: "og:title", content: "Bottly blog — Discord bot building guides" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Product updates, tutorials and marketplace stories from the Bottly team." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

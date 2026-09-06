@@ -15,6 +15,8 @@ export const Route = createFileRoute("/_authenticated/marketplace/favorites")({
       { title: "Saved bots — Bottly" },
       { name: "description", content: "Every marketplace bot you saved for later, in one place." },
       { property: "og:title", content: "Saved bots — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Every marketplace bot you saved for later, in one place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -14,6 +14,8 @@ export const Route = createFileRoute("/xadmx")({
       { name: "description", content: "Internal Bottly admin sign-in." },
       { name: "robots", content: "noindex" },
       { property: "og:title", content: "Bottly — panel" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Internal Bottly admin sign-in." },
     ],
   }),

@@ -31,6 +31,8 @@ export const Route = createFileRoute("/_authenticated/bots/new")({
       { title: "Create a Discord bot — Bottly" },
       { name: "description", content: "Pick a plan, add the basics and jump straight into the visual flow builder." },
       { property: "og:title", content: "Create a Discord bot — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       {
         property: "og:description",
         content: "Two quick steps — plan and basics — then build your bot visually on Bottly's canvas.",

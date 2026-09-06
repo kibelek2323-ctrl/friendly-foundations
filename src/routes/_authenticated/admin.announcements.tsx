@@ -29,6 +29,8 @@ export const Route = createFileRoute("/_authenticated/admin/announcements")({
       { title: "Announcements admin — Bottly" },
       { name: "description", content: "Publish homepage popups and announcement bars for Bottly visitors." },
       { property: "og:title", content: "Announcements admin — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Publish homepage popups and announcement bars for Bottly visitors." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

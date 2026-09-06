@@ -6,6 +6,8 @@ export const Route = createFileRoute("/terms")({
     { title: "Terms of Service — Bottly" },
     { name: "description", content: "Terms governing accounts, bot content, marketplace purchases and use of Bottly." },
     { property: "og:title", content: "Terms of Service — Bottly" },
+    { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+    { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
     { property: "og:description", content: "Terms governing accounts, bot content, marketplace purchases and use of Bottly." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },

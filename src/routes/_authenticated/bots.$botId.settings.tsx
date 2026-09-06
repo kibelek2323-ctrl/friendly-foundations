@@ -29,6 +29,8 @@ export const Route = createFileRoute("/_authenticated/bots/$botId/settings")({
       { title: "Bot settings — Bottly" },
       { name: "description", content: "Manage identity, token, runtime language and danger-zone actions." },
       { property: "og:title", content: "Bot settings — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Manage identity, token, runtime language and danger-zone actions." },
     ],
   }),

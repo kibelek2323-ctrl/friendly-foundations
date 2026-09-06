@@ -28,6 +28,8 @@ export const Route = createFileRoute("/_authenticated/billing")({
       { title: "Plan & activation code — Bottly" },
       { name: "description", content: "Check your Bottly plan, usage limits and activate a new plan with a code." },
       { property: "og:title", content: "Plan & activation code — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Check your Bottly plan, usage limits and activate a new plan with a code." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/referrals")({
       { title: "Invite friends — Bottly referrals" },
       { name: "description", content: "Share your Bottly referral link and earn account credit when friends start building bots." },
       { property: "og:title", content: "Invite friends — Bottly referrals" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Share your Bottly referral link and earn account credit when friends start building bots." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

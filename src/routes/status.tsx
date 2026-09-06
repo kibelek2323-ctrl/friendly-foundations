@@ -11,6 +11,8 @@ export const Route = createFileRoute("/status")({
     { title: "Service Status — Bottly" },
     { name: "description", content: "Current availability and service notices for the Bottly Discord bot platform." },
     { property: "og:title", content: "Service Status — Bottly" },
+    { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+    { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
     { property: "og:description", content: "Current availability and service notices for the Bottly Discord bot platform." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },

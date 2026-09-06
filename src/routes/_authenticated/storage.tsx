@@ -15,6 +15,8 @@ export const Route = createFileRoute("/_authenticated/storage")({
       { title: "Storage Center — Bottly" },
       { name: "description", content: "Browse every file of your Bottly code projects in one place." },
       { property: "og:title", content: "Storage Center — Bottly" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "One home for all the source files behind your Bottly bots." },
     ],
   }),

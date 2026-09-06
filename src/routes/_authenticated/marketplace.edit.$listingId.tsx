@@ -24,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/marketplace/edit/$listingI
       { title: "Edit listing — Bottly marketplace" },
       { name: "description", content: "Update your Bottly marketplace listing and publish a new version with a changelog." },
       { property: "og:title", content: "Edit listing — Bottly marketplace" },
+      { property: "og:image", content: "https://bottly.xyz/og-image.jpg" },
+      { name: "twitter:image", content: "https://bottly.xyz/og-image.jpg" },
       { property: "og:description", content: "Update your Bottly marketplace listing and publish a new version with a changelog." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
