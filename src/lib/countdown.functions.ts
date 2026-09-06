@@ -144,7 +144,12 @@ export const adminSaveMaintenancePassword = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Checks a visitor-typed maintenance password. Never returns the stored value. */
+/**
+ * Checks a visitor-typed maintenance password. On success sets an httpOnly
+ * cookie holding a server-side hash of the current password — visitors cannot
+ * forge it, and rotating the password invalidates every issued cookie.
+ * Never returns the stored value.
+ */
 export const unlockMaintenance = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ password: z.string().max(200) }).parse(data))
   .handler(async ({ data }): Promise<{ ok: boolean }> => {
@@ -161,6 +166,14 @@ export const unlockMaintenance = createServerFn({ method: "POST" })
     if (a.length !== b.length) return { ok: false };
     let diff = 0;
     for (let i = 0; i < a.length; i += 1) diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
-    return { ok: diff === 0 };
+    if (diff !== 0) return { ok: false };
+    setCookie(UNLOCK_COOKIE, unlockToken(expected), {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: UNLOCK_COOKIE_MAX_AGE,
+    });
+    return { ok: true };
   });
 
