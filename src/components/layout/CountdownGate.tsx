@@ -251,10 +251,12 @@ export function CountdownGate({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
   });
 
+  const queryClient = useQueryClient();
   const countdown = gate?.countdown ?? DEFAULT_COUNTDOWN;
   const maintenance = gate?.maintenance ?? DEFAULT_MAINTENANCE;
   const countdownUp = countdown.enabled && Date.now() < countdown.launchAt;
-  const gated = countdownUp || maintenance.enabled;
+  const unlocked = gate?.unlocked === true;
+  const gated = countdownUp || (maintenance.enabled && !unlocked);
 
   // Persist the open/closed verdict as soon as the real settings arrive.
   useEffect(() => {
@@ -300,13 +302,10 @@ export function CountdownGate({ children }: { children: ReactNode }) {
       <MaintenanceScreen
         settings={maintenance}
         hasPassword={gate.maintenancePassword}
-        onUnlock={() => {
-          try {
-            window.sessionStorage.setItem(UNLOCK_KEY, "1");
-          } catch {
-            /* storage unavailable */
-          }
-          setUnlocked(true);
+        onUnlock={async () => {
+          // The server set the unlock cookie — refetch the gate so every
+          // component sees unlocked: true without trusting client storage.
+          await queryClient.invalidateQueries({ queryKey: siteGateQueryOptions.queryKey });
         }}
       />
     );
