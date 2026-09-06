@@ -31,7 +31,7 @@ function contentSecurityPolicy(host: string): string {
     "img-src 'self' data: blob: https:",
     "media-src 'self' data: blob: https:",
     [
-      "connect-src 'self'",
+      "connect-src 'self' ws: wss: blob: data:",
       "https://*.supabase.co wss://*.supabase.co",
       "https://cdn.discordapp.com https://discord.com",
       "https://oauth.lovable.app https://*.lovable.app https://lovable.dev https://*.lovable.dev",
