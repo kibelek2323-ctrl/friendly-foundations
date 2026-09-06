@@ -87,8 +87,11 @@ export function applySecurityHeaders(response: Response, request: Request): Resp
 
     headers.set("Content-Security-Policy", contentSecurityPolicy(host));
     // Legacy equivalent of frame-ancestors for older browsers.
-    headers.set("X-Frame-Options", PREVIEW_HOST.test(host) ? "ALLOWALL" : "SAMEORIGIN");
-    if (!PREVIEW_HOST.test(host)) headers.set("X-Frame-Options", "DENY");
+    if (PREVIEW_HOST.test(host)) {
+      headers.delete("X-Frame-Options");
+    } else {
+      headers.set("X-Frame-Options", "SAMEORIGIN");
+    }
   }
 
   return new Response(response.body, {
