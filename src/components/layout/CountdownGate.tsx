@@ -284,7 +284,7 @@ export function CountdownGate({ children }: { children: ReactNode }) {
   const gateWasShown = useRef(false);
   const leavingGate = gateWasShown.current && routeLoading;
 
-  if (!gated || isOpenRoute || adminBypass || unlocked) {
+  if (!gated || isOpenRoute || adminBypass) {
     if (leavingGate) return <div className="min-h-screen bg-background" />;
     gateWasShown.current = false;
     return <>{children}</>;
