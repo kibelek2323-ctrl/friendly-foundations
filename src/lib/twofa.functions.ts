@@ -123,7 +123,23 @@ export const verifyTwoFactorCode = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ code: z.string().min(4).max(20) }).parse(data))
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
     const ok = await consumeCode(context.userId, data.code);
-    return ok ? { ok: true } : { ok: false, error: "That code is invalid or has expired." };
+    if (!ok) return { ok: false, error: "That code is invalid or has expired." };
+    // Marks THIS session as having passed the second factor. Until this row
+    // exists, the global gate rejects every server call made with the session.
+    const { markSessionVerified } = await import("./twofa-session.server");
+    const sessionId = (context.claims as { session_id?: string } | undefined)?.session_id ?? null;
+    await markSessionVerified(context.userId, sessionId);
+    return { ok: true };
+  });
+
+/** Tells the app whether the current session still owes a two-factor code. */
+export const getTwoFactorGate = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ required: boolean }> => {
+    const { twoFactorEnabled, sessionVerified } = await import("./twofa-session.server");
+    if (!(await twoFactorEnabled(context.userId))) return { required: false };
+    const sessionId = (context.claims as { session_id?: string } | undefined)?.session_id ?? null;
+    return { required: !(await sessionVerified(context.userId, sessionId)) };
   });
 
 /** Turns email 2FA on and returns one-time backup codes. */
@@ -142,6 +158,11 @@ export const enableTwoFactor = createServerFn({ method: "POST" })
       { onConflict: "user_id" },
     );
     if (error) return { ok: false, error: "Could not enable two-factor authentication." };
+    const { markSessionVerified } = await import("./twofa-session.server");
+    await markSessionVerified(
+      context.userId,
+      (context.claims as { session_id?: string } | undefined)?.session_id ?? null,
+    );
     return { ok: true, backupCodes: codes };
   });
 
