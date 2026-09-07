@@ -100,6 +100,8 @@ export const exchangeDiscordCode = createServerFn({ method: "POST" })
     const statePayload = JSON.parse(Buffer.from(data.state, "base64url").toString()) as { u: string };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { encryptDiscordTokens } = await import("./discord-tokens.server");
+    const encrypted = await encryptDiscordTokens(tokenData.access_token, tokenData.refresh_token ?? null);
     const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000).toISOString();
     const { error } = await supabaseAdmin.from("discord_connections").upsert(
       {
@@ -110,8 +112,7 @@ export const exchangeDiscordCode = createServerFn({ method: "POST" })
         avatar_url: user.avatar
           ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
           : null,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token ?? null,
+        ...encrypted,
         scopes: tokenData.scope.split(" "),
         expires_at: expiresAt,
         updated_at: new Date().toISOString(),
@@ -170,16 +171,13 @@ export const disconnectDiscord = createServerFn({ method: "POST" })
 export const listUserGuilds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: conn } = await context.supabase
-      .from("discord_connections")
-      .select("access_token")
-      .eq("user_id", context.userId)
-      .single();
+    const { readDiscordAccessToken } = await import("./discord-tokens.server");
+    const accessToken = await readDiscordAccessToken(context.userId);
 
-    if (!conn) return { guilds: [] as DiscordGuild[] };
+    if (!accessToken) return { guilds: [] as DiscordGuild[] };
 
     const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
-      headers: { Authorization: `Bearer ${conn.access_token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!res.ok) throw new Error("Could not fetch Discord servers");
@@ -191,16 +189,13 @@ export const listGuildChannels = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { guildId: string }) => data)
   .handler(async ({ data, context }) => {
-    const { data: conn } = await context.supabase
-      .from("discord_connections")
-      .select("access_token")
-      .eq("user_id", context.userId)
-      .single();
+    const { readDiscordAccessToken } = await import("./discord-tokens.server");
+    const accessToken = await readDiscordAccessToken(context.userId);
 
-    if (!conn) return { channels: [] as DiscordChannel[] };
+    if (!accessToken) return { channels: [] as DiscordChannel[] };
 
     const res = await fetch(`${DISCORD_API}/guilds/${data.guildId}/channels`, {
-      headers: { Authorization: `Bearer ${conn.access_token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!res.ok) throw new Error("Could not fetch Discord channels");
@@ -212,16 +207,13 @@ export const listGuildRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { guildId: string }) => data)
   .handler(async ({ data, context }) => {
-    const { data: conn } = await context.supabase
-      .from("discord_connections")
-      .select("access_token")
-      .eq("user_id", context.userId)
-      .single();
+    const { readDiscordAccessToken } = await import("./discord-tokens.server");
+    const accessToken = await readDiscordAccessToken(context.userId);
 
-    if (!conn) return { roles: [] as DiscordRole[] };
+    if (!accessToken) return { roles: [] as DiscordRole[] };
 
     const res = await fetch(`${DISCORD_API}/guilds/${data.guildId}/roles`, {
-      headers: { Authorization: `Bearer ${conn.access_token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!res.ok) throw new Error("Could not fetch Discord roles");

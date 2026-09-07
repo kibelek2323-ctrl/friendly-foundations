@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { DiscordButton } from "@/components/auth/DiscordButton";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { supabase } from "@/integrations/supabase/client";
 import { sendTwoFactorCode, startLoginChallenge, verifyTwoFactorCode } from "@/lib/twofa.functions";
 import { TWO_FACTOR_PENDING_KEY } from "@/lib/two-factor-gate";
 
@@ -43,6 +44,28 @@ function Page() {
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const checkedGate = useRef(false);
+
+  // Sessions created outside the password flow (Google, Discord) — or anyone
+  // who skipped the prompt — land here: the server refuses to serve them until
+  // the code is entered, so ask for it right away.
+  useEffect(() => {
+    if (checkedGate.current) return;
+    checkedGate.current = true;
+    void (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) return;
+      try {
+        const res = await challenge();
+        if (!res.required) return;
+        setMaskedEmail(res.email ?? null);
+        setStep("code");
+        if (!res.sent) setError(res.error ?? "We could not email your code. Use a backup code instead.");
+      } catch {
+        /* challenge unavailable — leave the password form */
+      }
+    })();
+  }, [challenge]);
 
   const cancel = () => {
     localStorage.removeItem(TWO_FACTOR_PENDING_KEY);

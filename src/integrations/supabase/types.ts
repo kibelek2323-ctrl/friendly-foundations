@@ -657,8 +657,11 @@ export type Database = {
           discriminator: string | null
           expires_at: string | null
           id: string
+          key_version: number | null
+          refresh_iv: string | null
           refresh_token: string | null
           scopes: string[]
+          token_iv: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -671,8 +674,11 @@ export type Database = {
           discriminator?: string | null
           expires_at?: string | null
           id?: string
+          key_version?: number | null
+          refresh_iv?: string | null
           refresh_token?: string | null
           scopes?: string[]
+          token_iv?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -685,8 +691,11 @@ export type Database = {
           discriminator?: string | null
           expires_at?: string | null
           id?: string
+          key_version?: number | null
+          refresh_iv?: string | null
           refresh_token?: string | null
           scopes?: string[]
+          token_iv?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -1499,6 +1508,24 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      two_factor_sessions: {
+        Row: {
+          session_id: string
+          user_id: string
+          verified_at: string
+        }
+        Insert: {
+          session_id: string
+          user_id: string
+          verified_at?: string
+        }
+        Update: {
+          session_id?: string
+          user_id?: string
+          verified_at?: string
         }
         Relationships: []
       }

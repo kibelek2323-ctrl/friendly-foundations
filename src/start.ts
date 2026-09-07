@@ -3,6 +3,7 @@ import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/r
 import { renderErrorPage } from "./lib/error-page";
 import { applySecurityHeaders } from "./lib/security-headers";
 import { attachVerifiedAuth } from "@/lib/function-auth-middleware";
+import { enforceTwoFactor } from "@/lib/twofa-gate.middleware";
 
 // Adds CSP, frame-ancestors (clickjacking), Permissions-Policy and friends to
 // every response leaving the server.
@@ -52,6 +53,6 @@ const csrfMiddleware = createCsrfMiddleware({
 });
 
 export const startInstance = createStart(() => ({
-  functionMiddleware: [attachVerifiedAuth],
+  functionMiddleware: [attachVerifiedAuth, enforceTwoFactor],
   requestMiddleware: [securityHeadersMiddleware, errorMiddleware, csrfMiddleware],
 }));
