@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-auth";
 import { DEVELOPER_BADGE } from "@/lib/roles.functions";
 
 export type ApplicationStatus = "pending" | "approved" | "rejected";
@@ -25,13 +26,6 @@ const optionalUrl = z
   .max(300)
   .refine((v) => v === "" || /^https?:\/\/\S+$/i.test(v), { message: "Must be a valid http(s) link" });
 
-async function assertAdmin(context: { supabase: unknown; userId: string }) {
-  const supabase = context.supabase as {
-    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
-  };
-  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-  if (data !== true) throw new Error("Forbidden");
-}
 
 /** Current user's latest application, if any. */
 export const myDeveloperApplication = createServerFn({ method: "GET" })
@@ -97,7 +91,7 @@ export const listDeveloperApplications = createServerFn({ method: "GET" })
     z.object({ status: z.enum(["pending", "approved", "rejected", "all"]).default("pending") }).parse(data ?? {}),
   )
   .handler(async ({ data, context }): Promise<DeveloperApplication[]> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let query = supabaseAdmin
@@ -146,7 +140,7 @@ export const reviewDeveloperApplication = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: row, error: readErr } = await supabaseAdmin

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-auth";
 
 export type ReportTarget = "listing" | "user" | "review";
 export type ReportStatus = "open" | "resolved" | "dismissed";
@@ -27,13 +28,6 @@ export const REPORT_REASONS = [
   "Other",
 ] as const;
 
-async function assertAdmin(context: { supabase: unknown; userId: string }) {
-  const supabase = context.supabase as {
-    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
-  };
-  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-  if (data !== true) throw new Error("Forbidden");
-}
 
 export const submitReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -65,7 +59,7 @@ export const listReports = createServerFn({ method: "GET" })
     z.object({ status: z.enum(["open", "resolved", "dismissed", "all"]).default("open") }).parse(data ?? {}),
   )
   .handler(async ({ data, context }): Promise<ReportItem[]> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let query = supabaseAdmin
@@ -120,7 +114,7 @@ export const resolveReport = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("reports")
@@ -140,7 +134,7 @@ export const setListingPublished = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid(), published: z.boolean() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("marketplace_listings")

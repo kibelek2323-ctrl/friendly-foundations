@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-auth";
 import type { PlanTier } from "./plan.functions";
 
 export interface PlanCode {
@@ -217,20 +218,13 @@ export interface DiscountCode {
   createdAt: string;
 }
 
-async function assertAdmin(context: { supabase: unknown; userId: string }) {
-  const supabase = context.supabase as {
-    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
-  };
-  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-  if (data !== true) throw new Error("Forbidden");
-}
 
 
 
 export const listDiscountCodes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DiscountCode[]> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("discount_codes")
@@ -266,7 +260,7 @@ export const createDiscountCodes = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }): Promise<{ codes: string[] }> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     const makeCode = () => {
       const bytes = crypto.getRandomValues(new Uint8Array(8));
@@ -291,7 +285,7 @@ export const setDiscountCodeActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid(), active: z.boolean() }).parse(data))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("discount_codes").update({ active: data.active }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -313,7 +307,7 @@ export interface CreatorRow {
 export const listCreators = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CreatorRow[]> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: listings } = await supabaseAdmin.from("marketplace_listings").select("seller_id");
     const counts = new Map<string, number>();
@@ -336,7 +330,7 @@ export const setCreatorVerified = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ userId: z.string().uuid(), verified: z.boolean() }).parse(data))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("profiles").update({ verified: data.verified }).eq("id", data.userId);
     if (error) throw new Error(error.message);

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-auth";
 
 export interface PayoutRequest {
   id: string;
@@ -71,15 +72,12 @@ export const requestPayout = createServerFn({ method: "POST" })
     return (result as { ok: boolean; error?: string }) ?? { ok: false, error: "Could not submit the payout request." };
   });
 
-async function assertAdmin(supabase: { rpc: (n: string, a: Record<string, unknown>) => Promise<{ data: unknown }> }, userId: string) {
-  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (data !== true) throw new Error("Forbidden");
-}
+
 
 export const adminListPayouts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<PayoutRequest[]> => {
-    await assertAdmin(context.supabase as never, context.userId);
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("payout_requests")
@@ -114,6 +112,7 @@ export const adminResolvePayout = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
+    await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: result, error } = await supabaseAdmin.rpc("resolve_payout", {
       _admin_id: context.userId,
