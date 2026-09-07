@@ -20,8 +20,19 @@ const ALLOWED = [
   "getTwoFactorStatus",
 ];
 
+/** The RPC id is a base64url JSON blob: { file, export }. */
 function isAllowed(url: string): boolean {
-  return ALLOWED.some((name) => url.includes(name));
+  const id = new URL(url, "http://localhost").pathname.split("/_serverFn/")[1];
+  if (!id) return false;
+  try {
+    const normalized = decodeURIComponent(id).replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const parsed = JSON.parse(atob(padded)) as { export?: string };
+    const name = parsed.export ?? "";
+    return ALLOWED.some((allowed) => name.startsWith(allowed));
+  } catch {
+    return false;
+  }
 }
 
 export const enforceTwoFactor = createMiddleware({ type: "function" }).server(async ({ next, context }) => {
