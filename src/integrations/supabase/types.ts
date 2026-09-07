@@ -1704,6 +1704,7 @@ export type Database = {
         }
         Returns: Json
       }
+      is_trusted_caller: { Args: never; Returns: boolean }
       pair_hosting_node: {
         Args: {
           _code_hash: string
