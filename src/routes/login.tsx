@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { DiscordButton } from "@/components/auth/DiscordButton";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { supabase } from "@/integrations/supabase/client";
 import { sendTwoFactorCode, startLoginChallenge, verifyTwoFactorCode } from "@/lib/twofa.functions";
 import { TWO_FACTOR_PENDING_KEY } from "@/lib/two-factor-gate";
 
