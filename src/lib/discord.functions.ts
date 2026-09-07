@@ -100,6 +100,8 @@ export const exchangeDiscordCode = createServerFn({ method: "POST" })
     const statePayload = JSON.parse(Buffer.from(data.state, "base64url").toString()) as { u: string };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { encryptDiscordTokens } = await import("./discord-tokens.server");
+    const encrypted = await encryptDiscordTokens(tokenData.access_token, tokenData.refresh_token ?? null);
     const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000).toISOString();
     const { error } = await supabaseAdmin.from("discord_connections").upsert(
       {
@@ -110,8 +112,7 @@ export const exchangeDiscordCode = createServerFn({ method: "POST" })
         avatar_url: user.avatar
           ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
           : null,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token ?? null,
+        ...encrypted,
         scopes: tokenData.scope.split(" "),
         expires_at: expiresAt,
         updated_at: new Date().toISOString(),
