@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-auth";
 import type { Database } from "@/integrations/supabase/types";
 
 export type PostKind = "blog" | "changelog";
@@ -92,18 +93,11 @@ export const getPost = createServerFn({ method: "GET" })
     return row ? toPost(row as PostRow) : null;
   });
 
-async function assertAdmin(context: { supabase: unknown; userId: string }) {
-  const supabase = context.supabase as {
-    rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: unknown }>;
-  };
-  const { data } = await supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-  if (data !== true) throw new Error("Forbidden");
-}
 
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<BlogPost[]> => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { data: rows } = await context.supabase
       .from("blog_posts")
       .select(COLUMNS)
@@ -132,7 +126,7 @@ export const savePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => postInput.parse(data))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const payload = {
       kind: data.kind,
       slug: data.slug,
@@ -174,7 +168,7 @@ export const deletePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    await assertAdmin(context as never);
     const { error } = await context.supabase.from("blog_posts").delete().eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
