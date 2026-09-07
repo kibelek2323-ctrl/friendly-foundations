@@ -43,6 +43,28 @@ function Page() {
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const checkedGate = useRef(false);
+
+  // Sessions created outside the password flow (Google, Discord) — or anyone
+  // who skipped the prompt — land here: the server refuses to serve them until
+  // the code is entered, so ask for it right away.
+  useEffect(() => {
+    if (checkedGate.current) return;
+    checkedGate.current = true;
+    void (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) return;
+      try {
+        const res = await challenge();
+        if (!res.required) return;
+        setMaskedEmail(res.email ?? null);
+        setStep("code");
+        if (!res.sent) setError(res.error ?? "We could not email your code. Use a backup code instead.");
+      } catch {
+        /* challenge unavailable — leave the password form */
+      }
+    })();
+  }, [challenge]);
 
   const cancel = () => {
     localStorage.removeItem(TWO_FACTOR_PENDING_KEY);
