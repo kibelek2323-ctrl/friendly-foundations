@@ -61,6 +61,15 @@ export const loginWithDiscord = createServerFn({ method: "POST" })
       throw new Error("Your Discord account has no email address available. Grant the email permission and retry.");
     }
 
+    // Discord returns the email even when it was never confirmed. Matching an
+    // unverified address to an existing Bottly account would let anyone take
+    // over that account, so require Discord's own verification first.
+    if (du.verified !== true) {
+      throw new Error(
+        "Your Discord email address is not verified. Confirm it in Discord, then try signing in again.",
+      );
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const email = du.email.toLowerCase();
     const displayName = du.global_name ?? du.username;
